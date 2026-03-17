@@ -1142,14 +1142,16 @@ function renderHindrances() {
 
   // Starting tab hindrances — match by name against Hindrances library for severity/effect
   const byStarting = state.starting
-    .filter(s => s.on && (f(s,'type')||'').toLowerCase() === 'hindrance')
+    .filter(s => s.on && ['hindrance','minor','major'].includes((f(s,'type')||'').toLowerCase().trim()))
     .map(s => {
       const nm = f(s,'name')||'';
       // Look up severity/effect from library
       const lib = state.hindrances.find(h=>(h.name||'').toLowerCase().trim()===nm.toLowerCase().trim());
+      const tp = (f(s,'type')||'').trim();
+      const inferredSeverity = (tp.toLowerCase()==='minor'||tp.toLowerCase()==='major') ? tp : '';
       return {
         name: nm,
-        severity: lib ? (lib.severity||'') : (f(s,'type')||''),
+        severity: lib ? (lib.severity||inferredSeverity) : inferredSeverity,
         effect: lib ? (lib.effect||'') : (f(s,'effect')||''),
       };
     });
@@ -1250,7 +1252,11 @@ function renderEdges() {
   const items = [];
   state.starting.forEach(s=>{
     if(s.on) {
-      const nm=f(s,'name')||''; const eff=f(s,'effect')||'';
+      const nm=f(s,'name')||'';
+      const tp=(f(s,'type')||'').toLowerCase().trim();
+      const eff=f(s,'effect')||'';
+      // Skip hindrance entries — they belong in renderHindrances, not here
+      if (tp === 'hindrance' || tp === 'minor' || tp === 'major') return;
       const cls = classifyEdge(nm);
       items.push({cls, html:`<div class="edge-item ${cls==='passive'?'passive-item':''}"><strong>${nm}</strong> — ${eff}</div>`});
     }
@@ -2564,19 +2570,16 @@ async function loadAllSheets() {
       if (!nm || nm.startsWith('⚠') || nm.startsWith('NOTE')) return false;
       return true;
     });
-    // Filter Starting tab — skip section label rows, repeat header rows, and fully empty rows
-    // The new Starting tab has 3 sections each with their own header row
+    // Filter Starting tab — only keep rows that have an actual name filled in
+    // The new Starting tab has 3 sections with section labels, repeat headers, and blank data rows
+    // All of these are skipped — only rows with a real name value are valid entries
     state.starting = startingData
       .filter(s => {
         const nm = (s.name||'').trim();
-        const tp = (s.type||'').trim();
-        const eff = (s.effect||'').trim();
-        // Skip section label rows (contain emoji section headers)
+        // Must have a non-empty name that isn't a section label or repeat header
+        if (!nm) return false;
         if (nm.startsWith('🎭') || nm.startsWith('⚡') || nm.startsWith('🧬') || nm.startsWith('⚠')) return false;
-        // Skip repeat header rows
         if (nm.toLowerCase() === 'name') return false;
-        // Skip completely empty rows (no name, no type, no effect)
-        if (!nm && !tp && !eff) return false;
         return true;
       })
       .map(s=>({...s, on: isTrue(s.defaulton)}));
