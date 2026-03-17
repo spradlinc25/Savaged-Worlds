@@ -2564,7 +2564,22 @@ async function loadAllSheets() {
       if (!nm || nm.startsWith('⚠') || nm.startsWith('NOTE')) return false;
       return true;
     });
-    state.starting     = startingData.map(s=>({...s, on: isTrue(s.defaulton)}));
+    // Filter Starting tab — skip section label rows, repeat header rows, and fully empty rows
+    // The new Starting tab has 3 sections each with their own header row
+    state.starting = startingData
+      .filter(s => {
+        const nm = (s.name||'').trim();
+        const tp = (s.type||'').trim();
+        const eff = (s.effect||'').trim();
+        // Skip section label rows (contain emoji section headers)
+        if (nm.startsWith('🎭') || nm.startsWith('⚡') || nm.startsWith('🧬') || nm.startsWith('⚠')) return false;
+        // Skip repeat header rows
+        if (nm.toLowerCase() === 'name') return false;
+        // Skip completely empty rows (no name, no type, no effect)
+        if (!nm && !tp && !eff) return false;
+        return true;
+      })
+      .map(s=>({...s, on: isTrue(s.defaulton)}));
     state.progressions = progData.map(p=>({...p, checked: false}));
     state.powerTiers   = tierData;
     state.powers       = powersData.map(p=>({...p, active: isTrue(p.defaultactive)}));
