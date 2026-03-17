@@ -1134,13 +1134,41 @@ function toggleUnskilled() {
 // ============================================================
 function renderHindrances() {
   const el=document.getElementById('hindrances-list');
-  const bolo = state.hindrances.filter(h=>isTrue(f(h,'bolohad','bolo_had','bolo')));
-  if(!bolo.length){el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:13px">No hindrances loaded.</div>';return;}
-  const items = bolo.map(h=>{
-    const nm=f(h,'name')||'', sev=f(h,'severity')||'', eff=f(h,'effect')||'';
+
+  // Collect hindrances two ways:
+  // 1. bolohad=TRUE in the Hindrances reference tab (legacy)
+  // 2. type='hindrance' in the Starting tab (new system)
+  const byBolohad = state.hindrances.filter(h=>isTrue(f(h,'bolohad','bolo_had','bolo')));
+
+  // Starting tab hindrances — match by name against Hindrances library for severity/effect
+  const byStarting = state.starting
+    .filter(s => s.on && (f(s,'type')||'').toLowerCase() === 'hindrance')
+    .map(s => {
+      const nm = f(s,'name')||'';
+      // Look up severity/effect from library
+      const lib = state.hindrances.find(h=>(h.name||'').toLowerCase().trim()===nm.toLowerCase().trim());
+      return {
+        name: nm,
+        severity: lib ? (lib.severity||'') : (f(s,'type')||''),
+        effect: lib ? (lib.effect||'') : (f(s,'effect')||''),
+      };
+    });
+
+  // Merge, deduplicate by name
+  const seen = new Set();
+  const allH = [];
+  [...byBolohad, ...byStarting].forEach(h => {
+    const nm = (h.name||'').toLowerCase().trim();
+    if (nm && !seen.has(nm)) { seen.add(nm); allH.push(h); }
+  });
+
+  if(!allH.length){el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:13px">No hindrances. Add to Starting tab (type=hindrance) or set bolohad=TRUE in Hindrances tab.</div>';return;}
+
+  const items = allH.map(h=>{
+    const nm=h.name||'', sev=h.severity||'', eff=h.effect||'';
     const minor = sev.toLowerCase().includes('minor') && !sev.toLowerCase().includes('major');
     const cls = classifyHindrance(nm);
-    return {cls, html:`<div class="hindrance-item${minor?' minor':''} ${cls==='passive'?'passive-item':''}"><strong>${nm}</strong> (${sev}) — ${eff}</div>`};
+    return {cls, html:`<div class="hindrance-item${minor?' minor':''} ${cls==='passive'?'passive-item':''}"><strong>${nm}</strong>${sev?` (${sev})`:''} — ${eff}</div>`};
   });
   el.innerHTML = edgeGroup(items);
 }
