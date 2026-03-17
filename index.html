@@ -457,7 +457,9 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
     <div style="font-size:11px;color:var(--text-dim);line-height:1.6">
       <strong style="color:var(--text-dim)">☁ Optional: Google Drive Sync</strong><br>
       After your sheet loads, click <strong style="color:var(--text)">☁ Sync</strong> in the top bar to enable cross-device sync. 
-      Your save state is stored in your own Google Sheet — nothing goes to any server.
+      Your save state is stored in your own Google Sheet — nothing goes to any server.<br><br>
+      <strong style="color:var(--text-dim)">🔗 Shareable &amp; Bookmarkable</strong><br>
+      Once loaded, the URL updates to include your Sheet ID. Bookmark it or click the 🔗 button in the nav to copy it. Each character has its own unique link.
     </div>
   </div>
 </div>
@@ -494,6 +496,7 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
     <button class="reset-btn" onclick="importSave()" title="Load save file">↑</button>
     <button class="reset-btn" onclick="clearSave()" title="Reset">↺</button>
     <button class="reset-btn" onclick="openChangeSheet()" title="Change character sheet">⚙</button>
+    <button class="reset-btn" id="copy-link-btn" onclick="copySheetLink()" title="Copy shareable link to this character">🔗</button>
   </div>
 </nav>
 
@@ -735,7 +738,15 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 // ============================================================
 // SHEET ID & CSV FETCH
 // ============================================================
-// Sheet ID — loaded from localStorage, set by setup screen
+// Sheet ID — from URL param ?sheet=ID, then localStorage, then setup screen
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const urlSheet = params.get('sheet');
+  if (urlSheet && /^[A-Za-z0-9_-]{20,}$/.test(urlSheet.trim())) {
+    // URL param wins — save it to localStorage too
+    localStorage.setItem('swade_sheet_id', urlSheet.trim());
+  }
+})();
 let SHEET_ID = localStorage.getItem('swade_sheet_id') || '';
 
 function csvUrl(sheetName) {
@@ -2589,7 +2600,14 @@ async function loadAllSheets() {
     renderWeaponsRef();
     renderArmorRef();
 
-    // Update nav character name from sheet (State tab 'name' key, or first attr name)
+    // Update URL bar to reflect current sheet (makes URL always shareable/bookmarkable)
+    const currentParams = new URLSearchParams(window.location.search);
+    if (currentParams.get('sheet') !== SHEET_ID) {
+      const newUrl = `${window.location.pathname}?sheet=${SHEET_ID}`;
+      window.history.replaceState({}, '', newUrl);
+    }
+
+    // Update nav character name from sheet State tab 'name' key
     if (charStateData && charStateData.length) {
       const stateRow = (key) => charStateData.find(r => (r.key||'').toLowerCase().trim() === key);
       const nameRow = stateRow('name');
@@ -2673,6 +2691,10 @@ function setupLoadSheet() {
 
   localStorage.setItem('swade_sheet_id', cleanId);
   SHEET_ID = cleanId;
+
+  // Update URL bar so the sheet link is shareable immediately
+  window.history.replaceState({}, '', `${window.location.pathname}?sheet=${cleanId}`);
+
   hideSetupScreen();
   silentRefresh().then(() => { if (isConnected) setSyncStatus('connected'); });
   loadAllSheets();
@@ -2715,6 +2737,10 @@ function confirmChangeSheet() {
 
   localStorage.setItem('swade_sheet_id', cleanId);
   SHEET_ID = cleanId;
+
+  // Update URL bar so new sheet is bookmarkable immediately
+  window.history.replaceState({}, '', `${window.location.pathname}?sheet=${cleanId}`);
+
   closeChangeSheet();
 
   // Disconnect OAuth since the sheet changed
@@ -2737,6 +2763,25 @@ document.getElementById('change-sheet-id').addEventListener('keydown', e => {
   if (e.key === 'Enter') confirmChangeSheet();
   if (e.key === 'Escape') closeChangeSheet();
 });
+
+// ── Copy shareable link ────────────────────────────────────
+function copySheetLink() {
+  const url = `${window.location.origin}${window.location.pathname}?sheet=${SHEET_ID}`;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copy-link-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 1500);
+  }).catch(() => {
+    prompt('Copy this link:', url);
+  });
+}
 
 // Close modal on backdrop click
 document.getElementById('change-sheet-modal').addEventListener('click', e => {
