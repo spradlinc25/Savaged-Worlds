@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SWADE Character Sheet</title>
+<title>BOLO — SWADE Character Sheet</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0c0f;--surface:#111418;--surface2:#181c22;--border:#2a3040;--accent:#e85d26;--accent2:#f4a436;--green:#3ddc84;--blue:#4dabf7;--red:#ff4444;--muted:#4a5568;--text:#c8d3e0;--text-dim:#7a8aa0;--heading:#ffffff;}
@@ -378,110 +378,14 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .error-msg{background:#1a0a0a;border:1px solid var(--red);border-radius:4px;padding:12px 16px;color:var(--red);font-size:13px;margin-bottom:12px;}
 
 
-/* ── SETUP SCREEN ──────────────────────────────────────────── */
-#setup-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
-.setup-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:100%;max-width:560px;padding:32px 36px;}
-.setup-logo{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--accent);letter-spacing:6px;margin-bottom:4px;}
-.setup-sub{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:28px;}
-.setup-step{margin-bottom:22px;}
-.setup-step-num{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--accent2);margin-bottom:5px;}
-.setup-step h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;}
-.setup-step p{font-size:13px;color:var(--text-dim);line-height:1.5;margin-bottom:8px;}
-.setup-input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:13px;padding:10px 12px;border-radius:4px;outline:none;}
-.setup-input:focus{border-color:var(--accent2);}
-.setup-input.error{border-color:var(--red);}
-.setup-btn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:10px 24px;border-radius:4px;cursor:pointer;border:none;transition:all 0.2s;}
-.setup-btn.primary{background:var(--accent);color:#fff;}
-.setup-btn.primary:hover{background:#d14d1a;}
-.setup-btn.secondary{background:none;border:1px solid var(--border);color:var(--text-dim);}
-.setup-btn.secondary:hover{border-color:var(--accent2);color:var(--accent2);}
-.setup-id-hint{font-size:11px;color:var(--text-dim);margin-top:6px;font-family:'Share Tech Mono',monospace;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:6px 10px;line-height:1.6;}
-.setup-id-hint span{color:var(--accent2);font-weight:700;}
-.setup-divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
-.setup-template-link{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;margin-bottom:8px;}
-.setup-template-icon{font-size:20px;flex-shrink:0;}
-.setup-template-text{font-size:13px;color:var(--text-dim);flex:1;}
-.setup-template-text strong{color:var(--text);display:block;margin-bottom:2px;}
-.setup-error{color:var(--red);font-size:12px;margin-top:6px;display:none;}
-/* ── CHANGE SHEET MODAL ────────────────────────────────────── */
-#change-sheet-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px;}
-#change-sheet-modal.open{display:flex;}
-.change-sheet-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:100%;max-width:480px;padding:24px 28px;}
-.change-sheet-box h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:16px;}
-
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-<!-- ── SETUP OVERLAY (shown on first visit or if no sheet ID) ── -->
-<div id="setup-overlay" style="display:none">
-  <div class="setup-box">
-    <div class="setup-logo">SWADE</div>
-    <div class="setup-sub">Character Sheet</div>
-
-    <div class="setup-step">
-      <div class="setup-step-num">Step 1 — Get Your Sheet</div>
-      <h3>Don't have a character sheet yet?</h3>
-      <div class="setup-template-link">
-        <div class="setup-template-icon">📋</div>
-        <div class="setup-template-text">
-          <strong>Copy the Character Sheet Template</strong>
-          Opens Google Sheets — click "Make a copy" to get your own editable sheet.
-        </div>
-        <a href="https://docs.google.com/spreadsheets/d/1nT2vNBvf2C49CmY9X5WAHgZh3zi17PABeBsY5r4Tw0I/copy" target="_blank" class="setup-btn secondary" style="text-decoration:none;white-space:nowrap">Open Template →</a>
-      </div>
-      <p style="font-size:12px;color:var(--text-dim)">After copying: fill in your character's Attributes, Skills, Starting edges, Advances, and Powers. Make sure sharing is set to <strong style="color:var(--text)">"Anyone with the link can view."</strong></p>
-    </div>
-
-    <hr class="setup-divider">
-
-    <div class="setup-step">
-      <div class="setup-step-num">Step 2 — Enter Your Sheet ID</div>
-      <h3>Paste your Google Sheet ID below</h3>
-      <div class="setup-id-hint">
-        Find it in your sheet's URL:<br>
-        docs.google.com/spreadsheets/d/<span>← YOUR ID HERE →</span>/edit
-      </div>
-      <div style="height:10px"></div>
-      <input class="setup-input" id="setup-sheet-id" placeholder="Paste Sheet ID here..." autocomplete="off" spellcheck="false">
-      <div class="setup-error" id="setup-error">⚠ Please enter a valid Sheet ID</div>
-    </div>
-
-    <div style="display:flex;justify-content:flex-end;margin-top:20px">
-      <button class="setup-btn primary" onclick="setupLoadSheet()">Load My Sheet →</button>
-    </div>
-
-    <hr class="setup-divider">
-
-    <div style="font-size:11px;color:var(--text-dim);line-height:1.6">
-      <strong style="color:var(--text-dim)">☁ Optional: Google Drive Sync</strong><br>
-      After your sheet loads, click <strong style="color:var(--text)">☁ Sync</strong> in the top bar to enable cross-device sync. 
-      Your save state is stored in your own Google Sheet — nothing goes to any server.<br><br>
-      <strong style="color:var(--text-dim)">🔗 Shareable &amp; Bookmarkable</strong><br>
-      Once loaded, the URL updates to include your Sheet ID. Bookmark it or click the 🔗 button in the nav to copy it. Each character has its own unique link.
-    </div>
-  </div>
-</div>
-
-<!-- ── CHANGE SHEET MODAL ── -->
-<div id="change-sheet-modal">
-  <div class="change-sheet-box">
-    <h2>⚙ Change Sheet</h2>
-    <p style="font-size:13px;color:var(--text-dim);margin-bottom:14px">Enter a different Sheet ID to load a different character. Your current save state will remain in localStorage for this device.</p>
-    <input class="setup-input" id="change-sheet-id" placeholder="Paste Sheet ID here..." autocomplete="off" spellcheck="false">
-    <div class="setup-error" id="change-sheet-error">⚠ Please enter a valid Sheet ID</div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
-      <button class="setup-btn secondary" onclick="closeChangeSheet()">Cancel</button>
-      <button class="setup-btn primary" onclick="confirmChangeSheet()">Load Sheet →</button>
-    </div>
-  </div>
-</div>
-
-
 <nav>
-  <div class="nav-title" id="nav-char-name" style="cursor:default">SWADE</div>
-  <div class="nav-sub" id="nav-char-sub" style="display:none">—&nbsp;<span id="nav-rank-display">Novice</span></div>
+  <div class="nav-title">BOLO</div>
+  <div class="nav-sub">Czarnian · <span id="nav-rank-display">Novice</span></div>
   <div class="nav-tabs">
     <button class="active" onclick="showTab('sheet',this)">Character</button>
     <button onclick="showTab('progressions',this)">Advances</button>
@@ -495,8 +399,6 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
     <button class="reset-btn" onclick="exportSave()" title="Download save file">↓</button>
     <button class="reset-btn" onclick="importSave()" title="Load save file">↑</button>
     <button class="reset-btn" onclick="clearSave()" title="Reset">↺</button>
-    <button class="reset-btn" onclick="openChangeSheet()" title="Change character sheet">⚙</button>
-    <button class="reset-btn" id="copy-link-btn" onclick="copySheetLink()" title="Copy shareable link to this character">🔗</button>
   </div>
 </nav>
 
@@ -738,16 +640,7 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 // ============================================================
 // SHEET ID & CSV FETCH
 // ============================================================
-// Sheet ID — from URL param ?sheet=ID, then localStorage, then setup screen
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const urlSheet = params.get('sheet');
-  if (urlSheet && /^[A-Za-z0-9_-]{20,}$/.test(urlSheet.trim())) {
-    // URL param wins — save it to localStorage too
-    localStorage.setItem('swade_sheet_id', urlSheet.trim());
-  }
-})();
-let SHEET_ID = localStorage.getItem('swade_sheet_id') || '';
+const SHEET_ID = '1f67_HPOwE7BQ82ihH7YVM-QuNnZStdF3Y-GWqnIfH5Q';
 
 function csvUrl(sheetName) {
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
@@ -2628,24 +2521,6 @@ async function loadAllSheets() {
     renderWeaponsRef();
     renderArmorRef();
 
-    // Update URL bar to reflect current sheet (makes URL always shareable/bookmarkable)
-    const currentParams = new URLSearchParams(window.location.search);
-    if (currentParams.get('sheet') !== SHEET_ID) {
-      const newUrl = `${window.location.pathname}?sheet=${SHEET_ID}`;
-      window.history.replaceState({}, '', newUrl);
-    }
-
-    // Update nav character name from sheet State tab 'name' key
-    if (charStateData && charStateData.length) {
-      const stateRow = (key) => charStateData.find(r => (r.key||'').toLowerCase().trim() === key);
-      const nameRow = stateRow('name');
-      const charName = nameRow ? nameRow.value : '';
-      if (charName) {
-        document.getElementById('nav-char-name').textContent = charName;
-        document.getElementById('nav-char-sub').style.display = '';
-      }
-    }
-
     // Update status bar
     if (isConnected) {
       setSyncStatus('connected');
@@ -2666,156 +2541,10 @@ async function loadAllSheets() {
 }
 
 // Boot — try silent OAuth restore, then load sheet data
-// ── Boot sequence ────────────────────────────────────────────
-async function boot() {
-  if (!SHEET_ID) {
-    showSetupScreen();
-    return;
-  }
-  silentRefresh().then(() => {
-    if (isConnected) setSyncStatus('connected');
-  });
-  loadAllSheets();
-}
-
-boot();
-
-// ============================================================
-// SETUP SCREEN + CHANGE SHEET
-// ============================================================
-function showSetupScreen() {
-  document.getElementById('setup-overlay').style.display = 'flex';
-  // Pre-fill if there's already a stored ID
-  const stored = localStorage.getItem('swade_sheet_id');
-  if (stored) document.getElementById('setup-sheet-id').value = stored;
-}
-
-function hideSetupScreen() {
-  document.getElementById('setup-overlay').style.display = 'none';
-}
-
-function validateSheetId(id) {
-  // Google Sheet IDs are 44-char alphanumeric + hyphens/underscores
-  return id && id.trim().length > 20 && /^[A-Za-z0-9_-]+$/.test(id.trim());
-}
-
-function setupLoadSheet() {
-  const raw = document.getElementById('setup-sheet-id').value;
-  const id = raw.trim();
-  const errEl = document.getElementById('setup-error');
-  const inputEl = document.getElementById('setup-sheet-id');
-
-  // Also accept full URLs — extract ID from them
-  const urlMatch = id.match(/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
-  const cleanId = urlMatch ? urlMatch[1] : id;
-
-  if (!validateSheetId(cleanId)) {
-    errEl.style.display = 'block';
-    inputEl.classList.add('error');
-    return;
-  }
-  errEl.style.display = 'none';
-  inputEl.classList.remove('error');
-
-  localStorage.setItem('swade_sheet_id', cleanId);
-  SHEET_ID = cleanId;
-
-  // Update URL bar so the sheet link is shareable immediately
-  window.history.replaceState({}, '', `${window.location.pathname}?sheet=${cleanId}`);
-
-  hideSetupScreen();
-  silentRefresh().then(() => { if (isConnected) setSyncStatus('connected'); });
-  loadAllSheets();
-}
-
-// Allow Enter key to submit
-document.getElementById('setup-sheet-id').addEventListener('keydown', e => {
-  if (e.key === 'Enter') setupLoadSheet();
+silentRefresh().then(() => {
+  if (isConnected) setSyncStatus('connected');
 });
-
-// ── Change Sheet modal ──────────────────────────────────────
-function openChangeSheet() {
-  const modal = document.getElementById('change-sheet-modal');
-  document.getElementById('change-sheet-id').value = SHEET_ID;
-  document.getElementById('change-sheet-error').style.display = 'none';
-  modal.classList.add('open');
-  setTimeout(() => document.getElementById('change-sheet-id').focus(), 50);
-}
-
-function closeChangeSheet() {
-  document.getElementById('change-sheet-modal').classList.remove('open');
-}
-
-function confirmChangeSheet() {
-  const raw = document.getElementById('change-sheet-id').value;
-  const id = raw.trim();
-  const errEl = document.getElementById('change-sheet-error');
-  const inputEl = document.getElementById('change-sheet-id');
-
-  const urlMatch = id.match(/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
-  const cleanId = urlMatch ? urlMatch[1] : id;
-
-  if (!validateSheetId(cleanId)) {
-    errEl.style.display = 'block';
-    inputEl.classList.add('error');
-    return;
-  }
-  errEl.style.display = 'none';
-  inputEl.classList.remove('error');
-
-  localStorage.setItem('swade_sheet_id', cleanId);
-  SHEET_ID = cleanId;
-
-  // Update URL bar so new sheet is bookmarkable immediately
-  window.history.replaceState({}, '', `${window.location.pathname}?sheet=${cleanId}`);
-
-  closeChangeSheet();
-
-  // Disconnect OAuth since the sheet changed
-  if (isConnected) { gAuthToken = null; gTokenExpiry = 0; isConnected = false; setSyncStatus('disconnected'); }
-
-  // Show loading spinners again
-  ['sheet-loading','prog-loading','powers-loading','ref-loading'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.style.display = ''; el.innerHTML = '<span class=\"loading-spinner\"></span>Loading...'; }
-  });
-  ['sheet-content','prog-content','powers-content','ref-content'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-
-  loadAllSheets();
-}
-
-document.getElementById('change-sheet-id').addEventListener('keydown', e => {
-  if (e.key === 'Enter') confirmChangeSheet();
-  if (e.key === 'Escape') closeChangeSheet();
-});
-
-// ── Copy shareable link ────────────────────────────────────
-function copySheetLink() {
-  const url = `${window.location.origin}${window.location.pathname}?sheet=${SHEET_ID}`;
-  navigator.clipboard.writeText(url).then(() => {
-    const btn = document.getElementById('copy-link-btn');
-    const orig = btn.textContent;
-    btn.textContent = '✓';
-    btn.style.color = 'var(--green)';
-    btn.style.borderColor = 'var(--green)';
-    setTimeout(() => {
-      btn.textContent = orig;
-      btn.style.color = '';
-      btn.style.borderColor = '';
-    }, 1500);
-  }).catch(() => {
-    prompt('Copy this link:', url);
-  });
-}
-
-// Close modal on backdrop click
-document.getElementById('change-sheet-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('change-sheet-modal')) closeChangeSheet();
-});
-
+loadAllSheets();
 </script>
 </body>
 </html>
