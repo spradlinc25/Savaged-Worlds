@@ -10,3037 +10,491 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;}
 
-/* NAV — sticky, slim, always visible */
-nav{background:#0d0f13;border-bottom:2px solid var(--accent);display:flex;align-items:center;position:sticky;top:0;z-index:100;padding:0 10px;flex-wrap:wrap;min-height:40px;}
-.nav-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);letter-spacing:3px;padding-right:10px;border-right:1px solid var(--border);margin-right:6px;white-space:nowrap;line-height:40px;flex-shrink:0;}
-.nav-sub{font-size:9px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;padding-right:10px;border-right:1px solid var(--border);margin-right:4px;white-space:nowrap;flex-shrink:0;}
-#nav-rank-display{color:var(--accent2);font-weight:700;}
-.nav-tabs{display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0;}
-.nav-tabs::-webkit-scrollbar{display:none;}
-nav button{background:none;border:none;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:11px 9px;cursor:pointer;transition:all 0.2s;border-bottom:2px solid transparent;position:relative;top:1px;white-space:nowrap;}
-nav button:hover{color:var(--text);}
-nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
-.nav-right{display:flex;align-items:center;gap:4px;padding:4px 0 4px 6px;flex-shrink:0;}
-#save-indicator{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);white-space:nowrap;}
-.reset-btn{background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:3px;cursor:pointer;white-space:nowrap;}
-.reset-btn:hover{border-color:var(--red);color:var(--red);}
-.sync-btn{font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:3px;cursor:pointer;transition:all 0.2s;border:1px solid;white-space:nowrap;}
-.sync-btn.connect{border-color:var(--blue);color:var(--blue);background:none;}
-.sync-btn.connect:hover{background:var(--blue);color:var(--bg);}
-.sync-btn.connected{border-color:var(--green);color:var(--green);background:none;}
-.sync-btn.connected:hover{border-color:var(--red);color:var(--red);}
-.sync-btn.saving{border-color:var(--accent2);color:var(--accent2);background:none;pointer-events:none;}
-.sync-status{font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+/* NAV */
+nav{background:#0d0f13;border-bottom:2px solid var(--accent);display:flex;align-items:center;position:sticky;top:0;z-index:1000;padding:0 12px;height:48px;box-shadow:0 4px 12px rgba(0,0,0,0.5);}
+.logo-container{display:flex;align-items:center;gap:8px;margin-right:auto;}
+.logo{font-family:'Bebas Neue',cursive;font-size:24px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;}
+.sheet-id-badge{font-family:'Share Tech Mono',monospace;font-size:11px;background:var(--surface2);padding:2px 8px;border:1px solid var(--border);border-radius:4px;color:var(--accent2);cursor:pointer;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nav-tabs{display:flex;height:100%;}
+.nav-tab{height:100%;padding:0 16px;display:flex;align-items:center;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-dim);font-weight:600;transition:0.2s;text-transform:uppercase;letter-spacing:1px;font-size:14px;}
+.nav-tab:hover{background:rgba(232,93,38,0.05);color:var(--text);}
+.nav-tab.active{color:var(--accent);border-color:var(--accent);background:rgba(232,93,38,0.1);}
+.nav-actions{display:flex;align-items:center;gap:8px;margin-left:12px;}
+.btn-icon{background:none;border:1px solid var(--border);color:var(--text-dim);width:32px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.2s;}
+.btn-icon:hover{border-color:var(--accent);color:var(--accent);}
 
-/* STAT BAR — scrolls with page, collapsible on mobile */
-.stat-bar{background:var(--surface);border-bottom:1px solid var(--border);}
-.stat-bar-toggle{display:none;width:100%;background:var(--surface2);border:none;border-bottom:1px solid var(--border);color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;cursor:pointer;text-align:left;}
-.stat-bar-inner{display:flex;flex-wrap:wrap;align-items:stretch;}
-.stat-bar-inner.sb-collapsed{display:none;}
-.stat-pill{display:flex;align-items:center;gap:5px;padding:5px 10px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
-.spl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-weight:600;white-space:nowrap;}
-.spv{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--accent2);font-weight:bold;}
-.spv.green{color:var(--green);}.spv.blue{color:var(--blue);}
-.bennies-track{display:flex;gap:3px;align-items:center;}
-.benny{width:18px;height:18px;border-radius:50%;border:2px solid var(--accent2);background:var(--accent2);cursor:pointer;transition:all 0.2s;position:relative;flex-shrink:0;}
-.benny::after{content:'★';color:var(--bg);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:8px;}
-.benny.spent{background:transparent;border-color:var(--muted);opacity:0.4;}
-.benny.spent::after{color:var(--muted);}
-.btn-tiny{background:none;border:1px solid var(--border);color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;cursor:pointer;}
-.btn-tiny:hover{border-color:var(--accent2);color:var(--accent2);}
+/* LAYOUT */
+main{max-width:1400px;margin:12px auto;padding:0 12px 100px 12px;}
+.view{display:none;}
+.view.active{display:block;animation:fadeIn 0.3s ease-out;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+.dashboard-grid{display:grid;grid-template-columns:300px 1fr 340px;gap:12px;}
+.sheet-col{display:flex;flex-direction:column;gap:12px;}
 
-/* SHAKEN / FF TOGGLES */
-.tog-btn{padding:2px 7px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;color:var(--text-dim);white-space:nowrap;}
-.tog-btn.shaken-on{background:#1a1000;border-color:var(--accent2);color:var(--accent2);}
-.tog-btn.ff-on{background:#0a1520;border-color:var(--blue);color:var(--blue);}
-.tog-btn.ff-down{background:#1a0505;border-color:var(--red);color:var(--red);text-decoration:line-through;opacity:0.7;}
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.25);}
+.card-header{background:var(--surface2);padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;min-height:36px;}
+.card-title{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--heading);letter-spacing:0.5px;display:flex;align-items:center;gap:6px;}
+.card-body{padding:12px;}
 
-/* COMPACT WOUND/FATIGUE IN STAT BAR */
-.sb-track{display:flex;flex-direction:column;gap:2px;}
-.sb-track-row{display:flex;gap:2px;align-items:center;}
-.sb-track-label{font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);font-weight:600;min-width:36px;}
-.sb-box{width:20px;height:20px;border:2px solid var(--border);border-radius:3px;background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;font-size:7px;font-weight:700;color:var(--text-dim);}
-.sb-box:hover{border-color:var(--accent2);}
-.sb-box.wound-on{background:#3a1010;border-color:var(--red);color:var(--red);}
-.sb-box.fatigue-on{background:#1a1a0a;border-color:var(--accent2);color:var(--accent2);}
-.sb-box.incap-box{border-color:var(--muted);}
-.sb-box.incap-box.incap-on{background:var(--red);border-color:var(--red);color:white;}
-.sb-box.nos-box{opacity:0.45;border-style:dashed;}
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;justify-content:center;}
+.stat-box .label{font-size:10px;color:var(--text-dim);text-transform:uppercase;font-weight:700;}
+.stat-box .val{font-family:'Share Tech Mono',monospace;font-size:22px;color:var(--accent2);line-height:1;}
+.stat-box .sub{font-size:10px;color:var(--muted);margin-top:2px;}
 
-/* MOBILE ACCORDION for Reference tab */
-.acc-list{display:none;}
-.acc-item{border-bottom:1px solid var(--border);}
-.acc-header{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;gap:8px;background:var(--surface);}
-.acc-header:active{background:var(--surface2);}
-.acc-name{font-weight:700;font-size:14px;color:var(--heading);flex:1;}
-.acc-meta{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.acc-arrow{font-size:10px;color:var(--text-dim);transition:transform 0.2s;flex-shrink:0;}
-.acc-item.open .acc-arrow{transform:rotate(180deg);}
-.acc-body{display:none;padding:8px 12px 12px;background:var(--surface2);border-top:1px solid var(--border);}
-.acc-item.open .acc-body{display:block;}
-.acc-row{display:flex;gap:6px;margin-bottom:5px;font-size:13px;}
-.acc-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);font-weight:600;min-width:60px;flex-shrink:0;padding-top:1px;}
-.acc-val{color:var(--text);flex:1;}
+/* LISTS & TABLES */
+.attr-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);}
+.skill-list{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;}
+.skill-item{display:flex;align-items:center;justify-content:space-between;padding:4px 6px;border-radius:4px;}
+.dice-pill{background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:20px;font-family:'Share Tech Mono',monospace;color:var(--accent2);font-weight:700;cursor:pointer;}
+.item-table{width:100%;border-collapse:collapse;}
+.item-table th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;padding:4px 8px;border-bottom:1px solid var(--border);}
+.item-table td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:top;}
+.section-divider{background:var(--surface2);padding:4px 8px;font-size:11px;color:var(--text-dim);text-transform:uppercase;font-weight:700;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
 
-@media(max-width:600px){
-  /* Show accordion, hide table */
-  .acc-list{display:block;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
-  .ref-wrap{display:none;}
-  .ref-search{display:block;}
-  /* Nav — tabs on row 1 full width, sync buttons wrap to row 2 */
-  .nav-sub{display:none;}
-  nav{padding:0 4px;flex-wrap:wrap;}
-  .nav-title{font-size:15px;padding-right:6px;margin-right:3px;line-height:36px;}
-  .nav-tabs{width:100%;order:1;overflow-x:auto;border-bottom:none;-webkit-overflow-scrolling:touch;}
-  nav button{font-size:10px;padding:8px 6px;letter-spacing:0;white-space:nowrap;}
-  .nav-right{order:2;width:100%;border-top:1px solid var(--border);padding:2px 0;background:#0d0f13;justify-content:flex-end;gap:3px;}
-  #save-indicator{display:inline;font-size:8px;}
-  .sync-btn{font-size:8px;padding:2px 5px;}
-  .reset-btn{font-size:8px;padding:2px 5px;}
-  /* Stat bar collapse */
-  .stat-bar-toggle{display:block;}
-  .stat-bar-inner.sb-collapsed{display:none;}
-  .stat-pill{border-right:none;}
-  /* Tighten tab content padding */
-  .tab{padding:8px;}
-  .card{padding:10px;}
-  .mb{margin-bottom:10px;}
-  /* Reference — stack to single col */
-  .ref-grid{grid-template-columns:1fr;}
-  .ref-table{min-width:0;font-size:11px;width:100%;}
-  .ref-table td,.ref-table th{padding:4px 6px;}
-  #sp-ref-table .sp-notes-col{display:none;}
-  .ref-col-hide-mobile{display:none;}
-  .ref-search{font-size:13px;padding:6px 10px;}
-  /* Char top grid — stack to single col */
-  .char-top-grid{grid-template-columns:1fr !important;}
-  /* Attrs/Skills — tighter rows */
-  .attr-table td{padding:2px 0;}
-  .aname{font-size:13px;min-width:80px;}
-  .die-dot{width:16px;height:16px;font-size:7px;}
-  .die-val{font-size:15px;min-width:32px;}
-  .grid-2{grid-template-columns:1fr;}
-  /* Progressions — collapse to 2-col, show inline desc, hide desktop cols */
-  .prog-row{grid-template-columns:32px 1fr;}
-  .prog-col-desktop{display:none;}
-  .prog-eff-mobile{display:block;}
-  .prog-tbadge{display:inline-block;}
-}
+/* BUTTONS */
+.btn-action{background:var(--accent);color:white;border:none;padding:6px 10px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer;text-transform:uppercase;font-size:11px;}
+.btn-outline{background:none;border:1px solid var(--border);color:var(--text-dim);padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;}
+.btn-outline.active{border-color:var(--accent);color:var(--accent);}
 
-/* TABS */
-.tab{display:none;padding:16px;max-width:1400px;margin:0 auto;}
-.tab.active{display:block;}
-.section-header{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:3px;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
-.section-header::before{content:'';display:block;width:4px;height:18px;background:var(--accent);border-radius:2px;}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.mb{margin-bottom:16px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;}
+/* TRACKS */
+.track-row{display:flex;gap:4px;margin-top:8px;}
+.track-box{flex:1;height:30px;border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Share Tech Mono',monospace;font-weight:700;}
+.track-box.wound.active{background:var(--red);color:white;}
+.track-box.fatigue.active{background:var(--blue);color:white;}
 
-/* ATTRS / SKILLS */
-.attr-table{width:100%;border-collapse:collapse;}
-.attr-table th{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-weight:600;padding:0 6px 5px 0;text-align:left;}
-.attr-table td{padding:1px 0;}
-.aname{font-weight:700;font-size:14px;color:var(--heading);min-width:90px;}
-.die-cells{display:flex;gap:3px;align-items:center;}
-.die-dot{width:20px;height:20px;border-radius:3px;border:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;}
-.die-dot.filled{background:var(--accent);border-color:var(--accent);color:white;font-weight:bold;}
-.die-val{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent2);letter-spacing:1px;min-width:46px;text-align:right;}
+/* MODALS */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal{background:var(--surface);border:1px solid var(--accent);width:90%;max-width:400px;border-radius:8px;padding:24px;}
+.modal-input{width:100%;background:var(--bg);border:1px solid var(--border);padding:12px;color:white;font-family:'Share Tech Mono',monospace;margin:12px 0;border-radius:4px;}
 
-/* HINDRANCES / EDGES */
-.passive-item { opacity: 0.65; }
-.hindrance-item{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:4px;padding:9px 12px;font-size:14px;margin-bottom:7px;}
-.hindrance-item.minor{border-left-color:var(--accent2);}
-.edge-item{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:9px 12px;font-size:14px;margin-bottom:7px;}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border-left:4px solid var(--accent);padding:12px 20px;border-radius:4px;transform:translateY(100px);opacity:0;transition:0.4s;z-index:3000;}
+.toast.show{transform:translateY(0);opacity:1;}
+.loading-spinner{width:18px;height:18px;border:2px solid rgba(232,93,38,0.2);border-top:2px solid var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-/* SUPER POWERS SUMMARY */
-.sp-section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:hidden;}
-.sp-section-header{padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);cursor:pointer;}
-.sp-section-header:hover{background:#1e2530;}
-.sp-section-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;}
-.sp-row{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;font-size:13px;}
-.sp-row:last-child{border-bottom:none;}
-.sp-row:hover{background:#1a1f28;}
-.sp-row.sp-on{background:#0f1a14;}
-.sp-row.sp-on .sp-name{color:var(--green);}
-.sp-check{width:20px;height:20px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s;flex-shrink:0;}
-.sp-row.sp-on .sp-check{background:var(--green);border-color:var(--green);color:var(--bg);}
-.sp-name{font-weight:700;}
-.sp-detail{font-size:11px;color:var(--text-dim);}
-.sp-spp{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--accent2);white-space:nowrap;}
-
-/* WEAPONS */
-.weapon-table{width:100%;border-collapse:collapse;}
-.weapon-table th{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-weight:600;padding:0 10px 8px 0;text-align:left;}
-.weapon-table td{padding:8px 10px 8px 0;border-bottom:1px solid var(--border);vertical-align:middle;}
-.weapon-table tr:last-child td{border-bottom:none;}
-.wname{font-weight:700;font-size:15px;color:var(--heading);}
-.wsource{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);padding:2px 6px;border:1px solid var(--border);border-radius:3px;display:inline-block;margin-top:3px;}
-.wdmg{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent2);letter-spacing:1px;}
-.wdmg.up{color:var(--green);}
-.wtag{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:1px 5px;border-radius:3px;border:1px solid var(--accent);color:var(--accent);margin-right:3px;margin-bottom:2px;}
-.wtag.heavy{border-color:var(--red);color:var(--red);}
-.wtag.natural{border-color:var(--blue);color:var(--blue);}
-
-/* GEAR TABLE */
-.gear-table{width:100%;border-collapse:collapse;font-size:13px;}
-.gear-table th{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-weight:600;padding:0 8px 7px 0;text-align:left;}
-.gear-table td{padding:6px 8px 6px 0;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;}
-.gear-table tr:last-child td{border-bottom:none;}
-.gear-table tr:hover td{background:var(--surface2);}
-.book-tag{font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:1px 5px;border-radius:3px;display:inline-block;}
-.book-tag.swade{border:1px solid var(--blue);color:var(--blue);}
-.book-tag.spc{border:1px solid var(--accent2);color:var(--accent2);}
-
-/* PROGRESSIONS */
-.prog-tier{margin-bottom:20px;}
-.tier-badge{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:3px 10px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);margin-bottom:10px;display:inline-block;}
-.tier-badge.novice{border-color:#4dabf7;color:#4dabf7;}.tier-badge.seasoned{border-color:#3ddc84;color:#3ddc84;}.tier-badge.veteran{border-color:#f4a436;color:#f4a436;}.tier-badge.heroic{border-color:#e85d26;color:#e85d26;}.tier-badge.legendary{border-color:#cc44ff;color:#cc44ff;}
-.prog-row{display:grid;grid-template-columns:36px 1fr 110px 1fr;align-items:start;gap:10px;padding:9px 12px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);margin-bottom:5px;cursor:pointer;transition:all 0.2s;}
-.prog-row:hover{border-color:var(--accent2);}
-.prog-row.checked{background:#0f1a0f;border-color:var(--green);}
-.prog-row.checked .prog-sel{color:var(--green);}
-.prog-chk{width:22px;height:22px;border:2px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.2s;flex-shrink:0;}
-.prog-row.checked .prog-chk{background:var(--green);border-color:var(--green);color:var(--bg);}
-.prog-sel{font-weight:700;font-size:15px;}
-.prog-pre{font-size:11px;color:var(--text-dim);}
-.prog-tbadge{font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:2px 7px;border:1px solid var(--border);border-radius:3px;text-align:center;color:var(--text-dim);}
-.prog-tbadge.attribute{border-color:var(--blue);color:var(--blue);}.prog-tbadge.skill{border-color:var(--accent2);color:var(--accent2);}.prog-tbadge.edge{border-color:var(--accent);color:var(--accent);}.prog-tbadge.open{border-color:#cc44ff;color:#cc44ff;}
-.prog-eff{font-size:12px;color:var(--text-dim);}
-.prog-eff-mobile{display:none;font-size:12px;color:var(--text-dim);margin-top:3px;}
-.prog-col-desktop{display:block;}
-.starting-row{display:grid;grid-template-columns:36px 1fr 1fr;align-items:center;gap:10px;padding:9px 12px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);margin-bottom:5px;cursor:pointer;transition:all 0.2s;}
-.starting-row:hover{border-color:var(--accent2);}
-.starting-row.checked{background:#0f150f;border-color:var(--green);}
-.starting-row.checked .prog-sel{color:var(--green);}
-
-/* POWER TIERS */
-.power-tier{margin-bottom:20px;}
-.pt-header{background:var(--surface2);border:1px solid var(--border);border-radius:6px 6px 0 0;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background 0.2s;}
-.pt-header:hover{background:#1e2530;}
-.pt-header.tier-on{border-color:var(--accent);}
-.pt-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--heading);}
-.pt-list{border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;overflow:hidden;}
-.pt-colhdr{display:grid;grid-template-columns:30px 1fr 110px 50px 50px 50px;gap:8px;padding:7px 12px;background:var(--surface);border-bottom:1px solid var(--border);}
-.pt-row{display:grid;grid-template-columns:30px 1fr 110px 50px 50px 50px;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;}
-.pt-row:last-child{border-bottom:none;}
-.pt-row:hover{background:#1a1f28;}
-.pt-row.pt-on{background:#0f1a14;}
-.pt-row.pt-on .pt-pname{color:var(--green);}
-.pt-check{width:20px;height:20px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s;}
-.pt-row.pt-on .pt-check{background:var(--green);border-color:var(--green);color:var(--bg);}
-.pt-pname{font-weight:700;font-size:14px;}
-.pt-mod{font-size:11px;color:var(--text-dim);font-style:italic;text-align:center;}
-.col-c{font-family:'Share Tech Mono',monospace;font-size:12px;text-align:center;color:var(--text);}
-.col-spp{font-family:'Share Tech Mono',monospace;font-size:13px;text-align:center;color:var(--accent2);font-weight:bold;}
-.col-h{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);text-align:center;}
-
-/* REFERENCE TABS */
-.ref-search{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:8px 14px;border-radius:4px;margin-bottom:12px;outline:none;}
-.ref-search:focus{border-color:var(--accent2);}
-.ref-table{width:100%;border-collapse:collapse;font-size:13px;}
-.ref-table th{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-weight:600;padding:6px 10px;text-align:left;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;}
-.ref-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;}
-.ref-table tr:hover td{background:var(--surface2);}
-.ref-wrap{max-height:420px;overflow-y:auto;overflow-x:auto;border:1px solid var(--border);border-radius:4px;}
-.ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-
-/* Acquire/Remove button in library */
-.btn-acquire{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:3px;cursor:pointer;border:1px solid var(--green);color:var(--green);background:none;transition:all 0.2s;white-space:nowrap;}
-.btn-acquire:hover{background:var(--green);color:var(--bg);}
-.btn-acquire.acquired{border-color:var(--red);color:var(--red);}
-.btn-acquire.acquired:hover{background:var(--red);color:var(--bg);}
-.btn-equip{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:3px;cursor:pointer;border:1px solid var(--accent2);color:var(--accent2);background:none;transition:all 0.2s;white-space:nowrap;margin-left:4px;}
-.btn-equip:hover{background:var(--accent2);color:var(--bg);}
-.btn-equip.equipped{border-color:var(--blue);color:var(--blue);}
-.btn-equip.equipped:hover{background:var(--blue);color:var(--bg);}
-.gear-divider{border:none;border-top:1px solid var(--border);margin:8px 0;opacity:0.5;}
-.gear-section-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);font-weight:600;margin:6px 0 3px;}
-
-/* DICE */
-.dice-section{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:16px;}
-.dice-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;}
-.die-btn{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:4px;cursor:pointer;transition:all 0.2s;min-width:56px;text-align:center;}
-.die-btn:hover{border-color:var(--accent);color:var(--accent);}
-.die-btn.wild-die{border-color:var(--accent2);color:var(--accent2);}
-.roll-result{margin-top:12px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;gap:14px;}
-.roll-num{font-family:'Bebas Neue',sans-serif;font-size:46px;color:var(--accent2);line-height:1;}
-.roll-suc{font-size:15px;font-weight:700;}
-.roll-suc.success{color:var(--green);}.roll-suc.raise{color:var(--accent2);}.roll-suc.fail{color:var(--red);}
-.roll-det{font-size:12px;color:var(--text-dim);}
-
-/* LOADING */
-.loading{text-align:center;padding:40px;color:var(--text-dim);font-size:13px;letter-spacing:1px;}
-.loading-spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:10px;vertical-align:middle;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.error-msg{background:#1a0a0a;border:1px solid var(--red);border-radius:4px;padding:12px 16px;color:var(--red);font-size:13px;margin-bottom:12px;}
-.pval{font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:bold;}
-.pval.danger{color:var(--red);}.pval.warning{color:var(--accent2);}.pval.ok{color:var(--green);}
-.incap-warn{background:#1a0505;border:2px solid var(--red);border-radius:6px;padding:10px 14px;color:var(--red);font-weight:700;text-align:center;margin-top:10px;font-size:15px;display:none;letter-spacing:1px;}
-.incap-warn.show{display:block;}
-
-
-
-/* HINDRANCES / EDGES */
-.passive-item { opacity: 0.65; }
-.hindrance-item{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:4px;padding:9px 12px;font-size:14px;margin-bottom:7px;}
-.hindrance-item.minor{border-left-color:var(--accent2);}
-.edge-item{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:9px 12px;font-size:14px;margin-bottom:7px;}
-
-/* SUPER POWERS SUMMARY */
-.sp-section{background:var(--surface2);border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:hidden;}
-.sp-section-header{padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);cursor:pointer;}
-.sp-section-header:hover{background:#1e2530;}
-.sp-section-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;}
-.sp-row{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;font-size:13px;}
-.sp-row:last-child{border-bottom:none;}
-.sp-row:hover{background:#1a1f28;}
-.sp-row.sp-on{background:#0f1a14;}
-.sp-row.sp-on .sp-name{color:var(--green);}
-.sp-check{width:20px;height:20px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s;flex-shrink:0;}
-.sp-row.sp-on .sp-check{background:var(--green);border-color:var(--green);color:var(--bg);}
-.sp-name{font-weight:700;}
-.sp-detail{font-size:11px;color:var(--text-dim);}
-.sp-spp{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--accent2);white-space:nowrap;}
-
-/* WEAPONS */
-.weapon-table{width:100%;border-collapse:collapse;}
-.weapon-table th{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-weight:600;padding:0 10px 8px 0;text-align:left;}
-.weapon-table td{padding:8px 10px 8px 0;border-bottom:1px solid var(--border);vertical-align:middle;}
-.weapon-table tr:last-child td{border-bottom:none;}
-.wname{font-weight:700;font-size:15px;color:var(--heading);}
-.wsource{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);padding:2px 6px;border:1px solid var(--border);border-radius:3px;display:inline-block;margin-top:3px;}
-.wdmg{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent2);letter-spacing:1px;}
-.wdmg.up{color:var(--green);}
-.wtag{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:1px 5px;border-radius:3px;border:1px solid var(--accent);color:var(--accent);margin-right:3px;margin-bottom:2px;}
-.wtag.heavy{border-color:var(--red);color:var(--red);}
-.wtag.natural{border-color:var(--blue);color:var(--blue);}
-
-/* GEAR TABLE */
-.gear-table{width:100%;border-collapse:collapse;font-size:13px;}
-.gear-table th{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-weight:600;padding:0 8px 7px 0;text-align:left;}
-.gear-table td{padding:6px 8px 6px 0;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;}
-.gear-table tr:last-child td{border-bottom:none;}
-.gear-table tr:hover td{background:var(--surface2);}
-.gear-check{cursor:pointer;width:20px;height:20px;border:2px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.15s;}
-.gear-check.on{background:var(--green);border-color:var(--green);color:var(--bg);}
-.book-tag{font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:1px 5px;border-radius:3px;display:inline-block;}
-.book-tag.swade{border:1px solid var(--blue);color:var(--blue);}
-.book-tag.spc{border:1px solid var(--accent2);color:var(--accent2);}
-
-/* PROGRESSIONS */
-.prog-tier{margin-bottom:20px;}
-.tier-badge{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:3px 10px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);margin-bottom:10px;display:inline-block;}
-.tier-badge.novice{border-color:#4dabf7;color:#4dabf7;}.tier-badge.seasoned{border-color:#3ddc84;color:#3ddc84;}.tier-badge.veteran{border-color:#f4a436;color:#f4a436;}.tier-badge.heroic{border-color:#e85d26;color:#e85d26;}.tier-badge.legendary{border-color:#cc44ff;color:#cc44ff;}
-
-.prog-row:hover{border-color:var(--accent2);}
-.prog-row.checked{background:#0f1a0f;border-color:var(--green);}
-.prog-row.checked .prog-sel{color:var(--green);}
-.prog-chk{width:22px;height:22px;border:2px solid var(--border);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all 0.2s;flex-shrink:0;}
-.prog-row.checked .prog-chk{background:var(--green);border-color:var(--green);color:var(--bg);}
-.prog-sel{font-weight:700;font-size:15px;}
-.prog-pre{font-size:11px;color:var(--text-dim);}
-.prog-tbadge{font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:2px 7px;border:1px solid var(--border);border-radius:3px;text-align:center;color:var(--text-dim);}
-.prog-tbadge.attribute{border-color:var(--blue);color:var(--blue);}.prog-tbadge.skill{border-color:var(--accent2);color:var(--accent2);}.prog-tbadge.edge{border-color:var(--accent);color:var(--accent);}.prog-tbadge.open{border-color:#cc44ff;color:#cc44ff;}
-
-.starting-row{display:grid;grid-template-columns:36px 1fr 1fr;align-items:center;gap:10px;padding:9px 12px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);margin-bottom:5px;cursor:pointer;transition:all 0.2s;}
-.starting-row:hover{border-color:var(--accent2);}
-.starting-row.checked{background:#0f150f;border-color:var(--green);}
-.starting-row.checked .prog-sel{color:var(--green);}
-
-/* POWER TIERS */
-.power-tier{margin-bottom:20px;}
-.pt-header{background:var(--surface2);border:1px solid var(--border);border-radius:6px 6px 0 0;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background 0.2s;}
-.pt-header:hover{background:#1e2530;}
-.pt-header.tier-on{border-color:var(--accent);}
-.pt-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:2px;color:var(--heading);}
-.pt-list{border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;overflow:hidden;}
-.pt-colhdr{display:grid;grid-template-columns:30px 1fr 110px 50px 50px 50px;gap:8px;padding:7px 12px;background:var(--surface);border-bottom:1px solid var(--border);}
-.pt-row{display:grid;grid-template-columns:30px 1fr 110px 50px 50px 50px;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;}
-.pt-row:last-child{border-bottom:none;}
-.pt-row:hover{background:#1a1f28;}
-.pt-row.pt-on{background:#0f1a14;}
-.pt-row.pt-on .pt-pname{color:var(--green);}
-.pt-check{width:20px;height:20px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s;}
-.pt-row.pt-on .pt-check{background:var(--green);border-color:var(--green);color:var(--bg);}
-.pt-pname{font-weight:700;font-size:14px;}
-.pt-mod{font-size:11px;color:var(--text-dim);font-style:italic;text-align:center;}
-.col-c{font-family:'Share Tech Mono',monospace;font-size:12px;text-align:center;color:var(--text);}
-.col-spp{font-family:'Share Tech Mono',monospace;font-size:13px;text-align:center;color:var(--accent2);font-weight:bold;}
-.col-h{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);text-align:center;}
-
-/* REFERENCE TABS */
-
-
-/* DICE */
-.dice-section{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:16px;}
-.dice-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;}
-.die-btn{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:4px;cursor:pointer;transition:all 0.2s;min-width:56px;text-align:center;}
-.die-btn:hover{border-color:var(--accent);color:var(--accent);}
-.die-btn.wild-die{border-color:var(--accent2);color:var(--accent2);}
-.roll-result{margin-top:12px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;gap:14px;}
-.roll-num{font-family:'Bebas Neue',sans-serif;font-size:46px;color:var(--accent2);line-height:1;}
-.roll-suc{font-size:15px;font-weight:700;}
-.roll-suc.success{color:var(--green);}.roll-suc.raise{color:var(--accent2);}.roll-suc.fail{color:var(--red);}
-.roll-det{font-size:12px;color:var(--text-dim);}
-
-/* LOADING */
-.loading{text-align:center;padding:40px;color:var(--text-dim);font-size:13px;letter-spacing:1px;}
-.loading-spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:10px;vertical-align:middle;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.error-msg{background:#1a0a0a;border:1px solid var(--red);border-radius:4px;padding:12px 16px;color:var(--red);font-size:13px;margin-bottom:12px;}
-
-
-/* ── SETUP SCREEN ──────────────────────────────────────────── */
-#setup-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
-.setup-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:100%;max-width:560px;padding:32px 36px;}
-.setup-logo{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--accent);letter-spacing:6px;margin-bottom:4px;}
-.setup-sub{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:28px;}
-.setup-step{margin-bottom:22px;}
-.setup-step-num{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--accent2);margin-bottom:5px;}
-.setup-step h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;}
-.setup-step p{font-size:13px;color:var(--text-dim);line-height:1.5;margin-bottom:8px;}
-.setup-input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:13px;padding:10px 12px;border-radius:4px;outline:none;}
-.setup-input:focus{border-color:var(--accent2);}
-.setup-input.error{border-color:var(--red);}
-.setup-btn{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:10px 24px;border-radius:4px;cursor:pointer;border:none;transition:all 0.2s;}
-.setup-btn.primary{background:var(--accent);color:#fff;}
-.setup-btn.primary:hover{background:#d14d1a;}
-.setup-btn.secondary{background:none;border:1px solid var(--border);color:var(--text-dim);}
-.setup-btn.secondary:hover{border-color:var(--accent2);color:var(--accent2);}
-.setup-id-hint{font-size:11px;color:var(--text-dim);margin-top:6px;font-family:'Share Tech Mono',monospace;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:6px 10px;line-height:1.6;}
-.setup-id-hint span{color:var(--accent2);font-weight:700;}
-.setup-divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
-.setup-template-link{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;margin-bottom:8px;}
-.setup-template-icon{font-size:20px;flex-shrink:0;}
-.setup-template-text{font-size:13px;color:var(--text-dim);flex:1;}
-.setup-template-text strong{color:var(--text);display:block;margin-bottom:2px;}
-.setup-error{color:var(--red);font-size:12px;margin-top:6px;display:none;}
-/* ── CHANGE SHEET MODAL ────────────────────────────────────── */
-#change-sheet-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px;}
-#change-sheet-modal.open{display:flex;}
-.change-sheet-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:100%;max-width:480px;padding:24px 28px;}
-.change-sheet-box h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:16px;}
-
+@media (max-width: 1100px) { .dashboard-grid{grid-template-columns:1fr;} }
 </style>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-<!-- ── SETUP OVERLAY (shown on first visit or if no sheet ID) ── -->
-<div id="setup-overlay" style="display:none">
-  <div class="setup-box">
-    <div class="setup-logo">SWADE</div>
-    <div class="setup-sub">Character Sheet</div>
-
-    <div class="setup-step">
-      <div class="setup-step-num">Step 1 — Get Your Sheet</div>
-      <h3>Don't have a character sheet yet?</h3>
-      <div class="setup-template-link">
-        <div class="setup-template-icon">📋</div>
-        <div class="setup-template-text">
-          <strong>Copy the Character Sheet Template</strong>
-          Opens Google Sheets — click "Make a copy" to get your own editable sheet.
-        </div>
-        <a href="https://docs.google.com/spreadsheets/d/1nT2vNBvf2C49CmY9X5WAHgZh3zi17PABeBsY5r4Tw0I/copy" target="_blank" class="setup-btn secondary" style="text-decoration:none;white-space:nowrap">Open Template →</a>
-      </div>
-      <p style="font-size:12px;color:var(--text-dim)">After copying: fill in your character's Attributes, Skills, Starting edges, Advances, and Powers. Make sure sharing is set to <strong style="color:var(--text)">"Anyone with the link can view."</strong></p>
-    </div>
-
-    <hr class="setup-divider">
-
-    <div class="setup-step">
-      <div class="setup-step-num">Step 2 — Enter Your Sheet ID</div>
-      <h3>Paste your Google Sheet ID below</h3>
-      <div class="setup-id-hint">
-        Find it in your sheet's URL:<br>
-        docs.google.com/spreadsheets/d/<span>← YOUR ID HERE →</span>/edit
-      </div>
-      <div style="height:10px"></div>
-      <input class="setup-input" id="setup-sheet-id" placeholder="Paste Sheet ID here..." autocomplete="off" spellcheck="false">
-      <div class="setup-error" id="setup-error">⚠ Please enter a valid Sheet ID</div>
-    </div>
-
-    <div style="display:flex;justify-content:flex-end;margin-top:20px">
-      <button class="setup-btn primary" onclick="setupLoadSheet()">Load My Sheet →</button>
-    </div>
-
-    <hr class="setup-divider">
-
-    <div style="font-size:11px;color:var(--text-dim);line-height:1.6">
-      <strong style="color:var(--text-dim)">☁ Optional: Google Drive Sync</strong><br>
-      After your sheet loads, click <strong style="color:var(--text)">☁ Sync</strong> in the top bar to enable cross-device sync. 
-      Your save state is stored in your own Google Sheet — nothing goes to any server.<br><br>
-      <strong style="color:var(--text-dim)">🔗 Shareable &amp; Bookmarkable</strong><br>
-      Once loaded, the URL updates to include your Sheet ID. Bookmark it or click the 🔗 button in the nav to copy it. Each character has its own unique link.
-    </div>
-  </div>
-</div>
-
-<!-- ── CHANGE SHEET MODAL ── -->
-<div id="change-sheet-modal">
-  <div class="change-sheet-box">
-    <h2>⚙ Change Sheet</h2>
-    <p style="font-size:13px;color:var(--text-dim);margin-bottom:14px">Enter a different Sheet ID to load a different character. Your current save state will remain in localStorage for this device.</p>
-    <input class="setup-input" id="change-sheet-id" placeholder="Paste Sheet ID here..." autocomplete="off" spellcheck="false">
-    <div class="setup-error" id="change-sheet-error">⚠ Please enter a valid Sheet ID</div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
-      <button class="setup-btn secondary" onclick="closeChangeSheet()">Cancel</button>
-      <button class="setup-btn primary" onclick="confirmChangeSheet()">Load Sheet →</button>
-    </div>
-  </div>
-</div>
-
-
 <nav>
-  <div class="nav-title" id="nav-char-name" style="cursor:default">SWADE</div>
-  <div class="nav-sub" id="nav-char-sub" style="display:none">—&nbsp;<span id="nav-rank-display">Novice</span></div>
-  <div class="nav-tabs">
-    <button class="active" onclick="showTab('sheet',this)">Character</button>
-    <button onclick="showTab('progressions',this)">Advances</button>
-    <button id="nav-powers-btn" onclick="showTab('powers',this)">Power Tiers</button>
-    <button onclick="showTab('reference',this)">Reference</button>
-    <button onclick="showTab('roller',this)">Dice Roller</button>
+  <div class="logo-container">
+    <span class="logo">Savage Sheet</span>
+    <span id="sheet-id-display" class="sheet-id-badge" onclick="openChangeSheet()">---</span>
   </div>
-  <div class="nav-right">
-    <span id="save-indicator" class="sync-status">Loading...</span>
-    <button id="sync-btn" class="sync-btn connect" onclick="handleSyncBtn()" title="Connect Google account to sync across devices">☁ Sync</button>
-    <button class="reset-btn" onclick="exportSave()" title="Download save file">↓</button>
-    <button class="reset-btn" onclick="importSave()" title="Load save file">↑</button>
-    <button class="reset-btn" onclick="clearSave()" title="Reset">↺</button>
-    <button class="reset-btn" onclick="openChangeSheet()" title="Change character sheet">⚙</button>
-    <button class="reset-btn" id="copy-link-btn" onclick="copySheetLink()" title="Copy shareable link to this character">🔗</button>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchView('dashboard')">Sheet</div>
+    <div class="nav-tab" onclick="switchView('powers')">Powers</div>
+    <div class="nav-tab" onclick="switchView('advancement')">Level Up</div>
+    <div class="nav-tab" onclick="switchView('library')">Ref</div>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-icon" onclick="loadAllSheets()"><span id="refresh-spin">↺</span></button>
+    <button id="copy-link-btn" class="btn-icon" onclick="copySheetLink()">🔗</button>
   </div>
 </nav>
 
-<div class="stat-bar">
-  <button class="stat-bar-toggle" onclick="toggleStatBar()" id="stat-bar-toggle-btn">▼ Stats &amp; Tracking</button>
-  <div class="stat-bar-inner" id="stat-bar-inner">
-  <div class="stat-pill"><span class="spl">Rank</span><span class="spv" id="sb-rank">—</span></div>
-  <div class="stat-pill"><span class="spl">Parry</span><span class="spv" id="sb-parry">—</span></div>
-  <div class="stat-pill"><span class="spl">Toughness</span><span class="spv green" id="sb-toughness">—</span></div>
-  <div class="stat-pill"><span class="spl">Pace</span><span class="spv" id="sb-pace">6</span></div>
-  <div class="stat-pill"><span class="spl">Carry</span><span class="spv" id="sb-carry">—</span></div>
-  <div class="stat-pill">
-    <span class="spl">Bennies</span>
-    <div class="bennies-track" id="bennies-track"></div>
-    <button class="btn-tiny" onclick="addBenny()">+</button>
-  </div>
-
-  <!-- WOUNDS in status bar -->
-  <div class="stat-pill" style="flex-direction:column;align-items:flex-start;gap:4px;padding:6px 12px;">
-    <div class="sb-track">
-      <div class="sb-track-row">
-        <span class="sb-track-label">Wounds</span>
-        <div id="sb-wound-boxes" style="display:flex;gap:3px;"></div>
-        <div class="sb-box incap-box" id="sb-wound-incap" onclick="toggleIncap()" title="Incapacitated">✕</div>
-      </div>
-      <div class="sb-track-row">
-        <span class="sb-track-label">Fatigue</span>
-        <div class="sb-box" id="sb-fat-0" onclick="toggleFatigue(0)">-1</div>
-        <div class="sb-box" id="sb-fat-1" onclick="toggleFatigue(1)">-2</div>
-        <div class="sb-box incap-box" id="sb-fat-incap" onclick="toggleFatigueIncap()" title="Incapacitated">✕</div>
-      </div>
+<main>
+  <div id="view-dashboard" class="view active">
+    <div id="sheet-loading" class="card" style="padding:40px; text-align:center;">
+       <span class="loading-spinner"></span><br><br>Initializing...
     </div>
-  </div>
+    
+    <div id="sheet-content" class="dashboard-grid" style="display:none;">
+      <!-- COL 1 -->
+      <div class="sheet-col">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Attributes</span></div>
+          <div id="attr-container" class="card-body"></div>
+        </div>
 
-  <!-- PENALTIES -->
-  <div class="stat-pill" style="flex-direction:column;gap:2px;">
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span class="spl">Wound Pen.</span><span class="spv danger" id="sb-wound-pen">0</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span class="spl">Fatigue Pen.</span><span class="spv" id="sb-fat-pen" style="color:var(--text-dim)">0</span>
-    </div>
-    <div id="nos-indicator" style="display:none;font-size:10px;color:var(--green);letter-spacing:1px;text-transform:uppercase;"></div>
-  </div>
+        <div class="stats-row" id="derived-stats"></div>
 
-  <!-- SHAKEN TOGGLE -->
-  <div class="stat-pill" style="flex-direction:column;gap:4px;">
-    <span class="spl">Shaken</span>
-    <button class="tog-btn" id="shaken-btn" onclick="toggleShaken()">No</button>
-  </div>
-
-  <!-- FORCE FIELD TOGGLE -->
-  <div class="stat-pill" id="ff-pill" style="flex-direction:column;gap:4px;">
-    <span class="spl">Force Field</span>
-    <button class="tog-btn" id="ff-btn" onclick="toggleFF()">Off</button>
-  </div>
-
-  <!-- FORCE FIELD DR DISPLAY -->
-  <div class="stat-pill" id="ff-dr-pill" style="display:none;">
-    <span class="spl">FF Dmg Red.</span>
-    <span class="spv blue" id="ff-dr-value">—</span>
-  </div>
-
-  <!-- INCAP WARNING inline -->
-  <div id="incap-warning" style="display:none;background:#1a0505;border:2px solid var(--red);border-radius:4px;padding:6px 12px;color:var(--red);font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;">⚠ INCAPACITATED</div>
-  </div>
-</div>
-
-<!-- CHARACTER TAB -->
-<div id="tab-sheet" class="tab active">
-  <div id="sheet-loading" class="loading"><span class="loading-spinner"></span>Loading character data from Google Sheets...</div>
-  <div id="sheet-content" style="display:none">
-    <!-- TOP ROW: Attrs+Skills combined | Hindrances+Edges -->
-    <div style="display:grid;grid-template-columns:auto 1fr;gap:16px;margin-bottom:16px;" class="char-top-grid">
-      <div class="card" style="width:360px;flex-shrink:0;">
-        <div class="section-header">Attributes</div>
-        <table class="attr-table"><thead><tr><th>Attribute</th><th colspan="5" style="text-align:center">Die Steps</th><th style="text-align:right">Current</th></tr></thead>
-        <tbody id="attr-body"></tbody></table>
-        <div style="border-top:1px solid var(--border);margin:12px 0 10px;"></div>
-        <div class="section-header" style="justify-content:space-between"><span>Skills</span><button onclick="toggleUnskilled()" id="unskilled-toggle-btn" class="reset-btn" style="font-size:10px;padding:2px 8px;top:0;position:relative" title="Show or hide unskilled skills">Hide Unskilled</button></div>
-        <table class="attr-table"><thead><tr><th>Skill</th><th colspan="5" style="text-align:center">Die Steps</th><th style="text-align:right">Current</th></tr></thead>
-        <tbody id="skill-body"></tbody></table>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:16px;">
-        <div class="card" style="flex:1"><div class="section-header">Hindrances</div><div id="hindrances-list"></div></div>
-        <div class="card" style="flex:1"><div class="section-header">Edges</div><div id="edges-list"></div></div>
-      </div>
-    </div>
-    <div class="card mb" id="sp-summary-card">
-      <div class="section-header">Active Super Powers</div>
-      <div id="sp-summary"></div>
-    </div>
-    <div class="card mb">
-      <div class="section-header">Combat Notes</div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;min-width:200px;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:4px">Active Penalties</div>
-          <div style="display:flex;gap:20px;">
-            <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Wound</div><div class="pval ok" id="wound-pen-display" style="font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:bold">0</div></div>
-            <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Fatigue</div><div class="pval ok" id="fatigue-pen-display" style="font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:bold">0</div></div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Condition</span>
+            <span id="penalty-badge" style="background:var(--red); padding:1px 6px; border-radius:10px; font-size:11px; font-weight:700; display:none;">-1</span>
+          </div>
+          <div class="card-body">
+             <div class="label" style="font-size:11px; color:var(--text-dim); text-transform:uppercase;">Wounds</div>
+             <div class="track-row" id="wound-track">
+               <div class="track-box wound" onclick="toggleWound(0)">1</div>
+               <div class="track-box wound" onclick="toggleWound(1)">2</div>
+               <div class="track-box wound" onclick="toggleWound(2)">3</div>
+               <div class="track-box wound" onclick="toggleIncap('wound')">INC</div>
+             </div>
+             <div class="label" style="font-size:11px; color:var(--text-dim); text-transform:uppercase; margin-top:12px;">Fatigue</div>
+             <div class="track-row" id="fatigue-track">
+               <div class="track-box fatigue" onclick="toggleFatigue(0)">1</div>
+               <div class="track-box fatigue" onclick="toggleFatigue(1)">2</div>
+               <div class="track-box fatigue" onclick="toggleIncap('fatigue')">INC</div>
+             </div>
+             <div style="margin-top:16px; display:flex; gap:8px;">
+                <button id="btn-shaken" class="btn-outline" style="flex:1;" onclick="toggleShaken()">Shaken</button>
+                <button id="btn-forcefield" class="btn-outline" style="flex:1;" onclick="toggleForceField()">Force Field</button>
+             </div>
           </div>
         </div>
-        <div id="ff-combat-notes" style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;min-width:220px;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:6px">Force Field — Damage Reduction</div>
-          <div id="ff-status-detail" style="font-size:13px;color:var(--text-dim)">Force Field is off. Toughness at base.</div>
+
+        <div class="card">
+           <div class="card-header"><span class="card-title">Bennies</span></div>
+           <div class="card-body" style="text-align:center; padding:8px;">
+              <div style="display:flex; align-items:center; justify-content:center; gap:20px;">
+                 <button class="btn-icon" onclick="adjustBennies(-1)">-</button>
+                 <span id="benny-count" style="font-size:40px; font-family:'Bebas Neue'; color:var(--accent);">3</span>
+                 <button class="btn-icon" onclick="adjustBennies(1)">+</button>
+              </div>
+           </div>
         </div>
-        <div id="nos-card" style="display:none;background:#0a1a0a;border:1px solid var(--green);border-radius:4px;padding:10px 14px;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:4px">★ Nerves of Steel</div>
-          <div id="nos-detail-text" style="font-size:13px;color:var(--text)"></div>
+      </div>
+
+      <!-- COL 2 -->
+      <div class="sheet-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Skills</span>
+            <label style="font-size:11px; cursor:pointer;"><input type="checkbox" id="chk-unskilled" onchange="toggleUnskilled()"> Show All</label>
+          </div>
+          <div id="skills-container" class="card-body skill-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Attacks</span></div>
+          <div class="card-body" style="padding:0;">
+             <table class="item-table" id="attacks-table">
+               <tbody id="attacks-body"></tbody>
+             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- COL 3 -->
+      <div class="sheet-col">
+        <div id="armor-summary-container" class="stats-row"></div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Armor & Gear</span></div>
+          <div class="card-body" style="padding:0;">
+             <table class="item-table">
+               <tbody id="gear-body"></tbody>
+             </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Edges & Hindrances</span></div>
+          <div class="card-body" id="edges-container"></div>
         </div>
       </div>
     </div>
-    <div class="card mb">
-      <div class="section-header">Weapons</div>
-      <div id="weapons-table"></div>
-    </div>
-    <div class="card mb">
-      <div class="section-header">Armor</div>
-      <table class="attr-table"><thead><tr><th>Location</th><th>Armor</th><th>Notes</th></tr></thead>
-      <tbody id="armor-body"></tbody></table>
-    </div>
-    <div class="card mb">
-      <div class="section-header">Gear &amp; Inventory</div>
-      <div id="gear-section"></div>
+  </div>
+
+  <div id="view-powers" class="view">
+    <div id="powers-content"></div>
+  </div>
+
+  <div id="view-advancement" class="view">
+     <div id="prog-content"></div>
+  </div>
+
+  <div id="view-library" class="view">
+     <div id="ref-content" class="sheet-col"></div>
+  </div>
+</main>
+
+<div id="modal-sheet-id" class="modal-overlay">
+  <div class="modal">
+    <h2 style="font-family:'Bebas Neue'; color:var(--accent);">Connect Google Sheet</h2>
+    <input type="text" id="change-sheet-id" class="modal-input" placeholder="Sheet ID...">
+    <div style="display:flex; gap:8px;">
+      <button class="btn-action" style="flex:1;" onclick="confirmChangeSheet()">Connect</button>
+      <button class="btn-outline" style="flex:1;" onclick="closeChangeSheet()">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- PROGRESSIONS TAB -->
-<div id="tab-progressions" class="tab">
-  <div id="prog-loading" class="loading"><span class="loading-spinner"></span>Loading advances...</div>
-  <div id="prog-content" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-      <div class="section-header" style="margin-bottom:0;border:none;padding-bottom:0">Advances</div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:5px 14px;font-family:'Share Tech Mono',monospace;">
-          <span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim)">Advances: </span><span id="adv-count" style="font-size:16px;color:var(--accent2);font-weight:bold">0</span><span style="font-size:10px;color:var(--text-dim)"> / <span id="adv-total">0</span></span>
-        </div>
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:5px 14px;">
-          <span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim)">Rank: </span><span id="adv-rank" style="font-size:14px;font-weight:bold;color:var(--accent2)">Novice</span>
-        </div>
-      </div>
-    </div>
-    <div class="prog-tier">
-      <div class="tier-badge" style="border-color:var(--text-dim);color:var(--text-dim)">Starting (Toggle to Test)</div>
-      <div id="starting-list"></div>
-    </div>
-    <div id="prog-list"></div>
-  </div>
-</div>
-
-<!-- POWERS TAB -->
-<div id="tab-powers" class="tab">
-  <div id="powers-loading" class="loading"><span class="loading-spinner"></span>Loading power tiers...</div>
-  <div id="powers-content" style="display:none">
-    <div class="section-header" style="margin-bottom:16px">Power Tier Progressions</div>
-    <div id="power-list-container"></div>
-  </div>
-</div>
-
-<!-- REFERENCE TAB -->
-<div id="tab-reference" class="tab">
-  <div id="ref-loading" class="loading"><span class="loading-spinner"></span>Loading reference data...</div>
-  <div id="ref-content" style="display:none">
-    <div class="ref-grid">
-      <div>
-        <div class="section-header">Edges Library</div>
-        <input class="ref-search" id="edge-search" placeholder="Search edges..." oninput="filterRef('edge-search','edges-ref-table','edges-acc')">
-        <div class="acc-list" id="edges-acc"></div>
-        <div class="ref-wrap"><table class="ref-table" id="edges-ref-table">
-          <thead><tr><th>Edge</th><th>Category</th><th>Prereq</th><th>Effect</th><th>Book</th></tr></thead>
-          <tbody id="edges-ref-body"></tbody>
-        </table></div>
-      </div>
-      <div>
-        <div class="section-header">Hindrances Library</div>
-        <input class="ref-search" id="hind-search" placeholder="Search hindrances..." oninput="filterRef('hind-search','hindrances-ref-table','hindrances-acc')">
-        <div class="acc-list" id="hindrances-acc"></div>
-        <div class="ref-wrap"><table class="ref-table" id="hindrances-ref-table">
-          <thead><tr><th>Hindrance</th><th>Severity</th><th>Effect</th><th>Book</th></tr></thead>
-          <tbody id="hindrances-ref-body"></tbody>
-        </table></div>
-      </div>
-    </div>
-    <div class="mb">
-      <div class="section-header">Super Powers Library</div>
-      <input class="ref-search" id="sp-search" placeholder="Search powers..." oninput="filterRef('sp-search','sp-ref-table','sp-acc')">
-      <div class="acc-list" id="sp-acc"></div>
-      <div class="ref-wrap"><table class="ref-table" id="sp-ref-table">
-        <thead><tr><th>Power</th><th>Cost</th><th>Type</th><th>Summary</th><th class="sp-notes-col">Notes</th><th>Source</th></tr></thead>
-        <tbody id="sp-ref-body"></tbody>
-      </table></div>
-    </div>
-    <div class="ref-grid">
-      <div>
-        <div class="section-header">Weapons Library</div>
-        <input class="ref-search" id="weap-search" placeholder="Search weapons..." oninput="filterRef('weap-search','weapons-ref-table','weapons-acc')">
-        <div class="acc-list" id="weapons-acc"></div>
-        <div class="ref-wrap"><table class="ref-table" id="weapons-ref-table">
-          <thead><tr><th>Weapon</th><th class="ref-col-hide-mobile">Damage</th><th class="ref-col-hide-mobile">Skill</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
-          <tbody id="weapons-ref-body"></tbody>
-        </table></div>
-      </div>
-      <div>
-        <div class="section-header">Armor Library</div>
-        <input class="ref-search" id="armor-search" placeholder="Search armor..." oninput="filterRef('armor-search','armor-ref-table','armor-acc')">
-        <div class="acc-list" id="armor-acc"></div>
-        <div class="ref-wrap"><table class="ref-table" id="armor-ref-table">
-          <thead><tr><th>Armor</th><th class="ref-col-hide-mobile">Value</th><th class="ref-col-hide-mobile">Wt</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
-          <tbody id="armor-ref-body"></tbody>
-        </table></div>
-      </div>
-    </div>
-    <div class="mb">
-      <div class="section-header">Gear Library</div>
-      <input class="ref-search" id="gear-search" placeholder="Search gear..." oninput="filterRef('gear-search','gear-ref-table','gear-acc')">
-      <div class="acc-list" id="gear-acc"></div>
-      <div class="ref-wrap"><table class="ref-table" id="gear-ref-table">
-        <thead><tr><th>Item</th><th class="ref-col-hide-mobile">Wt</th><th class="ref-col-hide-mobile">Cost</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
-        <tbody id="gear-ref-body"></tbody>
-      </table></div>
-    </div>
-  </div>
-</div>
-
-<!-- ROLLER TAB -->
-<div id="tab-roller" class="tab">
-  <div class="dice-section">
-    <div class="section-header">Dice Roller</div>
-    <div style="font-size:13px;color:var(--text-dim);margin:8px 0 4px">Click a die to roll. Wild Die (d6) auto-included as Wild Card.</div>
-    <div class="dice-row" id="dice-row"></div>
-    <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-      <label style="font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Modifier:</label>
-      <input type="number" id="roll-modifier" value="0" style="width:60px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 8px;font-family:'Share Tech Mono',monospace;font-size:14px;border-radius:4px;">
-      <label style="font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:5px;">
-        <input type="checkbox" id="wild-toggle" checked> Wild Die
-      </label>
-    </div>
-    <div class="roll-result" id="roll-result" style="display:none;"></div>
-  </div>
-  <div class="card">
-    <div class="section-header">Quick Skill Reference</div>
-    <div id="skill-quick-ref"></div>
-  </div>
-</div>
+<div id="toast" class="toast">Saving...</div>
 
 <script>
-// ============================================================
-// SHEET ID & CSV FETCH
-// ============================================================
-// Sheet ID — from URL param ?sheet=ID, then localStorage, then setup screen
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const urlSheet = params.get('sheet');
-  if (urlSheet && /^[A-Za-z0-9_-]{20,}$/.test(urlSheet.trim())) {
-    // URL param wins — save it to localStorage too
-    localStorage.setItem('swade_sheet_id', urlSheet.trim());
-  }
-})();
-let SHEET_ID = localStorage.getItem('swade_sheet_id') || '';
+let SHEET_ID = new URLSearchParams(window.location.search).get('sheet') || "";
+const CSV_BASE = (tab) => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
 
-function csvUrl(sheetName) {
-  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-}
+let RAW_DATA = {};
+let UI_STATE = { progressions: [], powers: [], bennies: 3, maxBennies: 3, showUnskilled: false, wounds: [false, false, false], fatigue: [false, false], shaken: false, forceField: false };
 
-function parseCSV(text) {
-  // RFC-4180 CSV parser
-  const rows = [];
-  let row = [], field = '', inQuote = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (inQuote) {
-      if (ch === '"') {
-        if (text[i+1] === '"') { field += '"'; i++; }
-        else inQuote = false;
-      } else { field += ch; }
-    } else {
-      if (ch === '"') { inQuote = true; }
-      else if (ch === ',') { row.push(field.trim()); field = ''; }
-      else if (ch === '\n') { row.push(field.trim()); rows.push(row); row = []; field = ''; }
-      else if (ch === '\r') {}
-      else { field += ch; }
-    }
-  }
-  if (field || row.length) { row.push(field.trim()); rows.push(row); }
-  return rows;
-}
+window.onload = () => { if (!SHEET_ID) openChangeSheet(); else { document.getElementById('sheet-id-display').textContent = SHEET_ID; loadAllSheets(); } };
 
-
-// Robust boolean check — handles TRUE, true, True, 1, yes, checked from Google Sheets checkboxes
-function isTrue(val) {
-  if (!val) return false;
-  const v = String(val).trim().toLowerCase();
-  return v === 'true' || v === '1' || v === 'yes' || v === 'checked';
-}
-async function fetchSheet(name) {
-  const resp = await fetch(csvUrl(name));
-  if (!resp.ok) throw new Error(`Failed to fetch ${name}: ${resp.status}`);
-  const text = await resp.text();
-  const rows = parseCSV(text);
-  if (rows.length < 2) return [];
-  // Row 0 = headers, Row 1+ = data. Simple and clean.
-  const headers = rows[0].map(h => (h||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''));
-  console.log(`[${name}] headers:`, headers);
-  return rows.slice(1).filter(r => r.some(c => c && c.trim())).map(r => {
-    const obj = {};
-    headers.forEach((h, i) => { if (h) obj[h] = (r[i] || '').trim(); });
-    return obj;
-  });
-}
-
-// ============================================================
-// STATE
-// ============================================================
-const state = {
-  // These get populated from sheets on load
-  attrs: [],        // [{name, base}]
-  skills: [],       // [{name, base, linkedattr}]
-  starting: [],     // [{name, type, effect, defaulton}] + .on
-  progressions: [], // [{adv, rank, type, selection, prereq, effect}] + .checked
-  powerTiers: [],   // [{tier, title, spplabel, defaultactive}]
-  powers: [],       // [{tier, name, mod, base, adj, spp, effect, upgrades}] + .active
-  hindrances: [],   // [{name, severity, effect, bolohad, source}]
-  allEdges: [],     // reference only
-  allWeapons: [],   // [{name, damage, skill, tags, notes, source, dynamic, acquired, equipped, book}]
-  allArmor: [],     // [{name, armorvalue, weight, notes, location, acquired, equipped, category, minstr, book}]
-  allGear: [],      // [{name, weight, cost, notes, category, acquired, book}]
-  // Runtime toggle state — overrides sheet on current session
-  // keyed by item name: {Sword: true, Shield: true}
-  acqState: {},     // acquired overrides
-  eqState: {},      // equipped overrides
-  edgesRef: [],
-  hindrancesRef: [],
-  spPowers: [],
-  weaponsRef: [],
-  armorRef: [],
-
-  // Session state
-  bennies: 3, maxBennies: 3,
-  wounds: [false,false,false,false,false],
-  woundIncap: false,
-  fatigue: [false,false],
-  fatigueIncap: false,
-  shaken: false,
-  forceField: false,
-  pace: 6,
-  size: 0,
-  showUnskilled: true,
-  loaded: false
-};
-
-// ============================================================
-// COMPUTED
-// ============================================================
-const DIE_NAMES = ['d4','d6','d8','d10','d12','d12+1','d12+2'];
-function dieFor(lvl) { return DIE_NAMES[Math.min(Math.max(lvl-1,0), DIE_NAMES.length-1)]; }
-function dieVal(lvl) { return [4,6,8,10,12,12,12][Math.min(Math.max(lvl-1,0),6)]; }
-function dieMod(lvl) { return Math.max(0, lvl - 5); } // returns +1 or +2 for d12+1/+2
-function hasEdge(name) {
-  const n = name.toLowerCase().trim();
-  return !!state.progressions.find(p => p.checked && (p.selection||'').toLowerCase().trim() === n);
-}
-function hasStart(name) {
-  const n = name.toLowerCase().trim();
-  return !!state.starting.find(s => s.on && (s.name||'').toLowerCase().trim() === n);
-}
-
-function computeAttrLevel(name) {
-  const a = state.attrs.find(x => x.name && x.name.toLowerCase()===name.toLowerCase());
-  if(!a) return 1;
-  let lvl = parseInt(a.base)||1;
-  // Progression advances
-  state.progressions.forEach(p=>{
-    if(!p.checked) return;
-    if(p.type==='Attribute' && p.selection && p.selection.toLowerCase().includes(name.toLowerCase())) lvl++;
-  });
-  // Super Attribute power bonuses
-  const shortMap = {strength:'str',vigor:'vig',agility:'agi',smarts:'sma',spirit:'spi'};
-  const shortName = shortMap[name.toLowerCase()] || name.toLowerCase().substring(0,3);
-  const superPowers = state.powers.filter(p => {
-    if (!p.active) return false;
-    const pname = (f(p,'name','power')||'').toLowerCase();
-    return pname.includes('super attr') && pname.includes(shortName);
-  });
-  if (superPowers.length) {
-    const best = superPowers.reduce((a,b) => (parseInt(b.base)||0) > (parseInt(a.base)||0) ? b : a);
-    lvl += Math.floor((parseInt(best.base)||0) / 2);
-  }
-  return Math.min(7, lvl); // d4=1 through d12+2=7
-}
-
-function computeSkillLevel(name) {
-  const s = state.skills.find(x => x.name && x.name.toLowerCase()===name.toLowerCase());
-  if(!s) return 0;
-  // base=0 means unskilled, base=1 means d4 trained
-  let lvl = parseInt(s.base)||0;
-  state.progressions.forEach(p=>{
-    if(!p.checked) return;
-    const isSkill = p.type==='Skill'||p.type==='Skill (Above Attr)'||p.type==='Skill x2'||p.type==='Skill (Above Attr / x2)';
-    // All skill types give 1 die raise — "Above Attr" just costs more advances, same result
-    if(isSkill && p.selection && p.selection.toLowerCase().includes(name.toLowerCase()))
-      lvl += 1;
-  });
-  return Math.min(5,lvl);
-}
-
-function getActivePower(name) {
-  // Get ALL active powers matching the name, return highest tier (highest base value)
-  const matches = state.powers.filter(p => {
-    if (!p.active) return false;
-    const pname = f(p,'name','power') || '';
-    return pname.replace(/\s*↑+$/,'') === name;
-  });
-  if (!matches.length) return null;
-  // Return the one with the highest base value (cumulative upgrades)
-  return matches.reduce((best, p) => {
-    return (parseInt(p.base)||0) > (parseInt(best.base)||0) ? p : best;
-  });
-}
-
-function computeParry() {
-  const fLvl = computeSkillLevel('Fighting');
-  let p = 2 + Math.floor(dieVal(fLvl)/2);
-  if(hasStart('Martial Artist')) p += 1;
-  if(hasEdge('Martial Warrior')) p += 1;
-  if(hasEdge('Imp. Block'))      p += 2;
-  else if(hasEdge('Block'))      p += 1;
-  return p;
-}
-
-function computeToughness() {
-  const vigLvl = computeAttrLevel('Vigor');
-  let t = 2 + Math.floor(dieVal(vigLvl)/2);
-  if(hasStart('Brawler (Racial)')) t += 1;
-  if(hasEdge('Brawler'))           t += 1; // non-racial version
-  if(hasEdge('Bruiser'))           t += 1;
-  if(hasEdge('Brawny'))            t += 1; // Brawny gives Size+1 = Toughness+1
-  t += (state.size || 0);                  // Size modifier from State tab
-  const tp = getActivePower('Toughness');
-  if(tp) t += parseInt(tp.base)||0;
-  return t;
-}
-
-// ── Armor location parsing ────────────────────────────────────
-// Parses 'location' field into an array of slot names
-// Handles: "Torso", "Torso,Arms", "Torso,Arms,Legs", "Full", "All"
-const ARMOR_SLOTS = ['Head','Torso','Arms','Legs'];
-
-function parseArmorLocations(locStr) {
-  if (!locStr) return [];
-  const s = locStr.trim().toLowerCase();
-  if (s === 'full' || s === 'all') return [...ARMOR_SLOTS];
-  return locStr.split(',').map(l => l.trim()).filter(l =>
-    ARMOR_SLOTS.some(sl => sl.toLowerCase() === l.toLowerCase())
-  ).map(l => ARMOR_SLOTS.find(sl => sl.toLowerCase() === l.toLowerCase()));
-}
-
-// Returns equipped armor items from sheet (isTrue(equipped))
-// ── Acquired / Equipped helpers ──────────────────────────────
-// Runtime state overrides sheet checkbox if present
-function isAcquired(item) {
-  const nm = (item.name||'').trim();
-  if (state.acqState.hasOwnProperty(nm)) return state.acqState[nm];
-  return isTrue(item.acquired);
-}
-function isEquipped(item) {
-  const nm = (item.name||'').trim();
-  if (state.eqState.hasOwnProperty(nm)) return state.eqState[nm];
-  return isTrue(item.equipped);
-}
-// ── Sheet write-back ─────────────────────────────────────────
-// Writes TRUE/FALSE to a specific cell in the background if OAuth is connected
-async function writeBackCell(sheetName, row, col, value) {
-  if (!isConnected || !gAuthToken || Date.now() > gTokenExpiry) return;
-  const colLetter = String.fromCharCode(64 + col); // 1=A, 2=B, etc.
-  const range = `${sheetName}!${colLetter}${row}`;
+async function loadAllSheets() {
+  const tabs = ['Attributes','Skills','Edges','Hindrances','Weapons','Armor','Gear','Powers','Advances','PowerTiers','Starting','State'];
   try {
-    await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=RAW`,
-      {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${gAuthToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ values: [[value ? 'TRUE' : 'FALSE']] })
-      }
-    );
-  } catch(e) {
-    console.warn('writeBackCell failed:', range, e);
-  }
+    const results = await Promise.all(tabs.map(tab => fetchCSV(tab)));
+    tabs.forEach((tab, i) => RAW_DATA[tab] = results[i]);
+    parseState();
+    renderAll();
+    document.getElementById('sheet-loading').style.display = 'none';
+    document.getElementById('sheet-content').style.display = 'grid';
+  } catch (e) { showToast("Error loading sheet."); }
 }
 
-// Column indices for each tab
-const COL = {
-  WEAPONS_ACQUIRED: 8,   // col H
-  WEAPONS_EQUIPPED: 9,   // col I
-  ARMOR_ACQUIRED:   8,   // col H
-  ARMOR_EQUIPPED:   9,   // col I
-  GEAR_ACQUIRED:    6,   // col F
-  HINDRANCES_ACQUIRED: 4 // col D (renamed from bolohad)
-};
-
-function toggleAcquired(name) {
-  const newVal = !isAcquired({name, acquired: false}); // compute new value
-  // Find item in each tab to get row + determine which tab
-  const weapon = state.allWeapons.find(i => (i.name||'').trim() === name);
-  const armor  = state.allArmor.find(i  => (i.name||'').trim() === name);
-  const gear   = state.allGear.find(i   => (i.name||'').trim() === name);
-  const item   = weapon || armor || gear;
-  if (!item) return;
-  const current = isAcquired(item);
-  state.acqState[name] = !current;
-  if (current) state.eqState[name] = false; // un-acquiring clears equipped
-  saveState();
-  // Write back to sheet in background
-  if (weapon) {
-    writeBackCell('Weapons', weapon._row, COL.WEAPONS_ACQUIRED, !current);
-    if (current) writeBackCell('Weapons', weapon._row, COL.WEAPONS_EQUIPPED, false);
-  } else if (armor) {
-    writeBackCell('Armor', armor._row, COL.ARMOR_ACQUIRED, !current);
-    if (current) writeBackCell('Armor', armor._row, COL.ARMOR_EQUIPPED, false);
-  } else if (gear) {
-    writeBackCell('Gear', gear._row, COL.GEAR_ACQUIRED, !current);
-  }
-  renderWeapons(); renderArmor(); renderGear();
-  renderWeaponsRef(); renderArmorRef(); renderGearRef();
-}
-function toggleEquipped(name) {
-  const weapon = state.allWeapons.find(i => (i.name||'').trim() === name);
-  const armor  = state.allArmor.find(i  => (i.name||'').trim() === name);
-  const item   = weapon || armor;
-  if (!item) return;
-  const current = isEquipped(item);
-  state.eqState[name] = !current;
-  if (!current) state.acqState[name] = true; // equipping implies acquired
-  saveState();
-  // Write back to sheet in background
-  if (weapon) {
-    writeBackCell('Weapons', weapon._row, COL.WEAPONS_EQUIPPED, !current);
-    if (!current) writeBackCell('Weapons', weapon._row, COL.WEAPONS_ACQUIRED, true);
-  } else if (armor) {
-    writeBackCell('Armor', armor._row, COL.ARMOR_EQUIPPED, !current);
-    if (!current) writeBackCell('Armor', armor._row, COL.ARMOR_ACQUIRED, true);
-  }
-  renderWeapons(); renderArmor();
-  renderWeaponsRef(); renderArmorRef();
-  updateStatusBar();
+async function fetchCSV(tab) {
+  const r = await fetch(CSV_BASE(tab));
+  const txt = await r.text();
+  return parseCSV(txt);
 }
 
-function getEquippedArmor() {
-  return state.allArmor.filter(a => {
-    const nm = String(a.name||'').trim();
-    return isEquipped(a) && nm && !ARMOR_SLOTS.includes(nm);
+function parseCSV(str) {
+  const lines = str.split('\n');
+  const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+  return lines.slice(1).filter(l => l.trim()).map(line => {
+    const values = []; let current = "", inQuotes = false;
+    for (let char of line) {
+      if (char === '"' && !inQuotes) inQuotes = true;
+      else if (char === '"' && inQuotes) inQuotes = false;
+      else if (char === ',' && !inQuotes) { values.push(current.trim()); current = ""; }
+      else current += char;
+    }
+    values.push(current.trim());
+    return headers.reduce((obj, h, i) => {
+      let val = values[i] ? values[i].replace(/^"|"$/g, '') : "";
+      obj[h] = val === "TRUE" ? true : (val === "FALSE" ? false : val);
+      return obj;
+    }, {});
   });
 }
 
-// Compute effective armor per slot, applying SWADE stacking rules:
-// Multiple items on the same slot: highest = full, others = half (round down)
-function computeArmorBySlot() {
-  const equipped = getEquippedArmor();
-  const slotItems = {}; // slot -> array of armorvalue numbers
-  ARMOR_SLOTS.forEach(s => slotItems[s] = []);
+function parseState() {
+  const state = RAW_DATA.State?.find(r => r.key === 'wounds');
+  if (state?.value) try { UI_STATE = { ...UI_STATE, ...JSON.parse(state.value) }; } catch(e) {}
+}
 
-  equipped.forEach(a => {
-    const locs = parseArmorLocations(a.location||'');
-    const val = parseInt(a.armorvalue)||0;
-    locs.forEach(loc => slotItems[loc].push(val));
+let saveTimeout = null;
+function triggerSync() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(syncToSheet, 1500);
+}
+
+async function syncToSheet() {
+  if (!SHEET_ID) return;
+  showToast("Syncing state...");
+  // Implement your App Script logic here
+  // writeBackCell('State', 'B2', JSON.stringify(UI_STATE));
+}
+
+// THE FIX: Use USER_ENTERED to preserve checkboxes
+async function writeBackCell(sheet, cell, value) {
+  const scriptURL = "YOUR_APPS_SCRIPT_URL_HERE"; 
+  if (scriptURL === "YOUR_APPS_SCRIPT_URL_HERE") return;
+
+  await fetch(scriptURL, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify({
+      sheetId: SHEET_ID,
+      range: `${sheet}!${cell}`,
+      value: value,
+      valueInputOption: "USER_ENTERED" // CRITICAL FIX
+    })
   });
-
-  // Apply stacking: sort descending, first = full, rest = half rounded down
-  const result = {};
-  ARMOR_SLOTS.forEach(slot => {
-    const vals = slotItems[slot].sort((a,b) => b-a);
-    if (!vals.length) { result[slot] = 0; return; }
-    result[slot] = vals[0] + vals.slice(1).reduce((s,v) => s + Math.floor(v/2), 0);
-  });
-  return result;
 }
 
-// Total armor bonus = average of all covered slots (torso is the reference for Toughness)
-// SWADE: worn armor adds to Toughness based on torso coverage
-// If no torso armor, use highest single slot value as fallback
-function computeArmorBonus() {
-  const ap = getActivePower('Armor');
-  // Armor power: +2 Toughness per level (base field = number of levels)
-  const powerArmor = ap ? (parseInt(ap.base)||1) * 2 : 0;
-  const slots = computeArmorBySlot();
-  const wornArmor = slots['Torso'] || 0;
-  // Per SPC rules: Armor power does NOT stack with worn armor — use the higher value
-  return Math.max(powerArmor, wornArmor);
+function renderAll() {
+  renderAttributes();
+  renderSkills();
+  renderDerived();
+  renderTracks();
+  renderAttacks();
+  renderArmor();
+  renderEdges();
+  renderProgressions();
+  renderPowers();
 }
 
-function computeFFDR() {
-  // Force Field = damage reduction, not Toughness bonus
-  // Each level (base field) reduces incoming damage by 1 point
-  const ffp = getActivePower('Force Field');
-  if (!ffp || !state.forceField || state.shaken) return 0;
-  return parseInt(ffp.base) || 1;
-}
-
-function buildToughnessDisplay() {
-  const base = computeToughness();
-  const ap = getActivePower('Armor');
-  const powerAr = ap ? (parseInt(ap.base)||1) * 2 : 0;
-  const slots = computeArmorBySlot();
-  const wornAr = slots['Torso'] || 0;
-  // Force Field is damage reduction — NOT added to Toughness
-  // Use higher of power armor vs worn armor (don't stack per SPC rules)
-  const arBonus = Math.max(powerAr, wornAr);
-  const total = base + arBonus;
-
-  const parts = [];
-  if (arBonus > 0) {
-    parts.push(powerAr >= wornAr ? `${arBonus}P` : `${arBonus}W`);
-  }
-  if (parts.length) return `${total} (${parts.join(' + ')})`;
-  return `${total}`;
-}
-
-function computeCarryLimit() {
-  const strLvl = computeAttrLevel('Strength');
-  const strDie = dieVal(strLvl);
-  return (strDie / 4) * 20; // d4=20,d6=40,d8=60,d10=80,d12=100
-}
-
-function getWoundEdgeInfo() {
-  const nosIgnore = hasEdge('Imp. Nerves of Steel') ? 2 : hasEdge('Nerves of Steel') ? 1 : 0;
-  const maxWounds = hasEdge('Tougher than Nails') ? 5 : hasEdge('Tough as Nails') ? 4 : 3;
-  return {nosIgnore, maxWounds};
-}
-
-function computeRank() {
-  const checked = state.progressions.filter(p=>p.checked).length;
-  if(checked>=16) return 'Legendary';
-  if(checked>=12) return 'Heroic';
-  if(checked>=8)  return 'Veteran';
-  if(checked>=4)  return 'Seasoned';
-  return 'Novice';
-}
-
-function rankColor(rank) {
-  return {Novice:'var(--blue)',Seasoned:'var(--green)',Veteran:'var(--accent2)',Heroic:'var(--accent)',Legendary:'#cc44ff'}[rank]||'var(--text)';
-}
-
-// ============================================================
-// FIELD RESOLVER — handles slight CSV header variations
-// ============================================================
-// Tries a list of possible key names and returns the first non-empty match
-function f(obj, ...keys) {
-  if (!obj) return '';
-  for (const k of keys) {
-    // exact match
-    if (obj[k] !== undefined && obj[k] !== '') return obj[k];
-    // lowercase match
-    const lk = k.toLowerCase();
-    if (obj[lk] !== undefined && obj[lk] !== '') return obj[lk];
-    // try without underscores / spaces
-    const flat = lk.replace(/_/g,'');
-    const found = Object.keys(obj).find(ok => ok.toLowerCase().replace(/_/g,'') === flat);
-    if (found && obj[found] !== '') return obj[found];
-  }
-  // Last resort: return the value of the first key that has any content
-  const firstFilled = Object.values(obj).find(v => v && v.trim && v.trim());
-  return firstFilled || '';
-}
-
-// ============================================================
-// RENDER: ATTRS & SKILLS
-// ============================================================
-function renderDieDots(lvl) {
-  // Cap at 5 (d12) for dot display; d12+1/+2 still light up the d12 dot
-  const dotLvl = Math.min(lvl, 5);
-  const bonus = lvl > 5 ? `<span style="font-size:9px;color:var(--accent2);font-weight:700;margin-left:2px">+${lvl-5}</span>` : '';
-  let h='<div class="die-cells" style="display:flex;align-items:center">';
-  for(let i=1;i<=5;i++) h+=`<div class="die-dot${i===dotLvl?' filled':''}">${DIE_NAMES[i-1].replace('d','')}</div>`;
-  h += bonus;
-  return h+'</div>';
-}
-
-function renderAttrs() {
-  const tb=document.getElementById('attr-body'); tb.innerHTML='';
-  state.attrs.forEach(a=>{
-    const lvl=computeAttrLevel(a.name);
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td class="aname">${a.name}</td><td colspan="5">${renderDieDots(lvl)}</td><td class="die-val" style="text-align:right">${dieFor(lvl)}</td>`;
-    tb.appendChild(tr);
-  });
+function renderAttributes() {
+  document.getElementById('attr-container').innerHTML = RAW_DATA.Attributes.map(a => `
+    <div class="attr-row">
+      <span style="font-weight:700;">${a.name}</span>
+      <span class="dice-pill">d${a.base * 2 + 2}</span>
+    </div>
+  `).join('');
 }
 
 function renderSkills() {
-  const tb=document.getElementById('skill-body'); tb.innerHTML='';
-  const mods = computeSkillMods();
-  state.skills.forEach(s=>{
-    const base = parseInt(s.base)||0;
-    const lvl = computeSkillLevel(s.name);
-    const trained = base > 0 || lvl > 0;
-    if (!state.showUnskilled && !trained) return;
-    const dispLvl = trained ? Math.max(lvl, base) : 1;
-
-    // Modifier annotation — clickable toggle showing sources
-    const skillMods = mods[s.name.toLowerCase()]||[];
-    const totalBonus = skillMods.reduce((acc,m)=>acc+m.val, 0);
-    const unskLabel = !trained ? '<span style="font-size:9px;color:var(--muted);margin-left:4px">(d4-2)</span>' : '';
-
-    let modLabel = '';
-    if (skillMods.length > 0) {
-      const bonusColor = totalBonus > 0 ? 'var(--green)' : totalBonus < 0 ? 'var(--red)' : 'var(--accent2)';
-      const bonusText = totalBonus !== 0
-        ? `${totalBonus > 0 ? '+' : ''}${totalBonus}`
-        : '✦';
-      const toggleId = 'skm-' + s.name.replace(/[^a-zA-Z0-9]/g,'').toLowerCase();
-      const srcLines = skillMods.map(m =>
-        `<div style="font-size:10px;color:var(--text-dim);padding:1px 0 1px 8px">↳ ${m.label}</div>`
-      ).join('');
-      modLabel = `<span onclick="event.stopPropagation();var el=document.getElementById('${toggleId}');el.style.display=el.style.display==='none'?'block':'none'"
-        style="font-size:10px;font-family:'Share Tech Mono',monospace;color:${bonusColor};margin-left:5px;cursor:pointer;border-bottom:1px dotted ${bonusColor}"
-        title="Click to see sources">(${bonusText})</span>
-        <div id="${toggleId}" style="display:none;margin-top:2px">${srcLines}</div>`;
-    }
-
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td class="aname" style="vertical-align:top">${s.name}${unskLabel}${modLabel}</td><td colspan="5" style="vertical-align:top;padding-top:2px">${renderDieDots(dispLvl)}</td><td class="die-val" style="text-align:right;font-size:18px;vertical-align:top;${!trained?'color:var(--muted)':''}">${trained?dieFor(dispLvl):'d4-2'}</td>`;
-    tb.appendChild(tr);
-  });
-  const btn = document.getElementById('unskilled-toggle-btn');
-  if (btn) btn.textContent = state.showUnskilled ? 'Hide Unskilled' : 'Show All';
+  document.getElementById('skills-container').innerHTML = RAW_DATA.Skills
+    .filter(s => UI_STATE.showUnskilled || s.base > 0)
+    .map(s => `<div class="skill-item"><span>${s.name}</span><span style="color:var(--accent); font-family:'Share Tech Mono';">d${s.base > 0 ? (s.base * 2 + 2) : '4-2'}</span></div>`)
+    .join('');
 }
 
-function toggleUnskilled() {
-  state.showUnskilled = !state.showUnskilled;
-  renderSkills();
-  saveState();
-}
-
-// ============================================================
-// RENDER: HINDRANCES & EDGES
-// ============================================================
-function renderHindrances() {
-  const el=document.getElementById('hindrances-list');
-
-  // Collect hindrances two ways:
-  // 1. bolohad=TRUE in the Hindrances reference tab (legacy)
-  // 2. type='hindrance' in the Starting tab (new system)
-  const byBolohad = state.hindrances.filter(h=>isTrue(f(h,'acquired','bolohad','bolo_had','bolo')));
-
-  // Starting tab hindrances — match by name against Hindrances library for severity/effect
-  const byStarting = state.starting
-    .filter(s => s.on && ['hindrance','hindrance-major','hindrance-minor','minor','major'].includes((f(s,'type')||'').toLowerCase().trim()))
-    .map(s => {
-      const nm = f(s,'name')||'';
-      // Look up severity/effect from library
-      const lib = state.hindrances.find(h=>(h.name||'').toLowerCase().trim()===nm.toLowerCase().trim());
-      const tp = (f(s,'type')||'').trim();
-      const inferredSeverity = tp.includes('major') ? 'Major' : tp.includes('minor') ? 'Minor' : '';
-      return {
-        name: nm,
-        severity: lib ? (lib.severity||inferredSeverity) : inferredSeverity,
-        effect: lib ? (lib.effect||'') : (f(s,'effect')||''),
-      };
-    });
-
-  // Merge, deduplicate by name
-  const seen = new Set();
-  const allH = [];
-  [...byBolohad, ...byStarting].forEach(h => {
-    const nm = (h.name||'').toLowerCase().trim();
-    if (nm && !seen.has(nm)) { seen.add(nm); allH.push(h); }
+function renderDerived() {
+  const fight = parseInt(RAW_DATA.Skills.find(s => s.name === 'Fighting')?.base || 0);
+  const vigor = parseInt(RAW_DATA.Attributes.find(a => a.name === 'Vigor')?.base || 0);
+  
+  // Calculate Armor
+  const armorSlots = { Head: 0, Torso: 0, Arms: 0, Legs: 0 };
+  RAW_DATA.Armor.filter(a => a.equipped).forEach(a => {
+    const locs = a.Location ? a.Location.split(',').map(l => l.trim()) : [];
+    const val = parseInt(a.armorvalue || 0);
+    locs.forEach(l => { if(armorSlots[l] !== undefined) armorSlots[l] = Math.max(armorSlots[l], val); });
+    if(a.Location === 'Full') ['Head','Torso','Arms','Legs'].forEach(l => armorSlots[l] = Math.max(armorSlots[l], val));
   });
 
-  if(!allH.length){el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:13px">No hindrances. Add to Starting tab (type=hindrance) or set acquired=TRUE in Hindrances tab.</div>';return;}
+  const parry = 2 + (fight + 1);
+  const toughness = 2 + (vigor + 1) + armorSlots.Torso;
 
-  const items = allH.map(h=>{
-    const nm=h.name||'', sev=h.severity||'', eff=h.effect||'';
-    const minor = sev.toLowerCase().includes('minor') && !sev.toLowerCase().includes('major');
-    const cls = classifyHindrance(nm);
-    return {cls, html:`<div class="hindrance-item${minor?' minor':''} ${cls==='passive'?'passive-item':''}"><strong>${nm}</strong>${sev?` (${sev})`:''} — ${eff}</div>`};
-  });
-  el.innerHTML = edgeGroup(items);
+  document.getElementById('derived-stats').innerHTML = [
+    {l:'Pace', v:'6'}, {l:'Parry', v:parry}, {l:'Toughness', v:toughness, s:`(${armorSlots.Torso})`}, {l:'Size', v:'0'}
+  ].map(s => `<div class="stat-box"><span class="label">${s.l}</span><span class="val">${s.v}</span>${s.s?`<span class="sub">${s.s}</span>`:''}</div>`).join('');
+
+  document.getElementById('armor-summary-container').innerHTML = Object.entries(armorSlots).map(([k, v]) => `
+    <div class="stat-box"><span class="label">${k}</span><span class="val" style="color:var(--blue);">${v}</span></div>
+  `).join('');
 }
 
-// ── Classify helpers: read sheet 'active' column first, fallback to defaults ──
-
-function classifyEdge(name) {
-  const n = (name||'').toLowerCase().trim();
-  // Check Edges reference library for sheet-defined classification
-  const ref = state.edgesRef.find(e => (e.name||'').toLowerCase().trim() === n);
-  if (ref && ref.active) return ref.active.toLowerCase() === 'passive' ? 'passive' : 'active';
-  // Also check starting edges
-  const st = state.starting.find(s => (f(s,'name')||'').toLowerCase().trim() === n);
-  if (st && st.active) return st.active.toLowerCase() === 'passive' ? 'passive' : 'active';
-  // Fallback: hardcoded defaults
-  const passiveSet = new Set([
-    'brawler','martial artist','bruiser','martial warrior','brawny',
-    'block','improved block','tough as nails','tougher than nails',
-    'nerves of steel','improved nerves of steel','hard to kill',
-    'improved hard to kill','weapon master','master of arms',
-    'professional','expert','master','trademark weapon',
-    'alertness','attractive','very attractive','arcane background',
-    'ambidextrous','elan','fast healer','fleet-footed',
-    'luck','great luck','quick','rich','filthy rich','scholar','healer',
-  ]);
-  return passiveSet.has(n) ? 'passive' : 'active';
+function renderTracks() {
+  const w = document.querySelectorAll('#wound-track .wound');
+  UI_STATE.wounds.forEach((v, i) => { if(w[i]) w[i].classList.toggle('active', v); });
+  const f = document.querySelectorAll('#fatigue-track .fatigue');
+  UI_STATE.fatigue.forEach((v, i) => { if(f[i]) f[i].classList.toggle('active', v); });
+  document.getElementById('benny-count').textContent = UI_STATE.bennies;
+  document.getElementById('btn-shaken').classList.toggle('active', UI_STATE.shaken);
+  document.getElementById('btn-forcefield').classList.toggle('active', UI_STATE.forceField);
 }
 
-function classifyHindrance(name) {
-  const n = (name||'').toLowerCase().trim();
-  // Check Hindrances library for sheet-defined classification
-  const ref = state.hindrances.find(h => (h.name||'').toLowerCase().trim() === n);
-  if (ref && ref.active) return ref.active.toLowerCase() === 'passive' ? 'passive' : 'active';
-  // Fallback
-  const passiveSet = new Set([
-    'wanted','alien form','enemy','poverty','vow','loyal',
-    'greedy','mean','stubborn','ugly','young','small',
-    'elderly','illiterate','mild mannered','heroic',
-  ]);
-  return passiveSet.has(n) ? 'passive' : 'active';
+function renderAttacks() {
+  const equipped = RAW_DATA.Weapons.filter(w => w.equipped);
+  const unequipped = RAW_DATA.Weapons.filter(w => !w.equipped && w.acquired);
+  
+  let html = `<tr><th colspan="3" style="background:var(--surface2);">Equipped</th></tr>`;
+  html += equipped.map((w, i) => renderWeaponRow(w, true)).join('');
+  html += `<tr><th colspan="3" style="background:var(--surface2);">Inventory</th></tr>`;
+  html += unequipped.map((w, i) => renderWeaponRow(w, false)).join('');
+  
+  document.getElementById('attacks-body').innerHTML = html;
 }
 
-function classifyPower(name) {
-  const n = (name||'').toLowerCase().trim();
-  // Check SPCPowers library for sheet-defined classification
-  const ref = state.spPowers.find(p => (p.name||'').toLowerCase().trim() === n);
-  if (ref && ref.active) return ref.active.toLowerCase() === 'passive' ? 'passive' : 'active';
-  // For character powers, check by partial match against spc library
-  const refPartial = state.spPowers.find(p => n.includes((p.name||'').toLowerCase().trim()) || (p.name||'').toLowerCase().trim().includes(n));
-  if (refPartial && refPartial.active) return refPartial.active.toLowerCase() === 'passive' ? 'passive' : 'active';
-  // Fallback: hardcoded
-  const passivePowers = new Set([
-    'armor','toughness','super attribute','super skill',"doesn't breathe",
-    "doesn't eat","doesn't sleep",'ageless','hardy','fearless',
-    'construct','environmental resistance','immune to poison',
-    'immune to poison/disease','altered form','absorption',
-  ]);
-  for (const pp of passivePowers) { if (n.includes(pp)) return 'passive'; }
-  return 'active';
+function renderWeaponRow(w, isEquipped) {
+  return `<tr>
+    <td><div style="font-weight:700;">${w.name}</div><div style="font-size:10px; color:var(--text-dim);">${w.notes}</div></td>
+    <td style="color:var(--accent2); font-family:'Share Tech Mono';">${w.damage}</td>
+    <td style="text-align:right;"><button class="btn-outline" onclick="toggleEquip('Weapons', '${w.name}')">${isEquipped ? 'Unequip' : 'Equip'}</button></td>
+  </tr>`;
 }
 
-function edgeGroup(items) {
-  const active = items.filter(i=>i.cls==='active');
-  const passive = items.filter(i=>i.cls==='passive');
-  let html = '';
-  if (active.length) {
-    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin:6px 0 3px;font-weight:700">▶ Active</div>`;
-    active.forEach(i => { html += i.html; });
+function renderArmor() {
+  const acquired = RAW_DATA.Armor.filter(a => a.acquired || a.equipped);
+  document.getElementById('gear-body').innerHTML = acquired.map(a => `
+    <tr>
+      <td><div style="font-weight:700;">${a.name}</div><div style="font-size:10px; color:var(--text-dim);">+${a.armorvalue} ${a.Location}</div></td>
+      <td style="text-align:right;"><button class="btn-outline" onclick="toggleEquip('Armor', '${a.name}')">${a.equipped ? 'Unequip' : 'Equip'}</button></td>
+    </tr>
+  `).join('');
+}
+
+function toggleEquip(type, name) {
+  const item = RAW_DATA[type].find(i => i.name === name);
+  if (item) {
+    item.equipped = !item.equipped;
+    renderAll();
+    // In a real setup, we would writeBackCell to the specific row in the sheet
+    triggerSync();
   }
-  if (passive.length) {
-    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin:8px 0 3px;font-weight:700">◼ Passive (reflected in stats)</div>`;
-    passive.forEach(i => { html += i.html; });
-  }
-  return html;
 }
 
 function renderEdges() {
-  const el=document.getElementById('edges-list');
-  const items = [];
-  state.starting.forEach(s=>{
-    if(s.on) {
-      const nm=f(s,'name')||'';
-      const tp=(f(s,'type')||'').toLowerCase().trim();
-      const eff=f(s,'effect')||'';
-      // Skip hindrance entries — they belong in renderHindrances, not here
-      if (tp.includes('hindrance') || tp === 'minor' || tp === 'major') return;
-      const cls = classifyEdge(nm);
-      items.push({cls, html:`<div class="edge-item ${cls==='passive'?'passive-item':''}"><strong>${nm}</strong> — ${eff}</div>`});
-    }
-  });
-  state.progressions.forEach(p=>{
-    const typ=f(p,'type'); const sel=f(p,'selection','name')||'';
-    const eff=f(p,'effect')||'';
-    if(p.checked && typ==='Edge') {
-      const cls = classifyEdge(sel);
-      items.push({cls, html:`<div class="edge-item ${cls==='passive'?'passive-item':''}"><strong>${sel}</strong> — ${eff}</div>`});
-    }
-  });
-  el.innerHTML = items.length ? edgeGroup(items) : '<div style="color:var(--text-dim);font-style:italic;font-size:13px">No active edges.</div>';
-}
-
-// ============================================================
-// RENDER: SUPER POWERS SUMMARY
-// ============================================================
-function renderSPSummary() {
-  const container=document.getElementById('sp-summary');
-  const active = state.powers.filter(p=>p.active);
-  if(!active.length){
-    container.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:13px">No super powers active. Toggle tiers/powers in the Power Tiers tab.</div>';
-    return;
-  }
-  const byTier={};
-  active.forEach(p=>{
-    const tier=state.powerTiers.find(t=>t.tier===p.tier)||{title:`Tier ${p.tier}`};
-    const key=tier.title;
-    if(!byTier[key]){byTier[key]={title:key,powers:[]};}
-    byTier[key].powers.push(p);
-  });
-  let html='';
-  Object.values(byTier).forEach(group=>{
-    html+=`<div class="sp-section"><div class="sp-section-header"><span class="sp-section-title">${group.title}</span><span style="font-size:11px;color:var(--text-dim)">Click power to toggle →</span></div>`;
-    const activePow = group.powers.filter(p=>classifyPower(p.name)==='active');
-    const passivePow = group.powers.filter(p=>classifyPower(p.name)==='passive');
-    if (activePow.length) {
-      html+=`<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin:4px 0 3px;font-weight:700">▶ Active</div>`;
-      activePow.forEach(p=>{
-        const idx=state.powers.indexOf(p);
-        html+=`<div class="sp-row sp-on" onclick="togglePowerByIdx(${idx});renderSPSummary()"><div class="sp-check">✓</div><div><div class="sp-name">${p.name}</div><div class="sp-detail">${p.effect}</div></div><div class="sp-spp">${p.spp} SPP</div></div>`;
-      });
-    }
-    if (passivePow.length) {
-      html+=`<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin:8px 0 3px;font-weight:700">◼ Passive (reflected in stats)</div>`;
-      passivePow.forEach(p=>{
-        const idx=state.powers.indexOf(p);
-        html+=`<div class="sp-row sp-on" onclick="togglePowerByIdx(${idx});renderSPSummary()"><div class="sp-check">✓</div><div><div class="sp-name">${p.name}</div><div class="sp-detail">${p.effect}</div></div><div class="sp-spp">${p.spp} SPP</div></div>`;
-      });
-    }
-    html+='</div>';
-  });
-  container.innerHTML=html;
-}
-
-// ============================================================
-// RENDER: WEAPONS
-// ============================================================
-function computeWeapons() {
-  const strDie=dieFor(computeAttrLevel('Strength'));
-  const fDie=dieFor(computeSkillLevel('Fighting'));
-  const hasBrawler=hasStart('Brawler (Racial)') || hasEdge('Brawler');
-  const hasMA=hasStart('Martial Artist') || hasEdge('Martial Artist');
-  const hasBruiser=hasEdge('Bruiser');
-  const hasMW=hasEdge('Martial Warrior');
-  // Compute unarmed skill modifier for display in weapon skill label
-  // MW supersedes MA — use highest only
-  const unarmedMod = hasMW ? 2 : hasMA ? 1 : 0;
-  const fightingLabel = unarmedMod > 0
-    ? `Fighting ${fDie} <span style="font-size:10px;color:var(--green)">(+${unarmedMod} unarmed)</span>`
-    : `Fighting ${fDie}`;
-  let fistBonus=null;
-  if(hasBrawler) fistBonus='d4';
-  if(hasMA)      fistBonus='d6';
-  if(hasBruiser&&fistBonus==='d6') fistBonus='d8';
-  if(hasMW&&fistBonus==='d8')      fistBonus='d10';
-
-  // Build fist damage breakdown note
-  const fistBreakdown = [];
-  fistBreakdown.push(`${strDie} Strength`);
-  if(hasBrawler) fistBreakdown.push(`+d4 Brawler`);
-  if(hasMA)      fistBreakdown.push(`→d6 Martial Artist`);
-  if(hasBruiser) fistBreakdown.push(`→d8 Bruiser`);
-  if(hasMW)      fistBreakdown.push(`→d10 Martial Warrior`);
-  const fistNote = `AP 0. Breakdown: ${fistBreakdown.join(', ')}.`;
-
-  const computed=[];
-  computed.push({name:'Fists',damage:fistBonus?`${strDie}+${fistBonus}`:strDie,skillLabel:fightingLabel,tags:hasMA?['Natural Weapon']:[],notes:fistNote,upgraded:fistBonus&&fistBonus!=='d4',source:'Racial/Edges'});
-
-  const mp=getActivePower('Melee Attack');
-  if(mp){
-    const extraDice=Math.floor((parseInt(mp.base)||0)/2);
-    const pd=Array(extraDice).fill('d6').join('+');
-    // Build enhanced fist breakdown note
-    const enhBreakdown = [...fistBreakdown];
-    enhBreakdown.push(`+${pd} Melee Attack (Tier ${mp.tier||'?'}, Heavy Weapon)`);
-    const enhNote = `Heavy Weapon — bypasses Heavy Armor. Breakdown: ${enhBreakdown.join(', ')}.`;
-    computed.push({name:'Enhanced Fists',damage:fistBonus?`${strDie}+${fistBonus}+${pd}`:`${strDie}+${pd}`,skillLabel:fightingLabel,tags:['Natural Weapon','Heavy Weapon'],notes:enhNote,upgraded:true,source:'Melee Attack Power'});
-  }
-  // Add acquired non-dynamic weapons from sheet
-  state.allWeapons.filter(w=>!isTrue(w.dynamic)&&isAcquired(w)).forEach(w=>{
-    computed.push({name:w.name,damage:w.damage,skillLabel:`${w.skill} ${dieFor(computeSkillLevel(w.skill))}`,tags:(w.tags||'').split(',').filter(Boolean),notes:w.notes,upgraded:false,source:w.source});
-  });
-  return computed;
-}
-
-function renderWeapons() {
-  const wMods = computeSkillMods();
-
-  function weaponRow(w, showEquipBtn) {
-    const tags = w.tags.map(t=>`<span class="wtag ${t==='Heavy Weapon'?'heavy':t==='Natural Weapon'?'natural':''}">${t}</span>`).join('');
-    let skillDisplay = w.skillLabel;
-    if (w.skill && !w.skillLabel.includes('(+') && !w.skillLabel.includes('(-')) {
-      const sm = wMods[(w.skill||'').toLowerCase()]||[];
-      const sb = sm.reduce((a,m)=>a+m.val,0);
-      if (sb !== 0) skillDisplay += ` <span style="font-size:10px;color:${sb>0?'var(--green)':'var(--red)'}">(${sb>0?'+':''}${sb})</span>`;
-    }
-    const removeBtn = w.source && w.source !== 'Racial/Edges' && w.source !== 'Melee Attack Power'
-      ? `<button class="btn-acquire acquired" onclick="toggleAcquired('${w.name.replace(/'/g,"\'")}')">Remove</button>`
-      : '';
-    const equipBtn = showEquipBtn && removeBtn
-      ? `<button class="btn-equip ${w.equipped?'equipped':''}" onclick="toggleEquipped('${w.name.replace(/'/g,"\'")}')">
-          ${w.equipped?'Equipped':'Equip'}</button>`
-      : '';
-    return `<tr><td><div class="wname">${w.name}</div><span class="wsource">${w.source}</span>${removeBtn}${equipBtn}</td><td><div class="wdmg${w.upgraded?' up':''}">${w.damage}</div></td><td><div style="font-size:13px;color:var(--text-dim)">${skillDisplay}</div></td><td><div>${tags}</div><div style="font-size:12px;color:var(--text-dim);margin-top:3px">${w.notes||''}</div></td></tr>`;
-  }
-
-  // Compute weapons — attach equipped status
-  const raw = computeWeapons();
-  raw.forEach(w => {
-    const sheet = state.allWeapons.find(sw => (sw.name||'').trim() === w.name);
-    w.equipped = sheet ? isEquipped(sheet) : false;
-  });
-
-  const equipped = raw.filter(w => w.equipped || w.source === 'Racial/Edges' || w.source === 'Melee Attack Power');
-  const acquiredOnly = raw.filter(w => !w.equipped && w.source !== 'Racial/Edges' && w.source !== 'Melee Attack Power');
-
-  let html = `<table class="weapon-table"><thead><tr><th>Weapon</th><th>Damage</th><th>Skill</th><th>Tags / Notes</th></tr></thead><tbody>`;
-  equipped.forEach(w => { html += weaponRow(w, true); });
-  if (acquiredOnly.length) {
-    html += `<tr><td colspan="4"><div class="gear-divider"></div><div class="gear-section-label">Owned — not equipped</div></td></tr>`;
-    acquiredOnly.forEach(w => { html += weaponRow(w, true); });
-  }
-  html += '</tbody></table>';
-  document.getElementById('weapons-table').innerHTML = html;
-}
-
-// ============================================================
-// RENDER: ARMOR
-// ============================================================
-function renderArmor() {
-  const tb = document.getElementById('armor-body');
-  const equippedItems = getEquippedArmor();
-  const slots = computeArmorBySlot();
-
-  // Build slot → items map
-  const slotMap = {};
-  ARMOR_SLOTS.forEach(s => slotMap[s] = []);
-  equippedItems.forEach(a => {
-    parseArmorLocations(a.location||'').forEach(loc => slotMap[loc].push(a));
-  });
-
-  // Equipped armor by slot
-  const slotRows = ARMOR_SLOTS.map(slot => {
-    const items = slotMap[slot];
-    const val = slots[slot] || 0;
-    if (!items.length) {
-      return `<tr><td class="aname">${slot}</td><td style="font-family:'Share Tech Mono',monospace;color:var(--text-dim)">0</td><td style="font-size:12px;color:var(--text-dim)" colspan="2">Unarmored</td></tr>`;
-    }
-    const itemNames = items.map((a,i) => {
-      const v = parseInt(a.armorvalue)||0;
-      const effective = i === 0 ? v : Math.floor(v/2);
-      return `${a.name}${i>0?` (×½=${effective})`:''}`;
-    }).join(', ');
-    return `<tr><td class="aname">${slot}</td><td style="font-family:'Share Tech Mono',monospace;color:var(--green);font-weight:bold">+${val}</td><td style="font-size:12px;color:var(--text-dim)" colspan="2">${itemNames}</td></tr>`;
-  }).join('');
-
-  // Acquired but not equipped
-  const ownedNotEquipped = state.allArmor.filter(a => {
-    const nm = String(a.name||'').trim();
-    return isAcquired(a) && !isEquipped(a) && nm && !ARMOR_SLOTS.includes(nm);
-  });
-
-  let ownedRows = '';
-  if (ownedNotEquipped.length) {
-    ownedRows = `<tr><td colspan="4"><div class="gear-divider"></div><div class="gear-section-label">Owned — not equipped</div></td></tr>`;
-    ownedNotEquipped.forEach(a => {
-      const nm = (a.name||'').replace(/'/g,"\\'");
-      const val = parseInt(a.armorvalue)||0;
-      ownedRows += `<tr>
-        <td class="aname">${a.name}</td>
-        <td style="font-family:'Share Tech Mono',monospace;color:var(--text-dim)">+${val}</td>
-        <td style="font-size:12px;color:var(--text-dim)">${a.notes||''}</td>
-        <td>
-          <button class="btn-acquire acquired" onclick="toggleAcquired('${nm}')">Remove</button>
-          <button class="btn-equip" onclick="toggleEquipped('${nm}')">Equip</button>
-        </td></tr>`;
-    });
-  }
-
-  tb.innerHTML = slotRows + ownedRows;
-}
-
-// ============================================================
-// RENDER: GEAR
-// ============================================================
-function renderGear() {
-  const el = document.getElementById('gear-section');
-  const acquired = state.allGear.filter(g => isAcquired(g));
-  if(!acquired.length){
-    el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:13px">No gear acquired. Use Acquire buttons in the Reference tab or mark acquired in the Google Sheet.</div>';
-    return;
-  }
-  let html=`<table class="gear-table"><thead><tr><th>Item</th><th>Wt</th><th>Cost</th><th>Notes</th><th></th></tr></thead><tbody>`;
-  acquired.forEach(g=>{
-    const nm = (g.name||'').replace(/'/g,"\'");
-    html+=`<tr><td style="font-weight:700">${g.name}</td><td style="font-family:'Share Tech Mono',monospace">${g.weight||'—'}</td><td style="font-family:'Share Tech Mono',monospace">${g.cost||'—'}</td><td style="font-size:12px;color:var(--text-dim)">${g.notes||''}</td><td><button class="btn-acquire acquired" onclick="toggleAcquired('${nm}')">Remove</button></td></tr>`;
-  });
-  html+='</tbody></table>';
-  el.innerHTML=html;
-}
-
-// ============================================================
-// CONDITIONAL VISIBILITY
-// ============================================================
-function updateConditionalVisibility() {
-  const hasPowers = state.powerTiers.length > 0;
-  const hasFF = state.powers.some(p => (f(p,'name','power')||'').toLowerCase().includes('force field'));
-
-  // Power Tiers nav button
-  const powersBtn = document.getElementById('nav-powers-btn');
-  if (powersBtn) powersBtn.style.display = hasPowers ? '' : 'none';
-
-  // Active Super Powers card on Character tab
-  const spCard = document.getElementById('sp-summary-card');
-  if (spCard) spCard.style.display = hasPowers ? '' : 'none';
-
-  // Force Field pill in status bar
-  const ffPill = document.getElementById('ff-pill');
-  if (ffPill) ffPill.style.display = hasFF ? '' : 'none';
-
-  // Force Field status block in Combat Notes
-  const ffNotes = document.getElementById('ff-combat-notes');
-  if (ffNotes) ffNotes.style.display = hasFF ? '' : 'none';
-}
-// ============================================================
-function renderWoundTrack() {
-  const {nosIgnore,maxWounds}=getWoundEdgeInfo();
-  document.getElementById('wound-track-label').textContent=`Wounds (Max ${maxWounds} before Incap)`;
-  const container=document.getElementById('wound-boxes'); container.innerHTML='';
-  for(let i=0;i<maxWounds;i++){
-    const ignored=i<nosIgnore;
-    const box=document.createElement('div');
-    box.id=`wound-${i}`;
-    box.className=`tbox wound${state.wounds[i]?' checked':''}${ignored?' nos-ignored':''}`;
-    box.onclick=()=>toggleWound(i);
-    box.innerHTML=`<span class="pen" style="${ignored?'text-decoration:line-through;opacity:0.5':''}">-${i+1}</span><span style="font-size:9px">${i===0?'Wound':'Wounds'}${ignored?' ★':''}</span>`;
-    container.appendChild(box);
-  }
-  const incap=document.createElement('div');
-  incap.id='wound-incap';
-  incap.className=`tbox incap${state.woundIncap?' checked':''}`;
-  incap.onclick=toggleIncap;
-  incap.innerHTML=`<span style="font-size:13px;font-weight:900">✕</span><span style="font-size:9px">INCAP</span>`;
-  container.appendChild(incap);
-}
-
-function updateWoundDisplay() {
-  renderWoundTrack();
-  const {nosIgnore,maxWounds}=getWoundEdgeInfo();
-  const wc=state.wounds.slice(0,maxWounds).filter(Boolean).length;
-  const ep=Math.max(0,wc-nosIgnore);
-  const pen=ep>0?`-${ep}`:'0';
-  const el=document.getElementById('wound-pen-display');
-  el.textContent=pen; el.className='pval '+(wc>=maxWounds?'danger':ep>0?'warning':'ok');
-  document.getElementById('sb-wound-pen').textContent=pen;
-  document.getElementById('incap-warning').classList.toggle('show',state.woundIncap);
-  const ni=document.getElementById('nos-indicator');
-  if(nosIgnore>0){ni.style.display='block';ni.style.color='var(--green)';ni.textContent=nosIgnore===2?'★ Imp. NOS: first 2 penalties ignored':'★ NOS: first penalty ignored';}
-  else ni.style.display='none';
-}
-
-function updateFatigueDisplay() {
-  const fc=state.fatigue.filter(Boolean).length;
-  for(let i=0;i<2;i++) document.getElementById(`fatigue-${i}`).classList.toggle('checked',state.fatigue[i]);
-  document.getElementById('fatigue-incap').classList.toggle('checked',state.fatigueIncap);
-  const pen=fc>0?`-${fc}`:'0';
-  const el=document.getElementById('fatigue-pen-display');
-  el.textContent=pen; el.className='pval '+(fc>=2?'danger':fc>0?'warning':'ok');
-}
-
-// ============================================================
-// WOUND / FATIGUE DISPLAY — now in status bar
-// ============================================================
-function renderWoundTrack() {
-  const {nosIgnore, maxWounds} = getWoundEdgeInfo();
-  const container = document.getElementById('sb-wound-boxes');
-  if (!container) return;
-  container.innerHTML = '';
-  for (let i = 0; i < maxWounds; i++) {
-    const ignored = i < nosIgnore;
-    const box = document.createElement('div');
-    box.className = `sb-box${state.wounds[i] ? ' wound-on' : ''}${ignored ? ' nos-box' : ''}`;
-    box.title = ignored ? `Wound ${i+1} (NOS ignores penalty)` : `Wound ${i+1}`;
-    box.onclick = () => toggleWound(i);
-    box.textContent = `-${i+1}`;
-    container.appendChild(box);
-  }
-}
-
-function updateWoundDisplay() {
-  renderWoundTrack();
-  const {nosIgnore, maxWounds} = getWoundEdgeInfo();
-  const wc = state.wounds.slice(0, maxWounds).filter(Boolean).length;
-  const ep = Math.max(0, wc - nosIgnore);
-  const pen = ep > 0 ? `-${ep}` : '0';
-
-  // Status bar wound penalty
-  const sbPen = document.getElementById('sb-wound-pen');
-  if (sbPen) { sbPen.textContent = pen; sbPen.style.color = wc >= maxWounds ? 'var(--red)' : ep > 0 ? 'var(--accent2)' : 'var(--text-dim)'; }
-
-  // Character tab penalty display
-  const wpd = document.getElementById('wound-pen-display');
-  if (wpd) { wpd.textContent = pen; wpd.className = 'pval ' + (wc >= maxWounds ? 'danger' : ep > 0 ? 'warning' : 'ok'); }
-
-  // Incap box
-  const incapBox = document.getElementById('sb-wound-incap');
-  if (incapBox) incapBox.classList.toggle('incap-on', state.woundIncap);
-
-  // Incap warning banner
-  const warn = document.getElementById('incap-warning');
-  if (warn) warn.style.display = (state.woundIncap || state.fatigueIncap) ? 'block' : 'none';
-
-  // NOS indicator
-  const ni = document.getElementById('nos-indicator');
-  if (ni) {
-    if (nosIgnore > 0) {
-      ni.style.display = 'block';
-      ni.textContent = nosIgnore === 2 ? '★ Imp. NOS: ignores first 2 penalties' : '★ NOS: ignores first penalty';
-    } else {
-      ni.style.display = 'none';
-    }
-  }
-
-  // NOS card in combat notes
-  const nosCard = document.getElementById('nos-card');
-  const nosText = document.getElementById('nos-detail-text');
-  if (nosCard && nosText) {
-    nosCard.style.display = nosIgnore > 0 ? 'block' : 'none';
-    nosText.textContent = nosIgnore === 2
-      ? 'Imp. Nerves of Steel active — first 2 Wound penalties ignored.'
-      : 'Nerves of Steel active — first Wound penalty ignored.';
-  }
-
-  // Auto-trigger Shaken if incapacitated
-  if (state.woundIncap && !state.shaken) {
-    state.shaken = true;
-    updateShakenDisplay();
-  }
-}
-
-function updateFatigueDisplay() {
-  const fc = state.fatigue.filter(Boolean).length;
-  const f0 = document.getElementById('sb-fat-0');
-  const f1 = document.getElementById('sb-fat-1');
-  const fi = document.getElementById('sb-fat-incap');
-  if (f0) f0.classList.toggle('fatigue-on', state.fatigue[0]);
-  if (f1) f1.classList.toggle('fatigue-on', state.fatigue[1]);
-  if (fi) fi.classList.toggle('incap-on', state.fatigueIncap);
-
-  const pen = fc > 0 ? `-${fc}` : '0';
-  const sbFp = document.getElementById('sb-fat-pen');
-  if (sbFp) { sbFp.textContent = pen; sbFp.style.color = fc >= 2 ? 'var(--red)' : fc > 0 ? 'var(--accent2)' : 'var(--text-dim)'; }
-
-  const fpd = document.getElementById('fatigue-pen-display');
-  if (fpd) { fpd.textContent = pen; fpd.className = 'pval ' + (fc >= 2 ? 'danger' : fc > 0 ? 'warning' : 'ok'); }
-
-  const warn = document.getElementById('incap-warning');
-  if (warn) warn.style.display = (state.woundIncap || state.fatigueIncap) ? 'block' : 'none';
-}
-
-// ============================================================
-// SHAKEN + FORCE FIELD TOGGLES
-// ============================================================
-function toggleShaken() {
-  state.shaken = !state.shaken;
-  if (state.shaken && state.forceField) {
-    // FF powers down when Shaken
-    state._ffBeforeShaken = true; // remember it was on
-  }
-  if (!state.shaken && state._ffBeforeShaken) {
-    // Restore FF when un-Shaken (player can manually toggle off if destroyed)
-    state._ffBeforeShaken = false;
-  }
-  updateShakenDisplay();
-  updateFFDisplay();
-  document.getElementById('sb-toughness').textContent = buildToughnessDisplay();
-  saveState();
-}
-
-function updateShakenDisplay() {
-  const btn = document.getElementById('shaken-btn');
-  if (!btn) return;
-  if (state.shaken) {
-    btn.textContent = 'SHAKEN';
-    btn.className = 'tog-btn shaken-on';
-  } else {
-    btn.textContent = 'No';
-    btn.className = 'tog-btn';
-  }
-}
-
-function toggleFF() {
-  state.forceField = !state.forceField;
-  state._ffBeforeShaken = false; // manual toggle clears auto-restore
-  updateFFDisplay();
-  document.getElementById('sb-toughness').textContent = buildToughnessDisplay();
-  saveState();
-}
-
-function updateFFDisplay() {
-  const btn = document.getElementById('ff-btn');
-  const detail = document.getElementById('ff-status-detail');
-  const drPill = document.getElementById('ff-dr-pill');
-  const drValue = document.getElementById('ff-dr-value');
-  const ffp = getActivePower('Force Field');
-  const ffPowerActive = !!ffp;
-  const dr = ffp ? (parseInt(ffp.base)||1) : 0;
-  const ffOn = state.forceField && ffPowerActive && !state.shaken;
-  const ffPoweredDown = state.forceField && ffPowerActive && state.shaken;
-
-  // Toggle button
-  if (btn) {
-    if (!ffPowerActive) {
-      btn.textContent = 'No Power'; btn.className = 'tog-btn'; btn.disabled = true;
-    } else if (ffPoweredDown) {
-      btn.textContent = 'POWERED DOWN'; btn.className = 'tog-btn ff-down'; btn.disabled = false;
-    } else if (ffOn) {
-      btn.textContent = 'Active'; btn.className = 'tog-btn ff-on'; btn.disabled = false;
-    } else {
-      btn.textContent = 'Off'; btn.className = 'tog-btn'; btn.disabled = false;
-    }
-  }
-
-  // DR pill in status bar — only visible when FF is actively on
-  if (drPill && drValue) {
-    drPill.style.display = ffOn ? '' : 'none';
-    drValue.textContent = `DR ${dr}`;
-  }
-
-  // Combat notes detail
-  if (detail) {
-    if (!ffPowerActive) {
-      detail.textContent = 'Force Field power not active in current tier.';
-      detail.style.color = 'var(--text-dim)';
-    } else if (ffPoweredDown) {
-      detail.innerHTML = `<span style="color:var(--red)">⚠ POWERED DOWN</span> — Shaken. DR ${dr} lost until recovered.`;
-    } else if (ffOn) {
-      detail.innerHTML = `<span style="color:var(--blue)">● Active</span> — Reducing all incoming damage by ${dr}. Not Toughness — applied after hit lands.`;
-    } else {
-      detail.textContent = `Force Field off (DR ${dr} when active). Toggle to activate.`;
-      detail.style.color = 'var(--text-dim)';
-    }
-  }
-}
-function updateStatusBar() {
-  const rank=computeRank();
-  const rankEl=document.getElementById('nav-rank-display');
-  document.getElementById('sb-rank').textContent=rank;
-  if(rankEl){ rankEl.textContent=rank; rankEl.style.color=rankColor(rank); }
-  document.getElementById('sb-parry').textContent=computeParry();
-  document.getElementById('sb-toughness').textContent=buildToughnessDisplay();
-  document.getElementById('sb-pace').textContent=state.pace||6;
-  document.getElementById('sb-carry').textContent=`${computeCarryLimit()} lbs`;
-  updateWoundDisplay();
-  updateFatigueDisplay();
-  updateFFDisplay();
-  renderWeapons();
-  renderSPSummary();
-  saveState();
-}
-
-// ============================================================
-// RENDER: BENNIES
-// ============================================================
-function renderBennies() {
-  const track=document.getElementById('bennies-track'); track.innerHTML='';
-  for(let i=0;i<state.maxBennies;i++){
-    const b=document.createElement('div');
-    const active = i < state.bennies;
-    b.className='benny'+(active?'':' spent');
-    b.title=active?'Click to spend':'Click to restore';
-    b.onclick=()=>{
-      if(i < state.bennies) {
-        // Spend: clicking an active benny
-        state.bennies--;
-      } else if(i === state.bennies) {
-        // Restore: clicking the first spent benny restores one
-        state.bennies++;
-      }
-      renderBennies();
-      saveState();
-    };
-    track.appendChild(b);
-  }
-}
-function addBenny(){state.maxBennies++;state.bennies++;renderBennies();saveState();}
-
-// ============================================================
-// RENDER: PROGRESSIONS
-// ============================================================
-function renderStarting() {
-  const container=document.getElementById('starting-list'); container.innerHTML='';
-  // attribute/skill/money are budget-math only — no toggle needed, effect is in the sheet tabs
-  const BUDGET_ONLY = new Set(['attribute','skill','money']);
-  state.starting.forEach((s,i)=>{
-    const tp = (s.type||'').toLowerCase().trim();
-    if (BUDGET_ONLY.has(tp)) return;
-    const row=document.createElement('div');
-    row.className='starting-row'+(s.on?' checked':'');
-    // Show a readable type label
-    const typeLabel = tp.replace('hindrance-','').replace('-',' ');
-    row.innerHTML=`<div class="prog-chk">${s.on?'✓':''}</div><div><div class="prog-sel">${s.name}</div><div class="prog-pre">${typeLabel}</div></div><div class="prog-eff">${s.effect||''}</div>`;
-    row.onclick=()=>{state.starting[i].on=!state.starting[i].on;fullRefresh();};
-    container.appendChild(row);
-  });
+  const all = [...RAW_DATA.Edges, ...RAW_DATA.Hindrances];
+  document.getElementById('edges-container').innerHTML = all.map(e => `
+    <div style="margin-bottom:6px;">
+      <div style="font-weight:700; color:var(--heading); font-size:13px;">${e.name}</div>
+      <div style="font-size:11px; color:var(--text-dim); line-height:1.2;">${e.effect || e.summary || ''}</div>
+    </div>
+  `).join('');
 }
 
 function renderProgressions() {
-  const container=document.getElementById('prog-list'); container.innerHTML='';
-
-  // Update advance counter
-  const total = state.progressions.length;
-  const checked = state.progressions.filter(p=>p.checked).length;
-  const rank = computeRank();
-  const advCount = document.getElementById('adv-count');
-  const advTotal = document.getElementById('adv-total');
-  const advRank  = document.getElementById('adv-rank');
-  if (advCount) advCount.textContent = checked;
-  if (advTotal) advTotal.textContent = total;
-  if (advRank)  { advRank.textContent = rank; advRank.style.color = rankColor(rank); }
-
-  const ranks=['Novice','Seasoned','Veteran','Heroic','Legendary'];
-  ranks.forEach(rank=>{
-    const items=state.progressions.filter(p=>p.rank===rank);
-    if(!items.length) return;
-    const tier=document.createElement('div'); tier.className='prog-tier';
-    tier.innerHTML=`<div class="tier-badge ${rank.toLowerCase()}">${rank}</div>`;
-    items.forEach(p=>{
-      const gi=state.progressions.indexOf(p);
-      const tc=p.type==='Attribute'?'attribute':p.type.startsWith('Skill')?'skill':p.type==='Edge'?'edge':'open';
-
-      // Look up edge details from reference library
-      let desc = p.effect || '';
-      let source = '';
-      if(p.type==='Edge') {
-        const edgeRef = state.edgesRef.find(e=>e.name && e.name.toLowerCase()===p.selection.toLowerCase());
-        if(edgeRef) {
-          desc = edgeRef.effect || desc;
-          source = edgeRef.book || edgeRef.source || '';
-        }
-      }
-      const bookCls = source.toUpperCase()==='SPC'?'spc':'swade';
-      const sourceBadge = source ? `<span class="book-tag ${bookCls}" style="margin-left:6px">${source}</span>` : '';
-
-      const row=document.createElement('div');
-      row.className='prog-row'+(p.checked?' checked':'');
-      // Desktop: 4 columns — check | name+prereq+badge | type badge | description
-      // Mobile: collapses to 2 columns via CSS, all info stacks in col 2
-      row.innerHTML=`
-        <div class="prog-chk">${p.checked?'✓':''}</div>
-        <div style="min-width:0">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            <span class="prog-sel">${p.selection}</span>${sourceBadge}
-          </div>
-          <div class="prog-pre">${p.prereq}</div>
-          <div class="prog-eff prog-eff-mobile">${desc}</div>
+  document.getElementById('prog-content').innerHTML = `
+    <div class="card"><div class="card-header"><span class="card-title">Advances</span></div>
+    <div class="card-body">
+      ${RAW_DATA.Advances.map((a, i) => `
+        <div class="attr-row">
+          <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+            <input type="checkbox" ${UI_STATE.progressions[i] ? 'checked' : ''} onchange="toggleProg(${i})">
+            <span><strong>${a.rank}</strong>: ${a.selection}</span>
+          </label>
+          <span style="font-size:11px; color:var(--text-dim);">${a.effect}</span>
         </div>
-        <div class="prog-tbadge ${tc} prog-col-desktop">${p.type}</div>
-        <div class="prog-eff prog-col-desktop">${desc}</div>`;
-      row.onclick=()=>{state.progressions[gi].checked=!state.progressions[gi].checked;fullRefresh();};
-      tier.appendChild(row);
-    });
-    container.appendChild(tier);
-  });
+      `).join('')}
+    </div></div>`;
 }
 
-// ============================================================
-// RENDER: POWER TIERS
-// ============================================================
-function renderPowerTiers() {
-  const container=document.getElementById('power-list-container'); container.innerHTML='';
-
-  state.powerTiers.forEach(tier=>{
-    // Use parseInt for comparison — handles "1", " 1", 1, "1.0" etc.
-    const tierNum = parseInt(tier.tier||0);
-    const tierPowers = state.powers.filter(p => parseInt(p.tier||0) === tierNum);
-    const totalSPP = tierPowers.reduce((s,p)=>s+(parseInt(p.spp)||0),0);
-    const tierActive = tierPowers.length && tierPowers.every(p=>p.active);
-    const div=document.createElement('div'); div.className='power-tier';
-    div.innerHTML=`
-      <div class="pt-header${tierActive?' tier-on':''}" onclick="toggleTierActive(${tierNum})">
-        <div><div class="pt-title">${tier.title||'Tier '+tierNum}</div><div style="font-size:12px;color:var(--text-dim);margin-top:2px">${tier.spplabel||''}</div></div>
-        <div style="display:flex;align-items:center;gap:14px"><span style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--accent2)">Total: ${totalSPP} SPP</span><span style="font-size:20px;color:var(--text-dim)">${tierActive?'●':'○'}</span></div>
+function renderPowers() {
+  const tiers = RAW_DATA.PowerTiers;
+  document.getElementById('powers-content').innerHTML = tiers.map(tier => {
+    const powers = RAW_DATA.Powers.filter(p => parseInt(p.tier) === parseInt(tier.tier));
+    return `
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-header">
+          <span class="card-title">${tier.title}</span>
+          <span style="font-size:11px; color:var(--blue);">${tier.spplabel}</span>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="item-table">
+            ${powers.map(p => `
+              <tr>
+                <td><div style="font-weight:700;">${p.name}</div><div style="font-size:10px; color:var(--text-dim);">${p.effect}</div></td>
+                <td style="color:var(--blue); font-family:'Share Tech Mono';">${p.spp}</td>
+              </tr>
+            `).join('')}
+          </table>
+        </div>
       </div>
-      <div class="pt-list">
-        <div class="pt-colhdr"><div></div><div class="col-h" style="text-align:left">Power / Trapping</div><div class="col-h">Modifier</div><div class="col-h">Base</div><div class="col-h">Adj</div><div class="col-h">SPP</div></div>
-        ${tierPowers.length ? tierPowers.map((p)=>{
-          const idx=state.powers.indexOf(p);
-          return `<div class="pt-row${p.active?' pt-on':''}" onclick="togglePowerByIdx(${idx})">
-            <div class="pt-check">${p.active?'✓':''}</div>
-            <div><div class="pt-pname">${p.name||''}</div><div style="font-size:11px;color:var(--text-dim)">${p.effect||''}</div></div>
-            <div class="pt-mod">${p.mod||''}</div>
-            <div class="col-c">${p.base||''}</div>
-            <div class="col-c" style="color:${parseInt(p.adj)>0?'var(--green)':parseInt(p.adj)<0?'var(--red)':'var(--text-dim)'}">${parseInt(p.adj)>0?'+':''}${p.adj||0}</div>
-            <div class="col-spp">${p.spp||''}</div>
-          </div>`;
-        }).join('') : '<div style="padding:12px;color:var(--text-dim);font-size:13px">No powers found for tier '+tierNum+' (check console)</div>'}
-      </div>`;
-    container.appendChild(div);
-  });
+    `;
+  }).join('');
 }
 
-function toggleTierActive(tierNum) {
-  const tierPowers = state.powers.filter(p => parseInt(p.tier||0) === parseInt(tierNum||0));
-  const allOn = tierPowers.every(p=>p.active);
-  tierPowers.forEach(p=>p.active=!allOn);
-  renderPowerTiers(); updateStatusBar();
-}
-function togglePowerByIdx(idx) {
-  state.powers[idx].active=!state.powers[idx].active;
-  renderPowerTiers(); updateStatusBar();
+// UI HANDLERS
+function switchView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`view-${id}`).classList.add('active');
+  document.querySelector(`.nav-tab[onclick*="${id}"]`).classList.add('active');
 }
 
-// ============================================================
-// RENDER: REFERENCE TABLES
-// ============================================================
-// ── Accordion builder ─────────────────────────────────────────
-function buildAccItem(name, badgeHtml, rows) {
-  // rows = [{label, value}]
-  const item = document.createElement('div');
-  item.className = 'acc-item';
-  item.dataset.search = name.toLowerCase() + ' ' + rows.map(r=>r.value).join(' ').toLowerCase();
-  item.innerHTML = `
-    <div class="acc-header" onclick="this.parentElement.classList.toggle('open')">
-      <span class="acc-name">${name}</span>
-      <span class="acc-meta">${badgeHtml}</span>
-      <span class="acc-arrow">▼</span>
-    </div>
-    <div class="acc-body">
-      ${rows.filter(r=>r.value).map(r=>`
-        <div class="acc-row">
-          <span class="acc-lbl">${r.label}</span>
-          <span class="acc-val">${r.value}</span>
-        </div>`).join('')}
-    </div>`;
-  return item;
+function toggleWound(idx) {
+  UI_STATE.wounds[idx] = !UI_STATE.wounds[idx];
+  if(UI_STATE.wounds[idx]) for(let i=0; i<idx; i++) UI_STATE.wounds[i] = true;
+  else for(let i=idx; i<UI_STATE.wounds.length; i++) UI_STATE.wounds[i] = false;
+  renderTracks(); triggerSync();
 }
 
-function bookBadge(book) {
-  const cls = (book||'SWADE').toUpperCase()==='SPC'?'spc':'swade';
-  return `<span class="book-tag ${cls}">${book||'SWADE'}</span>`;
+function toggleFatigue(idx) {
+  UI_STATE.fatigue[idx] = !UI_STATE.fatigue[idx];
+  if(UI_STATE.fatigue[idx]) for(let i=0; i<idx; i++) UI_STATE.fatigue[i] = true;
+  else for(let i=idx; i<UI_STATE.fatigue.length; i++) UI_STATE.fatigue[i] = false;
+  renderTracks(); triggerSync();
 }
 
-function renderEdgesRef() {
-  const tb=document.getElementById('edges-ref-body'); tb.innerHTML='';
-  const acc=document.getElementById('edges-acc'); acc.innerHTML='';
-  state.edgesRef.forEach(e=>{
-    const bookCls=(e.book||'SWADE').toUpperCase()==='SPC'?'spc':'swade';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:700">${e.name||''}</td><td>${e.category||''}</td><td style="color:var(--text-dim)">${e.prereq||''}</td><td>${e.effect||''}</td><td><span class="book-tag ${bookCls}">${e.book||'SWADE'}</span></td>`;
-    tb.appendChild(tr);
-    acc.appendChild(buildAccItem(e.name||'', bookBadge(e.book), [
-      {label:'Category', value:e.category||''},
-      {label:'Prereq',   value:e.prereq||''},
-      {label:'Effect',   value:e.effect||''}
-    ]));
-  });
-}
-
-function renderHindrancesRef() {
-  const tb=document.getElementById('hindrances-ref-body'); tb.innerHTML='';
-  const acc=document.getElementById('hindrances-acc'); acc.innerHTML='';
-  state.hindrancesRef.forEach(h=>{
-    const bookCls=(h.book||'SWADE').toUpperCase()==='SPC'?'spc':'swade';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:700">${h.name||''}</td><td>${h.severity||''}</td><td>${h.effect||''}</td><td><span class="book-tag ${bookCls}">${h.book||'SWADE'}</span></td>`;
-    tb.appendChild(tr);
-    acc.appendChild(buildAccItem(h.name||'', bookBadge(h.book), [
-      {label:'Severity', value:h.severity||''},
-      {label:'Effect',   value:h.effect||''}
-    ]));
-  });
-}
-
-function renderSPRef() {
-  const tb=document.getElementById('sp-ref-body'); tb.innerHTML='';
-  const acc=document.getElementById('sp-acc'); acc.innerHTML='';
-  state.spPowers.forEach(p=>{
-    const nm    = f(p,'name','power','power_name');
-    const cost  = f(p,'basecost','base_cost','cost');
-    const ctype = f(p,'costtype','cost_type','type');
-    const sum   = f(p,'summary','description','effect');
-    const notes = f(p,'notes','note');
-    const src   = f(p,'source','page','src');
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:700">${nm}</td><td style="font-family:'Share Tech Mono',monospace">${cost}</td><td>${ctype}</td><td>${sum}</td><td class="sp-notes-col" style="color:var(--text-dim)">${notes}</td><td style="color:var(--text-dim)">${src}</td>`;
-    tb.appendChild(tr);
-    acc.appendChild(buildAccItem(nm, `<span style="font-family:'Share Tech Mono',monospace;color:var(--accent2);font-size:12px">${cost} SPP</span>`, [
-      {label:'Type',    value:ctype},
-      {label:'Summary', value:sum},
-      {label:'Notes',   value:notes},
-      {label:'Source',  value:src}
-    ]));
-  });
-}
-
-function renderArmorRef() {
-  const tb=document.getElementById('armor-ref-body'); tb.innerHTML='';
-  const acc=document.getElementById('armor-acc'); acc.innerHTML='';
-  state.armorRef.forEach(a=>{
-    const nm = String(f(a,'name','location','armor')||'').trim();
-    if(!nm || isTrue(nm) || nm.toLowerCase()==='false') return;
-    if(ARMOR_SLOTS.includes(nm)) return; // skip slot placeholder rows
-    const bookCls=(f(a,'book')||'SWADE').toUpperCase()==='SPC'?'spc':'swade';
-    const val   = f(a,'armorvalue','armor_value','value');
-    const wt    = f(a,'weight','wt');
-    const notes = f(a,'notes','note','description');
-    const book  = f(a,'book')||'SWADE';
-    const acq = isAcquired(a);
-    const eq  = isEquipped(a);
-    const nmEsc = nm.replace(/'/g,"\\'");
-    const acqBtn = `<button class="btn-acquire${acq?' acquired':''}" onclick="toggleAcquired('${nmEsc}')">${acq?'Remove':'Acquire'}</button>`;
-    const eqBtn  = acq ? `<button class="btn-equip${eq?' equipped':''}" onclick="toggleEquipped('${nmEsc}')">${eq?'Equipped':'Equip'}</button>` : '';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:700">${nm}</td><td style="font-family:'Share Tech Mono',monospace" class="ref-col-hide-mobile">+${val}</td><td class="ref-col-hide-mobile">${wt||'—'}</td><td style="color:var(--text-dim);font-size:12px" class="ref-col-hide-mobile">${notes}</td><td>${acqBtn}${eqBtn}</td>`;
-    tb.appendChild(tr);
-    acc.appendChild(buildAccItem(nm, `${bookBadge(book)}${acqBtn}${eqBtn}`, [
-      {label:'Armor',  value:`+${val}`},
-      {label:'Weight', value:wt ? `${wt} lbs` : ''},
-      {label:'Notes',  value:notes}
-    ]));
-  });
-}
-
-function renderGearRef() {
-  const tb = document.getElementById('gear-ref-body');
-  const acc = document.getElementById('gear-acc');
-  if (!tb) return;
-  tb.innerHTML=''; if(acc) acc.innerHTML='';
-  state.allGear.forEach(g => {
-    const nm = String(g.name||'').trim();
-    if (!nm) return;
-    const acq = isAcquired(g);
-    const nmEsc = nm.replace(/'/g,"\\'");
-    const acqBtn = `<button class="btn-acquire${acq?' acquired':''}" onclick="toggleAcquired('${nmEsc}')">${acq?'Remove':'Acquire'}</button>`;
-    const bookCls = (g.book||'SWADE').toUpperCase()==='SPC'?'spc':'swade';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td style="font-weight:700">${nm}</td><td style="font-family:'Share Tech Mono',monospace" class="ref-col-hide-mobile">${g.weight||'—'}</td><td style="font-family:'Share Tech Mono',monospace" class="ref-col-hide-mobile">${g.cost||'—'}</td><td style="color:var(--text-dim);font-size:12px" class="ref-col-hide-mobile">${g.notes||''}</td><td>${acqBtn}</td>`;
-    tb.appendChild(tr);
-    if(acc) acc.appendChild(buildAccItem(nm, acqBtn, [
-      {label:'Weight', value: g.weight ? `${g.weight} lbs` : ''},
-      {label:'Cost',   value: g.cost ? `$${g.cost}` : ''},
-      {label:'Notes',  value: g.notes||''}
-    ]));
-  });
-}
-
-function renderWeaponsRef() {
-  const tb=document.getElementById('weapons-ref-body'); tb.innerHTML='';
-  const acc=document.getElementById('weapons-acc'); acc.innerHTML='';
-  state.weaponsRef.forEach(w=>{
-    const nm = String(w.name||'').trim();
-    if(!nm || nm==='TRUE' || nm==='FALSE' || nm==='true' || nm==='false') return;
-    if(isTrue(w.dynamic)) return; // skip computed weapons
-    const bookCls=(w.book||'SWADE').toUpperCase()==='SPC'?'spc':'swade';
-    const acq = isAcquired(w);
-    const eq  = isEquipped(w);
-    const nmEsc = nm.replace(/'/g,"\\'");
-    const acqBtn = `<button class="btn-acquire${acq?' acquired':''}" onclick="toggleAcquired('${nmEsc}')">${acq?'Remove':'Acquire'}</button>`;
-    const eqBtn  = acq ? `<button class="btn-equip${eq?' equipped':''}" onclick="toggleEquipped('${nmEsc}')">${eq?'Equipped':'Equip'}</button>` : '';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:700">${nm}</td><td style="font-family:'Share Tech Mono',monospace" class="ref-col-hide-mobile">${w.damage||''}</td><td class="ref-col-hide-mobile">${w.skill||''}</td><td style="color:var(--text-dim);font-size:12px" class="ref-col-hide-mobile">${w.notes||''}</td><td>${acqBtn}${eqBtn}</td>`;
-    tb.appendChild(tr);
-    acc.appendChild(buildAccItem(nm, `${bookBadge(w.book)}${acqBtn}${eqBtn}`, [
-      {label:'Damage', value:w.damage||''},
-      {label:'Skill',  value:w.skill||''},
-      {label:'Notes',  value:w.notes||''}
-    ]));
-  });
-}
-
-// ── Unified filter — drives both table rows AND accordion items ──
-function filterRef(inputId, tableId, accId) {
-  const q = document.getElementById(inputId).value.toLowerCase().trim();
-  // Filter table rows
-  document.getElementById(tableId).querySelectorAll('tbody tr').forEach(tr=>{
-    tr.style.display = (!q || tr.textContent.toLowerCase().includes(q)) ? '' : 'none';
-  });
-  // Filter accordion items
-  if (accId) {
-    document.getElementById(accId).querySelectorAll('.acc-item').forEach(item=>{
-      item.style.display = (!q || item.dataset.search.includes(q)) ? '' : 'none';
-    });
-  }
-}
-
-// Keep old filterTable as alias for any other uses
-function filterTable(inputId, tableId) { filterRef(inputId, tableId, null); }
-
-// ============================================================
-// RENDER: DICE ROLLER
-// ============================================================
-function renderDiceButtons() {
-  const row=document.getElementById('dice-row'); row.innerHTML='';
-  [4,6,8,10,12,20].forEach(d=>{
-    const btn=document.createElement('button');
-    btn.className='die-btn'; btn.textContent=`d${d}`;
-    btn.onclick=()=>rollDie(d); row.appendChild(btn);
-  });
-  const w=document.createElement('button');
-  w.className='die-btn wild-die'; w.textContent='Wild d6';
-  w.onclick=()=>rollDie(6,true); row.appendChild(w);
-}
-
-function rollDie(sides, forceWild=false, diePlusMod=0) {
-  const mod = parseInt(document.getElementById('roll-modifier').value)||0;
-  const useWild = forceWild || document.getElementById('wild-toggle').checked;
-
-  function roll(s) {
-    const rolls = [];
-    let r = Math.floor(Math.random()*s)+1;
-    rolls.push(r);
-    let x = 0;
-    while (r === s && x < 10) {
-      r = Math.floor(Math.random()*s)+1;
-      rolls.push(r);
-      x++;
-    }
-    const total = rolls.reduce((a,b)=>a+b,0);
-    return { total, rolls, aced: x > 0, aceCount: x };
-  }
-
-  const main = roll(sides);
-  const fm = main.total + mod + diePlusMod;
-
-  // Build roll breakdown string e.g. "6+6+3=15"
-  function breakdown(r, s) {
-    if (r.rolls.length === 1) return `${r.rolls[0]}`;
-    return `${r.rolls.join('+')} = ${r.total}`;
-  }
-
-  const aceLabel = main.aceCount >= 2 ? ` (${main.aceCount}× Ace!)` : main.aceCount === 1 ? ' (Ace!)' : '';
-  const dieLabel = diePlusMod > 0 ? `d${sides}+${diePlusMod}` : `d${sides}`;
-  let detailParts = [`${dieLabel}: ${breakdown(main)}${aceLabel}${diePlusMod>0?" + "+diePlusMod+" (die bonus)":""}`];
-  if (mod !== 0) detailParts.push(`mod ${mod >= 0 ? '+' : ''}${mod}`);
-
-  let fr = fm;
-  let wildInfo = '';
-
-  if (useWild && !forceWild) {
-    const w = roll(6);
-    const fw = w.total + mod;
-    const wAceLabel = w.aceCount >= 2 ? ` (${w.aceCount}× Ace!)` : w.aceCount === 1 ? ' (Ace!)' : '';
-    const wBreak = breakdown(w, 6);
-    if (fw > fm) {
-      fr = fw;
-      wildInfo = `Wild d6: ${wBreak}${wAceLabel} ← used`;
-      detailParts[0] += ' (not used)';
-    } else {
-      wildInfo = `Wild d6: ${wBreak}${wAceLabel}`;
-    }
-  }
-
-  if (mod !== 0) {
-    const usedTotal = useWild && !forceWild ? (fr - mod) : main.total;
-    detailParts = detailParts.filter(p => !p.startsWith('mod'));
-    // show final calc
-  }
-
-  const finalDetail = detailParts.join(' · ') + (wildInfo ? ` · ${wildInfo}` : '') + (mod !== 0 ? ` · total with mod: ${fr}` : '');
-
-  let st = 'Failure', sc = 'fail';
-  if (fr >= 4) {
-    const raises = Math.floor((fr - 4) / 4);
-    st = raises > 0 ? `Success with ${raises} Raise${raises > 1 ? 's' : ''}!` : 'Success!';
-    sc = raises > 0 ? 'raise' : 'success';
-  }
-
-  const re = document.getElementById('roll-result');
-  re.style.display = 'flex';
-  re.innerHTML = `<div class="roll-num">${fr}</div><div><div class="roll-suc ${sc}">${st}</div><div class="roll-det">${finalDetail}</div></div>`;
-}
-
-function computeSkillMods() {
-  // Returns {skillName: [{label, value}]} from edges, hindrances, powers
-  const mods = {};
-  function addMod(skill, label, val) {
-    skill = skill.toLowerCase();
-    if (!mods[skill]) mods[skill] = [];
-    mods[skill].push({label, val});
-  }
-  // Hindrances with skill penalties
-  // Collect active hindrances from both bolohad and Starting tab
-  const activeHindrances = [
-    ...state.hindrances.filter(h=>isTrue(f(h,'acquired','bolohad','bolo_had','bolo'))),
-    ...state.starting.filter(s=>s.on && (f(s,'type')||'').toLowerCase().includes('hindrance'))
-      .map(s=>{
-        const nm=f(s,'name')||'';
-        const lib=state.hindrances.find(h=>(h.name||'').toLowerCase().trim()===nm.toLowerCase().trim());
-        return lib||{name:nm,effect:f(s,'effect')||''};
-      })
-  ];
-  // deduplicate
-  const seenH=new Set();
-  const dedupH=activeHindrances.filter(h=>{const n=(h.name||'').toLowerCase();if(seenH.has(n))return false;seenH.add(n);return true;});
-  dedupH.forEach(h=>{
-    const eff = (f(h,'effect')||'').toLowerCase();
-    const nm = f(h,'name')||'';
-    // Parse patterns like "-2 persuasion" or "persuasion -2"
-    const skillPenaltyRe = /([+-]?\d+)\s+to\s+([\w\s]+?)(?:\s+rolls?)?(?:\.|$|,)/gi;
-    let m;
-    while ((m = skillPenaltyRe.exec(eff)) !== null) {
-      const val = parseInt(m[1]);
-      const sk = m[2].trim();
-      addMod(sk, `${nm} (${val>=0?'+':''}${val})`, val);
-    }
-    // Outsider: -2 Persuasion
-    if (nm.toLowerCase().includes('outsider') && eff.includes('persuasion')) addMod('persuasion', 'Outsider (-2)', -2);
-    if (nm.toLowerCase().includes('all thumbs')) addMod('electronics', 'All Thumbs (-2)', -2);
-    if (nm.toLowerCase().includes('anemic')) addMod('vigor', 'Anemic (-2 vs Fatigue)', -2);
-    if (nm.toLowerCase().includes('bad eyes') && !nm.toLowerCase().includes('imp')) { addMod('shooting', 'Bad Eyes (-2)', -2); addMod('athletics', 'Bad Eyes thrown (-2)', -2); }
-    if (nm.toLowerCase().includes('clumsy')) { addMod('athletics', 'Clumsy (-2)', -2); addMod('stealth', 'Clumsy (-2)', -2); }
-    if (nm.toLowerCase().includes('hard of hearing')) addMod('notice', 'Hard of Hearing (-4 audio)', -4);
-    if (nm.toLowerCase().includes('yellow')) addMod('spirit', 'Yellow (-2 Fear)', -2);
-  });
-  // Starting edges with modifiers — check both starting and progression sources
-  const allActiveEdges = [
-    ...state.starting.filter(s=>s.on).map(s=>({nm:(f(s,'name')||'').toLowerCase(), eff:(f(s,'effect')||'').toLowerCase()})),
-    ...state.progressions.filter(p=>p.checked && f(p,'type')==='Edge').map(p=>({nm:(f(p,'selection','name')||'').toLowerCase(), eff:(f(p,'effect')||'').toLowerCase()})),
-  ];
-  allActiveEdges.forEach(({nm, eff})=>{
-    // ── Awareness / perception ──────────────────────────────
-    if (nm.includes('alertness'))     addMod('notice',      'Alertness (+2)', 2);
-    if (nm.includes('danger sense'))  addMod('notice',      'Danger Sense (+2 ambush)', 2);
-    if (nm.includes('infravision'))   addMod('notice',      'Infravision (halves dark penalty)', 0);
-    // ── Combat — Fighting ───────────────────────────────────
-    // Martial Warrior supersedes Martial Artist — don't double-stack
-    if (nm.includes('martial warrior')) {
-      addMod('fighting', 'Martial Warrior (+2 unarmed)', 2);
-    } else if (nm.includes('martial artist')) {
-      addMod('fighting', 'Martial Artist (+1 unarmed)', 1);
-    }
-    if (nm.includes('brawler') && !nm.includes('improved'))
-                                      addMod('fighting',    'Brawler (nat. weapon tag)', 0);
-    // ── Combat — Shooting ───────────────────────────────────
-    if (nm.includes('steady hands'))  addMod('shooting',    'Steady Hands (no running penalty)', 0);
-    if (nm.includes('marksman'))      addMod('shooting',    'Marksman (+2 if no move)', 2);
-    if (nm.includes('dead shot'))     addMod('shooting',    'Dead Shot (dbl damage raise)', 0);
-    // ── Social ──────────────────────────────────────────────
-    if (nm.includes('charismatic'))   addMod('persuasion',  'Charismatic (+2)', 2);
-    if (nm.includes('streetwise'))    addMod('persuasion',  'Streetwise (+2 criminal)', 2);
-    if (nm.includes('strong willed')) { addMod('intimidation','Strong Willed (+2)', 2); addMod('taunt','Strong Willed (+2)', 2); }
-    // ── Knowledge / Research ────────────────────────────────
-    if (nm.includes('investigator'))  { addMod('research',  'Investigator (+2)', 2); addMod('notice','Investigator (+2 research)', 2); }
-    if (nm.includes('scholar'))       { addMod('academics', 'Scholar (+2)', 2); addMod('science','Scholar (+2)', 2); }
-    if (nm.includes('jack-of-all'))   addMod('notice',      'Jack-of-All (no unskilled penalty)', 0);
-    // ── Vehicles ────────────────────────────────────────────
-    if (nm.includes('ace'))           { addMod('driving',   'Ace (+2)', 2); addMod('piloting','Ace (+2)', 2); addMod('boating','Ace (+2)', 2); }
-    // ── Survival / Stealth ──────────────────────────────────
-    if (nm.includes('woodsman'))      { addMod('survival',  'Woodsman (+2)', 2); addMod('stealth','Woodsman (+2 wild)', 2); }
-    if (nm.includes('thief'))         { addMod('stealth',   'Thief (+2)', 2); addMod('thievery','Thief (+2)', 2); }
-    // ── Healing ─────────────────────────────────────────────
-    if (nm.includes('healer'))        addMod('healing',     'Healer (+2)', 2);
-    if (nm.includes('liquid courage') && eff.includes('vigor'))
-                                      addMod('vigor',       'Liquid Courage (+1 die type)', 0);
-  });
-  // Active powers with skill effects
-  state.powers.filter(p=>p.active).forEach(p=>{
-    const nm = (p.name||'').toLowerCase();
-    if (nm.includes('awareness')) addMod('notice', `Awareness (ignores ${parseInt(p.base)||1} attack penalties)`, 0);
-    if (nm.includes('genius')) addMod('com. knowledge', 'Genius (free reroll)', 0);
-  });
-  return mods;
-}
-
-function renderSkillQuickRef() {
-  const mods = computeSkillMods();
-  const all=[...state.attrs.map(a=>({name:a.name,isAttr:true})),...state.skills.map(s=>({name:s.name,isAttr:false}))];
-  let html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:7px;margin-top:10px">';
-  all.forEach(item=>{
-    const lvl=item.isAttr?computeAttrLevel(item.name):computeSkillLevel(item.name);
-    if (!item.isAttr && lvl === 0) return; // hide unskilled from quick ref
-    const die=dieFor(lvl);
-    const sides=dieVal(lvl);
-    const dm=dieMod(lvl);
-    const col=item.isAttr?'var(--blue)':'var(--accent2)';
-    const skillMods = mods[item.name.toLowerCase()]||[];
-    const totalBonus = skillMods.reduce((s,m)=>s+m.val,0);
-    const bonusStr = totalBonus!==0 ? `<span style="font-size:11px;font-family:'Share Tech Mono',monospace;color:${totalBonus>0?'var(--green)':'var(--red)'}"> (${totalBonus>0?'+':''}${totalBonus})</span>` : '';
-    const modLines = skillMods.map(m=>`<div style="font-size:10px;color:var(--text-dim);padding-left:4px">↳ ${m.label}</div>`).join('');
-    const hasToggle = skillMods.length > 0;
-    const toggleId = `skmod-${item.name.replace(/[^a-z]/gi,'').toLowerCase()}`;
-    html+=`<div style="background:var(--surface2);border:1px solid ${hasToggle?'var(--accent2)':'var(--border)'};border-radius:4px;padding:7px 11px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="rollDie(${sides},false,${dm})">
-        <span style="font-weight:600">${item.name}${bonusStr}</span>
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:19px;color:${col}">${die}</span>
-      </div>
-      ${hasToggle?`<div id="${toggleId}" style="display:none;margin-top:4px;border-top:1px solid var(--border);padding-top:4px">${modLines}</div>
-      <div onclick="document.getElementById('${toggleId}').style.display=document.getElementById('${toggleId}').style.display==='none'?'block':'none'" style="text-align:center;font-size:9px;color:var(--text-dim);cursor:pointer;margin-top:4px;letter-spacing:1px;text-transform:uppercase">▾ modifiers</div>`:''}
-    </div>`;
-  });
-  html+='</div>';
-  document.getElementById('skill-quick-ref').innerHTML=html;
-}
-
-// ============================================================
-// WOUND / FATIGUE TOGGLES
-// ============================================================
-function toggleWound(i){
-  const {maxWounds}=getWoundEdgeInfo();
-  state.wounds[i]=!state.wounds[i];
-  if(!state.wounds[i]){for(let j=i+1;j<maxWounds;j++)state.wounds[j]=false;state.woundIncap=false;}
-  updateWoundDisplay();
-  document.getElementById('sb-toughness').textContent=buildToughnessDisplay();
-  saveState();
-}
-function toggleIncap(){
-  const {maxWounds}=getWoundEdgeInfo();
-  state.woundIncap=!state.woundIncap;
-  if(state.woundIncap)state.wounds=Array(maxWounds).fill(true);
-  updateWoundDisplay();
-  saveState();
-}
-function toggleFatigue(i){
-  state.fatigue[i]=!state.fatigue[i];
-  if(!state.fatigue[i]){for(let j=i+1;j<2;j++)state.fatigue[j]=false;state.fatigueIncap=false;}
-  updateFatigueDisplay();
-  saveState();
-}
-function toggleFatigueIncap(){
-  state.fatigueIncap=!state.fatigueIncap;
-  if(state.fatigueIncap)state.fatigue=[true,true];
-  updateFatigueDisplay();
-  saveState();
-}
-
-// ============================================================
-// NAV
-// ============================================================
-function showTab(name,btn){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  if(btn) btn.classList.add('active');
-  if(name==='roller'&&state.loaded) renderSkillQuickRef();
-}
-
-function toggleStatBar(){
-  const inner=document.getElementById('stat-bar-inner');
-  const btn=document.getElementById('stat-bar-toggle-btn');
-  if(!inner||!btn)return;
-  const collapsed=inner.classList.toggle('sb-collapsed');
-  btn.textContent=(collapsed?'▶':'▼')+' Stats & Tracking';
-}
-
-// ============================================================
-// FULL REFRESH
-// ============================================================
-function fullRefresh() {
-  renderStarting();
-  renderProgressions();
-  renderAttrs();
-  renderSkills();
-  renderHindrances();
-  renderEdges();
-  renderArmor();
-  renderGear();
-  updateConditionalVisibility();
-  updateShakenDisplay();
-  updateFFDisplay();
-  updateStatusBar(); // calls renderWeapons, renderSPSummary, saveState
-}
-
-// ============================================================
-// GOOGLE OAUTH + SHEETS SYNC
-// ============================================================
-// REPLACE THIS with your actual OAuth Client ID from Google Cloud Console:
-// APIs & Services → Credentials → OAuth 2.0 Client ID → Web application
-// Authorized JavaScript origins: https://spradlinc25.github.io
-const GOOGLE_CLIENT_ID = '499020138123-mj1nakqq9rrrv74pjrk0s476b3j10901.apps.googleusercontent.com';
-const SHEETS_SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
-
-let gAuthToken = null;       // current access token
-let gTokenExpiry = 0;        // token expiry timestamp
-let syncPending = false;     // debounce flag
-let syncTimer = null;        // debounce timer
-let isConnected = false;     // OAuth connected state
-
-// State tab range — we write a single JSON blob to State!B2
-const STATE_RANGE = 'State!B2';
-
-function buildSavePayload() {
-  return JSON.stringify({
-    starting:    state.starting.map(s => s.on),
-    progressions:state.progressions.map(p => p.checked),
-    powers:      state.powers.map(p => p.active),
-    bennies:     state.bennies,
-    maxBennies:  state.maxBennies,
-    showUnskilled: state.showUnskilled,
-    wounds:      state.wounds,
-    woundIncap:  state.woundIncap,
-    fatigue:     state.fatigue,
-    fatigueIncap:state.fatigueIncap,
-    shaken:      state.shaken,
-    forceField:  state.forceField,
-    acqState:    state.acqState,
-    eqState:     state.eqState
-  });
-}
-
-// ── localStorage save (always happens, instant) ──────────────
-const SAVE_KEY = 'bolo_swade_v4';
-let localSaveTimer = null;
-
-function saveState() {
-  try {
-    localStorage.setItem(SAVE_KEY, buildSavePayload());
-  } catch(e) {}
-  // Queue a Google Sheets sync (debounced 1.5s so we don't spam on rapid clicks)
-  if (isConnected) scheduleSheetsSync();
-  else flashSave('local');
-}
-
-function loadState() {
-  try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return;
-    applyPayload(JSON.parse(raw));
-  } catch(e) {}
-}
-
-function applyPayload(s) {
-  if (!s) return;
-  if (s.starting)      s.starting.forEach((on, i) => { if (state.starting[i]) state.starting[i].on = on; });
-  if (s.progressions)  s.progressions.forEach((c, i) => { if (state.progressions[i]) state.progressions[i].checked = c; });
-  if (s.powers)        s.powers.forEach((a, i) => { if (state.powers[i]) state.powers[i].active = a; });
-  if (s.bennies !== undefined)      state.bennies = s.bennies;
-  if (s.maxBennies !== undefined)   state.maxBennies = s.maxBennies;
-  if (s.wounds)                     state.wounds = s.wounds;
-  if (s.woundIncap !== undefined)   state.woundIncap = s.woundIncap;
-  if (s.fatigue)                    state.fatigue = s.fatigue;
-  if (s.fatigueIncap !== undefined) state.fatigueIncap = s.fatigueIncap;
-  if (s.shaken !== undefined)       state.shaken = s.shaken;
-  if (s.forceField !== undefined)   state.forceField = s.forceField;
-  if (s.showUnskilled !== undefined) state.showUnskilled = s.showUnskilled;
-  if (s.acqState) state.acqState = s.acqState;
-  if (s.eqState)  state.eqState  = s.eqState;
-}
-
-// ── Google Sheets write ───────────────────────────────────────
-function scheduleSheetsSync() {
-  clearTimeout(syncTimer);
-  syncTimer = setTimeout(() => doSheetsSync(), 1500);
-}
-
-async function doSheetsSync() {
-  if (!gAuthToken || Date.now() > gTokenExpiry) {
-    // Token expired — try silent refresh
-    const refreshed = await silentRefresh();
-    if (!refreshed) {
-      flashSave('local');
-      return;
-    }
-  }
-  setSyncStatus('saving');
-  try {
-    const payload = buildSavePayload();
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(STATE_RANGE)}?valueInputOption=RAW`;
-    const resp = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${gAuthToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ values: [[payload]] })
-    });
-    if (!resp.ok) throw new Error(`Sheets write failed: ${resp.status}`);
-    flashSave('cloud');
-    // Also persist token info
-    localStorage.setItem('bolo_gtoken', JSON.stringify({ token: gAuthToken, expiry: gTokenExpiry }));
-  } catch(err) {
-    console.warn('Sheets sync failed:', err);
-    flashSave('local');
-  }
-}
-
-async function loadFromSheets() {
-  if (!gAuthToken) return false;
-  try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(STATE_RANGE)}`;
-    const resp = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${gAuthToken}` }
-    });
-    if (!resp.ok) return false;
-    const data = await resp.json();
-    const raw = data.values?.[0]?.[0];
-    if (!raw) return false;
-    const parsed = JSON.parse(raw);
-    applyPayload(parsed);
-    // Also update localStorage with the cloud version
-    localStorage.setItem(SAVE_KEY, raw);
-    return true;
-  } catch(e) {
-    return false;
-  }
-}
-
-// ── OAuth flow ────────────────────────────────────────────────
-function handleSyncBtn() {
-  if (isConnected) {
-    // Disconnect
-    gAuthToken = null; gTokenExpiry = 0; isConnected = false;
-    localStorage.removeItem('bolo_gtoken');
-    setSyncStatus('disconnected');
-    return;
-  }
-  if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com') {
-    alert('Google sync not configured yet.\n\nTo enable cross-device sync:\n1. Go to console.cloud.google.com\n2. Create a project → Enable Sheets API\n3. Create OAuth 2.0 Client ID (Web application)\n4. Add https://spradlinc25.github.io as authorized origin\n5. Paste the Client ID into the HTML file\n\nFor now, use Export/Import buttons to transfer saves between devices.');
-    return;
-  }
-  // Trigger Google OAuth popup
-  const client = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: SHEETS_SCOPE,
-    callback: async (resp) => {
-      if (resp.error) { console.error('OAuth error:', resp); return; }
-      gAuthToken = resp.access_token;
-      gTokenExpiry = Date.now() + (resp.expires_in * 1000) - 60000; // 1min buffer
-      isConnected = true;
-      setSyncStatus('connected');
-      // Try to load cloud save — if it's newer than local, use it
-      setSyncStatus('loading');
-      const loaded = await loadFromSheets();
-      if (loaded) {
-        fullRefresh();
-        flashSave('loaded');
-      } else {
-        // No cloud save yet — push local state up
-        await doSheetsSync();
-      }
-    }
-  });
-  client.requestAccessToken();
-}
-
-async function silentRefresh() {
-  // Check if we have a stored token that's still valid
-  try {
-    const stored = localStorage.getItem('bolo_gtoken');
-    if (!stored) return false;
-    const { token, expiry } = JSON.parse(stored);
-    if (Date.now() < expiry) {
-      gAuthToken = token;
-      gTokenExpiry = expiry;
-      isConnected = true;
-      setSyncStatus('connected');
-      return true;
-    }
-  } catch(e) {}
-  return false;
-}
-
-// ── UI helpers ────────────────────────────────────────────────
-function setSyncStatus(status) {
-  const btn = document.getElementById('sync-btn');
-  const ind = document.getElementById('save-indicator');
-  if (!btn || !ind) return;
-  switch(status) {
-    case 'connected':
-      btn.textContent = '☁ Synced';
-      btn.className = 'sync-btn connected';
-      btn.title = 'Connected — click to disconnect';
-      ind.textContent = 'Cloud sync on';
-      ind.style.color = 'var(--green)';
-      break;
-    case 'saving':
-      btn.textContent = '☁ Saving…';
-      btn.className = 'sync-btn saving';
-      ind.textContent = 'Saving to cloud…';
-      ind.style.color = 'var(--accent2)';
-      break;
-    case 'loading':
-      btn.textContent = '☁ Loading…';
-      btn.className = 'sync-btn saving';
-      ind.textContent = 'Loading from cloud…';
-      ind.style.color = 'var(--accent2)';
-      break;
-    case 'disconnected':
-      btn.textContent = '☁ Connect Sync';
-      btn.className = 'sync-btn connect';
-      btn.title = 'Connect Google account to sync across devices';
-      ind.textContent = 'Local only';
-      ind.style.color = 'var(--text-dim)';
-      break;
-    case 'loaded':
-      btn.textContent = '☁ Synced';
-      btn.className = 'sync-btn connected';
-      ind.textContent = 'Loaded from cloud ✓';
-      ind.style.color = 'var(--green)';
-      setTimeout(() => { if(isConnected) { ind.textContent = 'Cloud sync on'; } }, 3000);
-      break;
-  }
-}
-
-function flashSave(mode='local') {
-  const ind = document.getElementById('save-indicator');
-  if (!ind) return;
-  if (mode === 'cloud') {
-    ind.textContent = '☁ Saved to cloud ✓';
-    ind.style.color = 'var(--green)';
-    const btn = document.getElementById('sync-btn');
-    if (btn) { btn.textContent = '☁ Synced'; btn.className = 'sync-btn connected'; }
-    setTimeout(() => { if (isConnected) { ind.textContent = 'Cloud sync on'; ind.style.color = 'var(--green)'; } }, 2500);
-  } else {
-    ind.textContent = '✓ Saved locally';
-    ind.style.color = 'var(--text-dim)';
-    clearTimeout(localSaveTimer);
-    localSaveTimer = setTimeout(() => {
-      ind.textContent = isConnected ? 'Cloud sync on' : 'Auto-saves locally';
-      ind.style.color = isConnected ? 'var(--green)' : 'var(--text-dim)';
-    }, 2000);
-  }
-}
-
-function clearSave() {
-  if (!confirm('Reset everything to defaults? This clears local save and cloud save.')) return;
-  localStorage.removeItem(SAVE_KEY);
-  if (isConnected) {
-    // Clear cloud save too
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(STATE_RANGE)}?valueInputOption=RAW`;
-    fetch(url, {
-      method: 'PUT',
-      headers: { 'Authorization': `Bearer ${gAuthToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values: [['']] })
-    }).catch(() => {});
-  }
-  location.reload();
-}
-
-// ── Export / Import ───────────────────────────────────────────
-function exportSave() {
-  const data = localStorage.getItem(SAVE_KEY) || '{}';
-  const blob = new Blob([data], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'bolo-save.json';
-  a.click();
-}
-
-function importSave() {
-  const input = document.createElement('input');
-  input.type = 'file'; input.accept = '.json';
-  input.onchange = e => {
-    const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      try {
-        localStorage.setItem(SAVE_KEY, ev.target.result);
-        location.reload();
-      } catch(err) { alert('Failed to import: ' + err); }
-    };
-    reader.readAsText(file);
-  };
-  input.click();
-}
-
-// ============================================================
-// MAIN LOAD — fetch all sheets
-// ============================================================
-async function loadAllSheets() {
-  const indicator=document.getElementById('save-indicator');
-  indicator.textContent='Fetching sheet data...';
-
-  try {
-    // Fetch all sheets in parallel
-    const [
-      attrsData, skillsData, startingData, progData,
-      tierData, powersData, hindrancesData,
-      weaponsData, armorData, gearData,
-      edgesRefData, hindrancesRefData, spData, charStateData
-    ] = await Promise.all([
-      fetchSheet('Attributes'), fetchSheet('Skills'),
-      fetchSheet('Starting'),   fetchSheet('Advances'),
-      fetchSheet('PowerTiers'), fetchSheet('Powers'),
-      fetchSheet('Hindrances'),
-      fetchSheet('Weapons'),    fetchSheet('Armor'),
-      fetchSheet('Gear'),
-      fetchSheet('Edges'),      fetchSheet('Hindrances'),
-      fetchSheet('SPCPowers'),  fetchSheet('State')
-    ]);
-
-    // ── Populate state (headers now match exactly) ───────────
-    state.attrs        = attrsData;
-    // Filter out note rows (name starts with ⚠ or base is not a number)
-    state.skills = skillsData.filter(s => {
-      const nm = (s.name||'').trim();
-      if (!nm || nm.startsWith('⚠') || nm.startsWith('NOTE')) return false;
-      return true;
-    });
-    // Filter Starting tab — only keep rows with a real name
-    state.starting = startingData
-      .filter(s => {
-        const nm = (s.name||'').trim();
-        if (!nm || nm.startsWith('⚠') || nm.toLowerCase() === 'name') return false;
-        return true;
-      })
-      .map(s=>({...s, on: isTrue(s.defaulton)}));
-    state.progressions = progData.map(p=>({...p, checked: false}));
-    state.powerTiers   = tierData;
-    state.powers       = powersData.map(p=>({...p, active: isTrue(p.defaultactive)}));
-    state.hindrances   = hindrancesData;
-    // Store row numbers (1-indexed, header=1, data starts row 2)
-    state.allWeapons   = weaponsData.map((w,i) => ({...w, _row: i+2}));
-    state.allArmor     = armorData.map((a,i)  => ({...a, _row: i+2}));
-    state.allGear      = gearData.map((g,i)   => ({...g, _row: i+2}));
-    state.edgesRef         = edgesRefData;
-    state.hindrancesRef    = hindrancesData;
-    state.spPowers         = spData;
-    state.weaponsRef       = state.allWeapons; // share same objects with row numbers
-    state.armorRef         = state.allArmor;
-
-    // Read flat character config from State tab (pace, size)
-    if (charStateData && charStateData.length) {
-      const stateRow = (key) => charStateData.find(r => (r.key||'').toLowerCase().trim() === key);
-      const paceRow = stateRow('pace');
-      const sizeRow = stateRow('size');
-      if (paceRow && paceRow.value) state.pace = parseInt(paceRow.value) || 6;
-      if (sizeRow && sizeRow.value) state.size = parseInt(sizeRow.value) || 0;
-      // show_unskilled is managed locally, not stored in sheet
-    }
-
-    // Restore session state — try cloud first if connected, else localStorage
-    if (isConnected) {
-      const cloudLoaded = await loadFromSheets();
-      if (!cloudLoaded) loadState(); // fallback to local
-    } else {
-      loadState();
-    }
-    state.loaded = true;
-
-    // Show all content sections
-    document.getElementById('sheet-loading').style.display='none';
-    document.getElementById('sheet-content').style.display='block';
-    document.getElementById('prog-loading').style.display='none';
-    document.getElementById('prog-content').style.display='block';
-    document.getElementById('powers-loading').style.display='none';
-    document.getElementById('powers-content').style.display='block';
-    document.getElementById('ref-loading').style.display='none';
-    document.getElementById('ref-content').style.display='block';
-
-    // Render everything
-    renderAttrs();
-    renderSkills();
-    renderHindrances();
-    renderEdges();
-    renderArmor();
-    renderGear();
-    renderBennies();
-    renderStarting();
-    renderProgressions();
-    renderPowerTiers();
-    renderDiceButtons();
-    updateFatigueDisplay();
-    updateConditionalVisibility();
-    updateStatusBar();
-    renderEdgesRef();
-    renderHindrancesRef();
-    renderSPRef();
-    renderWeaponsRef();
-    renderArmorRef();
-    renderGearRef();
-
-    // Update URL bar to reflect current sheet (makes URL always shareable/bookmarkable)
-    const currentParams = new URLSearchParams(window.location.search);
-    if (currentParams.get('sheet') !== SHEET_ID) {
-      const newUrl = `${window.location.pathname}?sheet=${SHEET_ID}`;
-      window.history.replaceState({}, '', newUrl);
-    }
-
-    // Update nav character name from sheet State tab 'name' key
-    if (charStateData && charStateData.length) {
-      const stateRow = (key) => charStateData.find(r => (r.key||'').toLowerCase().trim() === key);
-      const nameRow = stateRow('name');
-      const charName = nameRow ? nameRow.value : '';
-      if (charName) {
-        document.getElementById('nav-char-name').textContent = charName;
-        document.getElementById('nav-char-sub').style.display = '';
-      }
-    }
-
-    // Update status bar
-    if (isConnected) {
-      setSyncStatus('connected');
-    } else {
-      indicator.textContent = 'Auto-saves locally';
-      indicator.style.color = 'var(--text-dim)';
-    }
-
-  } catch(err) {
-    console.error('Sheet load error:', err);
-    indicator.textContent='⚠ Sheet load failed';
-    indicator.style.color='var(--red)';
-    ['sheet-loading','prog-loading','powers-loading','ref-loading'].forEach(id=>{
-      const el=document.getElementById(id);
-      el.innerHTML=`<div class="error-msg">⚠ Failed to load from Google Sheets: ${err.message}<br><br>Make sure the sheet is published (File → Share → Publish to web) and the Sheet ID is correct.</div>`;
-    });
-  }
-}
-
-// Boot — try silent OAuth restore, then load sheet data
-// ── Boot sequence ────────────────────────────────────────────
-async function boot() {
-  if (!SHEET_ID) {
-    showSetupScreen();
-    return;
-  }
-  silentRefresh().then(() => {
-    if (isConnected) setSyncStatus('connected');
-  });
-  loadAllSheets();
-}
-
-boot();
-
-// ============================================================
-// SETUP SCREEN + CHANGE SHEET
-// ============================================================
-function showSetupScreen() {
-  document.getElementById('setup-overlay').style.display = 'flex';
-  // Pre-fill if there's already a stored ID
-  const stored = localStorage.getItem('swade_sheet_id');
-  if (stored) document.getElementById('setup-sheet-id').value = stored;
-}
-
-function hideSetupScreen() {
-  document.getElementById('setup-overlay').style.display = 'none';
-}
-
-function validateSheetId(id) {
-  // Google Sheet IDs are 44-char alphanumeric + hyphens/underscores
-  return id && id.trim().length > 20 && /^[A-Za-z0-9_-]+$/.test(id.trim());
-}
-
-function setupLoadSheet() {
-  const raw = document.getElementById('setup-sheet-id').value;
-  const id = raw.trim();
-  const errEl = document.getElementById('setup-error');
-  const inputEl = document.getElementById('setup-sheet-id');
-
-  // Also accept full URLs — extract ID from them
-  const urlMatch = id.match(/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
-  const cleanId = urlMatch ? urlMatch[1] : id;
-
-  if (!validateSheetId(cleanId)) {
-    errEl.style.display = 'block';
-    inputEl.classList.add('error');
-    return;
-  }
-  errEl.style.display = 'none';
-  inputEl.classList.remove('error');
-
-  localStorage.setItem('swade_sheet_id', cleanId);
-  SHEET_ID = cleanId;
-
-  // Update URL bar so the sheet link is shareable immediately
-  window.history.replaceState({}, '', `${window.location.pathname}?sheet=${cleanId}`);
-
-  hideSetupScreen();
-  silentRefresh().then(() => { if (isConnected) setSyncStatus('connected'); });
-  loadAllSheets();
-}
-
-// Allow Enter key to submit
-document.getElementById('setup-sheet-id').addEventListener('keydown', e => {
-  if (e.key === 'Enter') setupLoadSheet();
-});
-
-// ── Change Sheet modal ──────────────────────────────────────
-function openChangeSheet() {
-  const modal = document.getElementById('change-sheet-modal');
-  document.getElementById('change-sheet-id').value = SHEET_ID;
-  document.getElementById('change-sheet-error').style.display = 'none';
-  modal.classList.add('open');
-  setTimeout(() => document.getElementById('change-sheet-id').focus(), 50);
-}
-
-function closeChangeSheet() {
-  document.getElementById('change-sheet-modal').classList.remove('open');
-}
-
+function adjustBennies(n) { UI_STATE.bennies = Math.max(0, UI_STATE.bennies + n); renderTracks(); triggerSync(); }
+function toggleShaken() { UI_STATE.shaken = !UI_STATE.shaken; renderTracks(); triggerSync(); }
+function toggleForceField() { UI_STATE.forceField = !UI_STATE.forceField; renderTracks(); triggerSync(); }
+function toggleUnskilled() { UI_STATE.showUnskilled = document.getElementById('chk-unskilled').checked; renderSkills(); triggerSync(); }
+function toggleProg(i) { UI_STATE.progressions[i] = !UI_STATE.progressions[i]; triggerSync(); }
+
+function openChangeSheet() { document.getElementById('modal-sheet-id').style.display = 'flex'; }
+function closeChangeSheet() { document.getElementById('modal-sheet-id').style.display = 'none'; }
 function confirmChangeSheet() {
-  const raw = document.getElementById('change-sheet-id').value;
-  const id = raw.trim();
-  const errEl = document.getElementById('change-sheet-error');
-  const inputEl = document.getElementById('change-sheet-id');
-
-  const urlMatch = id.match(/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
-  const cleanId = urlMatch ? urlMatch[1] : id;
-
-  if (!validateSheetId(cleanId)) {
-    errEl.style.display = 'block';
-    inputEl.classList.add('error');
-    return;
-  }
-  errEl.style.display = 'none';
-  inputEl.classList.remove('error');
-
-  localStorage.setItem('swade_sheet_id', cleanId);
-  SHEET_ID = cleanId;
-
-  // Update URL bar so new sheet is bookmarkable immediately
-  window.history.replaceState({}, '', `${window.location.pathname}?sheet=${cleanId}`);
-
-  closeChangeSheet();
-
-  // Disconnect OAuth since the sheet changed
-  if (isConnected) { gAuthToken = null; gTokenExpiry = 0; isConnected = false; setSyncStatus('disconnected'); }
-
-  // Show loading spinners again
-  ['sheet-loading','prog-loading','powers-loading','ref-loading'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.style.display = ''; el.innerHTML = '<span class=\"loading-spinner\"></span>Loading...'; }
-  });
-  ['sheet-content','prog-content','powers-content','ref-content'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-
-  loadAllSheets();
+  const id = document.getElementById('change-sheet-id').value.trim();
+  if(id) { window.location.search = `?sheet=${id}`; }
 }
+function showToast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
 
-document.getElementById('change-sheet-id').addEventListener('keydown', e => {
-  if (e.key === 'Enter') confirmChangeSheet();
-  if (e.key === 'Escape') closeChangeSheet();
-});
-
-// ── Copy shareable link ────────────────────────────────────
 function copySheetLink() {
   const url = `${window.location.origin}${window.location.pathname}?sheet=${SHEET_ID}`;
-  navigator.clipboard.writeText(url).then(() => {
-    const btn = document.getElementById('copy-link-btn');
-    const orig = btn.textContent;
-    btn.textContent = '✓';
-    btn.style.color = 'var(--green)';
-    btn.style.borderColor = 'var(--green)';
-    setTimeout(() => {
-      btn.textContent = orig;
-      btn.style.color = '';
-      btn.style.borderColor = '';
-    }, 1500);
-  }).catch(() => {
-    prompt('Copy this link:', url);
-  });
+  const ta = document.createElement("textarea"); ta.value = url; document.body.appendChild(ta); ta.select();
+  document.execCommand('copy'); document.body.removeChild(ta); showToast("Link Copied!");
 }
-
-// Close modal on backdrop click
-document.getElementById('change-sheet-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('change-sheet-modal')) closeChangeSheet();
-});
-
 </script>
 </body>
 </html>
