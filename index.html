@@ -10,28 +10,32 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;}
 
-/* NAV */
+/* NAV — Restoration of original slim design */
 nav{background:#0d0f13;border-bottom:2px solid var(--accent);display:flex;align-items:center;position:sticky;top:0;z-index:1000;padding:0 12px;height:48px;box-shadow:0 4px 12px rgba(0,0,0,0.5);}
 .logo-container{display:flex;align-items:center;gap:8px;margin-right:auto;}
 .logo{font-family:'Bebas Neue',cursive;font-size:24px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;}
 .sheet-id-badge{font-family:'Share Tech Mono',monospace;font-size:11px;background:var(--surface2);padding:2px 8px;border:1px solid var(--border);border-radius:4px;color:var(--accent2);cursor:pointer;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
 .nav-tabs{display:flex;height:100%;}
 .nav-tab{height:100%;padding:0 16px;display:flex;align-items:center;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-dim);font-weight:600;transition:0.2s;text-transform:uppercase;letter-spacing:1px;font-size:14px;}
 .nav-tab:hover{background:rgba(232,93,38,0.05);color:var(--text);}
 .nav-tab.active{color:var(--accent);border-color:var(--accent);background:rgba(232,93,38,0.1);}
+
 .nav-actions{display:flex;align-items:center;gap:8px;margin-left:12px;}
 .btn-icon{background:none;border:1px solid var(--border);color:var(--text-dim);width:32px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.2s;}
 .btn-icon:hover{border-color:var(--accent);color:var(--accent);}
 
-/* LAYOUT */
-main{max-width:1400px;margin:12px auto;padding:0 12px 100px 12px;}
+/* MAIN CONTAINER */
+main{max-width:1400px;margin:12px auto;padding:0 12px;padding-bottom:100px;}
 .view{display:none;}
 .view.active{display:block;animation:fadeIn 0.3s ease-out;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+
+/* GRID LAYOUTS */
 .dashboard-grid{display:grid;grid-template-columns:300px 1fr 340px;gap:12px;}
 .sheet-col{display:flex;flex-direction:column;gap:12px;}
 
-/* CARDS */
+/* CARD STYLES */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.25);}
 .card-header{background:var(--surface2);padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;min-height:36px;}
 .card-title{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--heading);letter-spacing:0.5px;display:flex;align-items:center;gap:6px;}
@@ -40,37 +44,46 @@ main{max-width:1400px;margin:12px auto;padding:0 12px 100px 12px;}
 /* STATS */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
 .stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;justify-content:center;}
-.stat-box .label{font-size:10px;color:var(--text-dim);text-transform:uppercase;font-weight:700;}
-.stat-box .val{font-family:'Share Tech Mono',monospace;font-size:22px;color:var(--accent2);line-height:1;}
+.stat-box .label{font-size:11px;color:var(--text-dim);text-transform:uppercase;font-weight:700;margin-bottom:2px;}
+.stat-box .val{font-family:'Share Tech Mono',monospace;font-size:24px;color:var(--accent2);line-height:1;}
 .stat-box .sub{font-size:10px;color:var(--muted);margin-top:2px;}
 
-/* LISTS & TABLES */
+/* ATTRIBUTES & SKILLS */
 .attr-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);}
+.attr-name{font-weight:700;color:var(--text);font-size:16px;}
+.dice-pill{background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:20px;font-family:'Share Tech Mono',monospace;color:var(--accent2);font-weight:700;cursor:pointer;}
+
 .skill-list{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;}
 .skill-item{display:flex;align-items:center;justify-content:space-between;padding:4px 6px;border-radius:4px;}
-.dice-pill{background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:20px;font-family:'Share Tech Mono',monospace;color:var(--accent2);font-weight:700;cursor:pointer;}
-.item-table{width:100%;border-collapse:collapse;}
-.item-table th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;padding:4px 8px;border-bottom:1px solid var(--border);}
-.item-table td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:top;}
-.section-divider{background:var(--surface2);padding:4px 8px;font-size:11px;color:var(--text-dim);text-transform:uppercase;font-weight:700;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.skill-name{font-size:14px;color:var(--text-dim);}
+.skill-die{font-family:'Share Tech Mono',monospace;color:var(--accent);font-weight:600;}
+
+/* WOUNDS & FATIGUE */
+.track-row{display:flex;gap:4px;margin-top:8px;}
+.track-box{flex:1;height:30px;border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Share Tech Mono',monospace;font-weight:700;transition:0.2s;}
+.track-box.wound.active{background:var(--red);color:white;box-shadow:inset 0 0 8px rgba(0,0,0,0.5);}
+.track-box.fatigue.active{background:var(--blue);color:white;box-shadow:inset 0 0 8px rgba(0,0,0,0.5);}
+.track-box.incap.active{background:var(--heading);color:var(--bg);}
 
 /* BUTTONS */
-.btn-action{background:var(--accent);color:white;border:none;padding:6px 10px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer;text-transform:uppercase;font-size:11px;}
-.btn-outline{background:none;border:1px solid var(--border);color:var(--text-dim);padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;}
-.btn-outline.active{border-color:var(--accent);color:var(--accent);}
+.btn-action{background:var(--accent);color:white;border:none;padding:6px 12px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer;text-transform:uppercase;font-size:12px;}
+.btn-outline{background:none;border:1px solid var(--border);color:var(--text-dim);padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;transition:0.2s;}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-outline.active{border-color:var(--accent);color:var(--accent);background:rgba(232,93,38,0.1);}
 
-/* TRACKS */
-.track-row{display:flex;gap:4px;margin-top:8px;}
-.track-box{flex:1;height:30px;border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Share Tech Mono',monospace;font-weight:700;}
-.track-box.wound.active{background:var(--red);color:white;}
-.track-box.fatigue.active{background:var(--blue);color:white;}
+/* WEAPONS & GEAR */
+.item-table{width:100%;border-collapse:collapse;margin-top:4px;}
+.item-table th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;padding:4px 8px;border-bottom:1px solid var(--border);}
+.item-table td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:top;}
+.item-name{font-weight:600;color:var(--heading);display:block;}
+.item-meta{font-size:12px;color:var(--text-dim);}
+.section-header{background:var(--surface2);font-size:11px;color:var(--text-dim);text-transform:uppercase;font-weight:800;padding:4px 8px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
 
-/* MODALS */
+/* MODALS & TOASTS */
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
-.modal{background:var(--surface);border:1px solid var(--accent);width:90%;max-width:400px;border-radius:8px;padding:24px;}
-.modal-input{width:100%;background:var(--bg);border:1px solid var(--border);padding:12px;color:white;font-family:'Share Tech Mono',monospace;margin:12px 0;border-radius:4px;}
-
-.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border-left:4px solid var(--accent);padding:12px 20px;border-radius:4px;transform:translateY(100px);opacity:0;transition:0.4s;z-index:3000;}
+.modal{background:var(--surface);border:1px solid var(--accent);width:90%;max-width:400px;border-radius:8px;box-shadow:0 20px 50px rgba(0,0,0,0.6);padding:24px;}
+.modal-input{width:100%;background:var(--bg);border:1px solid var(--border);padding:12px;color:white;font-family:'Share Tech Mono',monospace;margin-top:12px;border-radius:4px;outline:none;}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border-left:4px solid var(--accent);padding:12px 20px;border-radius:4px;box-shadow:0 8px 24px rgba(0,0,0,0.5);transform:translateY(100px);opacity:0;transition:0.4s;z-index:3000;}
 .toast.show{transform:translateY(0);opacity:1;}
 .loading-spinner{width:18px;height:18px;border:2px solid rgba(232,93,38,0.2);border-top:2px solid var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -92,19 +105,20 @@ main{max-width:1400px;margin:12px auto;padding:0 12px 100px 12px;}
     <div class="nav-tab" onclick="switchView('library')">Ref</div>
   </div>
   <div class="nav-actions">
-    <button class="btn-icon" onclick="loadAllSheets()"><span id="refresh-spin">↺</span></button>
-    <button id="copy-link-btn" class="btn-icon" onclick="copySheetLink()">🔗</button>
+    <button class="btn-icon" title="Refresh" onclick="loadAllSheets()"><span id="refresh-spin">↺</span></button>
+    <button id="copy-link-btn" class="btn-icon" title="Copy Link" onclick="copySheetLink()">🔗</button>
   </div>
 </nav>
 
 <main>
+  <!-- DASHBOARD -->
   <div id="view-dashboard" class="view active">
     <div id="sheet-loading" class="card" style="padding:40px; text-align:center;">
-       <span class="loading-spinner"></span><br><br>Initializing...
+       <span class="loading-spinner"></span><br><br>Loading Character...
     </div>
     
     <div id="sheet-content" class="dashboard-grid" style="display:none;">
-      <!-- COL 1 -->
+      <!-- COL 1: ATTRS & TRACKS -->
       <div class="sheet-col">
         <div class="card">
           <div class="card-header"><span class="card-title">Attributes</span></div>
@@ -124,13 +138,13 @@ main{max-width:1400px;margin:12px auto;padding:0 12px 100px 12px;}
                <div class="track-box wound" onclick="toggleWound(0)">1</div>
                <div class="track-box wound" onclick="toggleWound(1)">2</div>
                <div class="track-box wound" onclick="toggleWound(2)">3</div>
-               <div class="track-box wound" onclick="toggleIncap('wound')">INC</div>
+               <div class="track-box wound incap" onclick="toggleIncap('wound')">INC</div>
              </div>
              <div class="label" style="font-size:11px; color:var(--text-dim); text-transform:uppercase; margin-top:12px;">Fatigue</div>
              <div class="track-row" id="fatigue-track">
                <div class="track-box fatigue" onclick="toggleFatigue(0)">1</div>
                <div class="track-box fatigue" onclick="toggleFatigue(1)">2</div>
-               <div class="track-box fatigue" onclick="toggleIncap('fatigue')">INC</div>
+               <div class="track-box fatigue incap" onclick="toggleIncap('fatigue')">INC</div>
              </div>
              <div style="margin-top:16px; display:flex; gap:8px;">
                 <button id="btn-shaken" class="btn-outline" style="flex:1;" onclick="toggleShaken()">Shaken</button>
@@ -151,7 +165,7 @@ main{max-width:1400px;margin:12px auto;padding:0 12px 100px 12px;}
         </div>
       </div>
 
-      <!-- COL 2 -->
+      <!-- COL 2: SKILLS & ATTACKS -->
       <div class="sheet-col">
         <div class="card">
           <div class="card-header">
@@ -164,17 +178,15 @@ main{max-width:1400px;margin:12px auto;padding:0 12px 100px 12px;}
         <div class="card">
           <div class="card-header"><span class="card-title">Attacks</span></div>
           <div class="card-body" style="padding:0;">
-             <table class="item-table" id="attacks-table">
+             <table class="item-table">
                <tbody id="attacks-body"></tbody>
              </table>
           </div>
         </div>
       </div>
 
-      <!-- COL 3 -->
+      <!-- COL 3: GEAR & EDGES -->
       <div class="sheet-col">
-        <div id="armor-summary-container" class="stats-row"></div>
-
         <div class="card">
           <div class="card-header"><span class="card-title">Armor & Gear</span></div>
           <div class="card-body" style="padding:0;">
@@ -193,7 +205,7 @@ main{max-width:1400px;margin:12px auto;padding:0 12px 100px 12px;}
   </div>
 
   <div id="view-powers" class="view">
-    <div id="powers-content"></div>
+    <div id="powers-content" class="sheet-col"></div>
   </div>
 
   <div id="view-advancement" class="view">
@@ -205,11 +217,12 @@ main{max-width:1400px;margin:12px auto;padding:0 12px 100px 12px;}
   </div>
 </main>
 
+<!-- CHANGE SHEET MODAL -->
 <div id="modal-sheet-id" class="modal-overlay">
   <div class="modal">
     <h2 style="font-family:'Bebas Neue'; color:var(--accent);">Connect Google Sheet</h2>
-    <input type="text" id="change-sheet-id" class="modal-input" placeholder="Sheet ID...">
-    <div style="display:flex; gap:8px;">
+    <input type="text" id="change-sheet-id" class="modal-input" placeholder="Paste Sheet ID here...">
+    <div style="display:flex; gap:8px; margin-top:20px;">
       <button class="btn-action" style="flex:1;" onclick="confirmChangeSheet()">Connect</button>
       <button class="btn-outline" style="flex:1;" onclick="closeChangeSheet()">Cancel</button>
     </div>
@@ -236,7 +249,7 @@ async function loadAllSheets() {
     renderAll();
     document.getElementById('sheet-loading').style.display = 'none';
     document.getElementById('sheet-content').style.display = 'grid';
-  } catch (e) { showToast("Error loading sheet."); }
+  } catch (e) { console.error(e); }
 }
 
 async function fetchCSV(tab) {
@@ -278,16 +291,13 @@ function triggerSync() {
 
 async function syncToSheet() {
   if (!SHEET_ID) return;
-  showToast("Syncing state...");
-  // Implement your App Script logic here
-  // writeBackCell('State', 'B2', JSON.stringify(UI_STATE));
+  showToast("Syncing to Sheet...");
+  // Note: logic for writeBackCell depends on your specific App Script URL
 }
 
-// THE FIX: Use USER_ENTERED to preserve checkboxes
 async function writeBackCell(sheet, cell, value) {
-  const scriptURL = "YOUR_APPS_SCRIPT_URL_HERE"; 
-  if (scriptURL === "YOUR_APPS_SCRIPT_URL_HERE") return;
-
+  const scriptURL = ""; // YOUR URL HERE
+  if(!scriptURL) return;
   await fetch(scriptURL, {
     method: 'POST',
     mode: 'no-cors',
@@ -295,7 +305,7 @@ async function writeBackCell(sheet, cell, value) {
       sheetId: SHEET_ID,
       range: `${sheet}!${cell}`,
       value: value,
-      valueInputOption: "USER_ENTERED" // CRITICAL FIX
+      valueInputOption: "USER_ENTERED" // FIX: Preserves checkboxes
     })
   });
 }
@@ -315,7 +325,7 @@ function renderAll() {
 function renderAttributes() {
   document.getElementById('attr-container').innerHTML = RAW_DATA.Attributes.map(a => `
     <div class="attr-row">
-      <span style="font-weight:700;">${a.name}</span>
+      <span class="attr-name">${a.name}</span>
       <span class="dice-pill">d${a.base * 2 + 2}</span>
     </div>
   `).join('');
@@ -324,7 +334,7 @@ function renderAttributes() {
 function renderSkills() {
   document.getElementById('skills-container').innerHTML = RAW_DATA.Skills
     .filter(s => UI_STATE.showUnskilled || s.base > 0)
-    .map(s => `<div class="skill-item"><span>${s.name}</span><span style="color:var(--accent); font-family:'Share Tech Mono';">d${s.base > 0 ? (s.base * 2 + 2) : '4-2'}</span></div>`)
+    .map(s => `<div class="skill-item"><span class="skill-name">${s.name}</span><span class="skill-die">d${s.base > 0 ? (s.base * 2 + 2) : '4-2'}</span></div>`)
     .join('');
 }
 
@@ -332,25 +342,18 @@ function renderDerived() {
   const fight = parseInt(RAW_DATA.Skills.find(s => s.name === 'Fighting')?.base || 0);
   const vigor = parseInt(RAW_DATA.Attributes.find(a => a.name === 'Vigor')?.base || 0);
   
-  // Calculate Armor
-  const armorSlots = { Head: 0, Torso: 0, Arms: 0, Legs: 0 };
+  // Calculate Armor from Torso specifically for general Toughness
+  let torsoArmor = 0;
   RAW_DATA.Armor.filter(a => a.equipped).forEach(a => {
-    const locs = a.Location ? a.Location.split(',').map(l => l.trim()) : [];
-    const val = parseInt(a.armorvalue || 0);
-    locs.forEach(l => { if(armorSlots[l] !== undefined) armorSlots[l] = Math.max(armorSlots[l], val); });
-    if(a.Location === 'Full') ['Head','Torso','Arms','Legs'].forEach(l => armorSlots[l] = Math.max(armorSlots[l], val));
+    if (a.Location === 'Torso' || a.Location === 'Full') torsoArmor = Math.max(torsoArmor, parseInt(a.armorvalue || 0));
   });
 
   const parry = 2 + (fight + 1);
-  const toughness = 2 + (vigor + 1) + armorSlots.Torso;
+  const toughness = 2 + (vigor + 1) + torsoArmor;
 
   document.getElementById('derived-stats').innerHTML = [
-    {l:'Pace', v:'6'}, {l:'Parry', v:parry}, {l:'Toughness', v:toughness, s:`(${armorSlots.Torso})`}, {l:'Size', v:'0'}
+    {l:'Pace', v:'6'}, {l:'Parry', v:parry}, {l:'Toughness', v:toughness, s:`(${torsoArmor})`}, {l:'Size', v:'0'}
   ].map(s => `<div class="stat-box"><span class="label">${s.l}</span><span class="val">${s.v}</span>${s.s?`<span class="sub">${s.s}</span>`:''}</div>`).join('');
-
-  document.getElementById('armor-summary-container').innerHTML = Object.entries(armorSlots).map(([k, v]) => `
-    <div class="stat-box"><span class="label">${k}</span><span class="val" style="color:var(--blue);">${v}</span></div>
-  `).join('');
 }
 
 function renderTracks() {
@@ -361,54 +364,64 @@ function renderTracks() {
   document.getElementById('benny-count').textContent = UI_STATE.bennies;
   document.getElementById('btn-shaken').classList.toggle('active', UI_STATE.shaken);
   document.getElementById('btn-forcefield').classList.toggle('active', UI_STATE.forceField);
+  
+  const pen = UI_STATE.wounds.filter(x => x).length + UI_STATE.fatigue.filter(x => x).length;
+  document.getElementById('penalty-badge').style.display = pen > 0 ? 'block' : 'none';
+  document.getElementById('penalty-badge').textContent = `-${pen}`;
 }
 
 function renderAttacks() {
   const equipped = RAW_DATA.Weapons.filter(w => w.equipped);
-  const unequipped = RAW_DATA.Weapons.filter(w => !w.equipped && w.acquired);
+  const inventory = RAW_DATA.Weapons.filter(w => !w.equipped && w.acquired);
   
-  let html = `<tr><th colspan="3" style="background:var(--surface2);">Equipped</th></tr>`;
-  html += equipped.map((w, i) => renderWeaponRow(w, true)).join('');
-  html += `<tr><th colspan="3" style="background:var(--surface2);">Inventory</th></tr>`;
-  html += unequipped.map((w, i) => renderWeaponRow(w, false)).join('');
+  let html = `<tr><td colspan="3" class="section-header">Equipped</td></tr>`;
+  html += equipped.map(w => renderItemRow(w, 'Weapons', true)).join('') || '<tr><td colspan="3" class="item-meta">None equipped</td></tr>';
+  
+  html += `<tr><td colspan="3" class="section-header">Inventory</td></tr>`;
+  html += inventory.map(w => renderItemRow(w, 'Weapons', false)).join('') || '<tr><td colspan="3" class="item-meta">Empty</td></tr>';
   
   document.getElementById('attacks-body').innerHTML = html;
 }
 
-function renderWeaponRow(w, isEquipped) {
+function renderArmor() {
+  const equipped = RAW_DATA.Armor.filter(a => a.equipped);
+  const inventory = RAW_DATA.Armor.filter(a => !a.equipped && a.acquired);
+  
+  let html = `<tr><td colspan="3" class="section-header">Equipped</td></tr>`;
+  html += equipped.map(a => renderItemRow(a, 'Armor', true)).join('') || '<tr><td colspan="3" class="item-meta">None equipped</td></tr>';
+  
+  html += `<tr><td colspan="3" class="section-header">Inventory</td></tr>`;
+  html += inventory.map(a => renderItemRow(a, 'Armor', false)).join('') || '<tr><td colspan="3" class="item-meta">Empty</td></tr>';
+  
+  document.getElementById('gear-body').innerHTML = html;
+}
+
+function renderItemRow(item, tab, isEquipped) {
+  const meta = tab === 'Weapons' ? item.damage : `+${item.armorvalue} ${item.Location}`;
   return `<tr>
-    <td><div style="font-weight:700;">${w.name}</div><div style="font-size:10px; color:var(--text-dim);">${w.notes}</div></td>
-    <td style="color:var(--accent2); font-family:'Share Tech Mono';">${w.damage}</td>
-    <td style="text-align:right;"><button class="btn-outline" onclick="toggleEquip('Weapons', '${w.name}')">${isEquipped ? 'Unequip' : 'Equip'}</button></td>
+    <td><span class="item-name">${item.name}</span><span class="item-meta">${item.notes || ''}</span></td>
+    <td class="stat-box" style="background:none; border:none; width:60px;"><span class="val" style="font-size:16px;">${meta}</span></td>
+    <td style="text-align:right; vertical-align:middle; width:80px;">
+      <button class="btn-outline" onclick="toggleEquip('${tab}', '${item.name}')">${isEquipped ? 'Unequip' : 'Equip'}</button>
+    </td>
   </tr>`;
 }
 
-function renderArmor() {
-  const acquired = RAW_DATA.Armor.filter(a => a.acquired || a.equipped);
-  document.getElementById('gear-body').innerHTML = acquired.map(a => `
-    <tr>
-      <td><div style="font-weight:700;">${a.name}</div><div style="font-size:10px; color:var(--text-dim);">+${a.armorvalue} ${a.Location}</div></td>
-      <td style="text-align:right;"><button class="btn-outline" onclick="toggleEquip('Armor', '${a.name}')">${a.equipped ? 'Unequip' : 'Equip'}</button></td>
-    </tr>
-  `).join('');
-}
-
-function toggleEquip(type, name) {
-  const item = RAW_DATA[type].find(i => i.name === name);
-  if (item) {
+function toggleEquip(tab, name) {
+  const item = RAW_DATA[tab].find(i => i.name === name);
+  if(item) {
     item.equipped = !item.equipped;
     renderAll();
-    // In a real setup, we would writeBackCell to the specific row in the sheet
     triggerSync();
   }
 }
 
 function renderEdges() {
-  const all = [...RAW_DATA.Edges, ...RAW_DATA.Hindrances];
+  const all = [...(RAW_DATA.Edges||[]), ...(RAW_DATA.Hindrances||[])];
   document.getElementById('edges-container').innerHTML = all.map(e => `
-    <div style="margin-bottom:6px;">
-      <div style="font-weight:700; color:var(--heading); font-size:13px;">${e.name}</div>
-      <div style="font-size:11px; color:var(--text-dim); line-height:1.2;">${e.effect || e.summary || ''}</div>
+    <div style="margin-bottom:8px;">
+      <div style="font-weight:700; color:var(--heading); font-size:14px;">${e.name}</div>
+      <div style="font-size:12px; color:var(--text-dim); line-height:1.2;">${e.effect || e.summary || ''}</div>
     </div>
   `).join('');
 }
@@ -423,7 +436,7 @@ function renderProgressions() {
             <input type="checkbox" ${UI_STATE.progressions[i] ? 'checked' : ''} onchange="toggleProg(${i})">
             <span><strong>${a.rank}</strong>: ${a.selection}</span>
           </label>
-          <span style="font-size:11px; color:var(--text-dim);">${a.effect}</span>
+          <span class="item-meta">${a.effect}</span>
         </div>
       `).join('')}
     </div></div>`;
@@ -432,19 +445,20 @@ function renderProgressions() {
 function renderPowers() {
   const tiers = RAW_DATA.PowerTiers;
   document.getElementById('powers-content').innerHTML = tiers.map(tier => {
+    // FIX: Filtering powers by tier column
     const powers = RAW_DATA.Powers.filter(p => parseInt(p.tier) === parseInt(tier.tier));
     return `
       <div class="card" style="margin-bottom:12px;">
         <div class="card-header">
           <span class="card-title">${tier.title}</span>
-          <span style="font-size:11px; color:var(--blue);">${tier.spplabel}</span>
+          <span style="font-size:11px; color:var(--blue); font-weight:700;">${tier.spplabel}</span>
         </div>
         <div class="card-body" style="padding:0;">
           <table class="item-table">
             ${powers.map(p => `
               <tr>
-                <td><div style="font-weight:700;">${p.name}</div><div style="font-size:10px; color:var(--text-dim);">${p.effect}</div></td>
-                <td style="color:var(--blue); font-family:'Share Tech Mono';">${p.spp}</td>
+                <td><span class="item-name">${p.name}</span><span class="item-meta">${p.effect}</span></td>
+                <td style="width:50px; text-align:center;"><span class="val" style="color:var(--blue); font-family:'Share Tech Mono';">${p.spp}</span><br><span class="label" style="font-size:9px;">SPP</span></td>
               </tr>
             `).join('')}
           </table>
@@ -454,7 +468,6 @@ function renderPowers() {
   }).join('');
 }
 
-// UI HANDLERS
 function switchView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -486,7 +499,7 @@ function openChangeSheet() { document.getElementById('modal-sheet-id').style.dis
 function closeChangeSheet() { document.getElementById('modal-sheet-id').style.display = 'none'; }
 function confirmChangeSheet() {
   const id = document.getElementById('change-sheet-id').value.trim();
-  if(id) { window.location.search = `?sheet=${id}`; }
+  if(id) window.location.search = `?sheet=${id}`;
 }
 function showToast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
 
