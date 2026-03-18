@@ -645,66 +645,91 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 
 <script>
 // ============================================================
-// SHEET ID & CSV FETCH
+// RENDER: HINDRANCES
 // ============================================================
-// Sheet ID — from URL param ?sheet=ID, then localStorage, then setup screen
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const urlSheet = params.get('sheet');
-  if (urlSheet && /^[A-Za-z0-9_-]{20,}$/.test(urlSheet.trim())) {
-    // URL param wins — save it to localStorage too
-    localStorage.setItem('swade_sheet_id', urlSheet.trim());
+function renderHindrances() {
+  const container = document.getElementById('hindrance-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // 1. Pull from the Starting Tab
+  const startH = (state.starting || []).filter(s => 
+    s.type && s.type.toLowerCase().startsWith('hindrance') && (s.name || '').trim() !== ''
+  ).map(s => ({
+    name: s.name,
+    severity: s.type.toLowerCase().includes('major') ? 'Major' : 'Minor',
+    effect: s.effect
+  }));
+
+  // 2. Pull from the Hindrances Tab (where acquired is set to TRUE)
+  // Accommodates both variable names depending on the Promise.all fetch
+  const sourceHindrances = state.allHindrances || state.hindrances || [];
+  const acqH = sourceHindrances.filter(h => 
+    String(h.acquired).toUpperCase() === 'TRUE' && (h.name || '').trim() !== ''
+  ).map(h => ({
+    name: h.name,
+    severity: h.severity || 'Minor',
+    effect: h.effect
+  }));
+
+  // Combine them together
+  const allH = [...startH, ...acqH];
+
+  if (!allH.length) {
+    container.innerHTML = '<div style="color:var(--text-dim);font-size:13px;font-style:italic;">No hindrances. Add to Starting tab or check "acquired" in Hindrances tab.</div>';
+    return;
   }
-})();
-let SHEET_ID = localStorage.getItem('swade_sheet_id') || '';
 
-function csvUrl(sheetName) {
-  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+  allH.forEach(h => {
+    container.innerHTML += `<div class="trait-row">
+      <div class="trait-name">${h.name} <span class="h-sev">${h.severity}</span></div>
+      <div class="trait-desc">${h.effect || ''}</div>
+    </div>`;
+  });
 }
 
-function parseCSV(text) {
-  // RFC-4180 CSV parser
-  const rows = [];
-  let row = [], field = '', inQuote = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (inQuote) {
-      if (ch === '"') {
-        if (text[i+1] === '"') { field += '"'; i++; }
-        else inQuote = false;
-      } else { field += ch; }
-    } else {
-      if (ch === '"') { inQuote = true; }
-      else if (ch === ',') { row.push(field.trim()); field = ''; }
-      else if (ch === '\n') { row.push(field.trim()); rows.push(row); row = []; field = ''; }
-      else if (ch === '\r') {}
-      else { field += ch; }
-    }
+// ============================================================
+// RENDER: EDGES
+// ============================================================
+function renderEdges() {
+  const container = document.getElementById('edge-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // 1. Pull from the Starting Tab
+  const startE = (state.starting || []).filter(s => 
+    s.type && s.type.toLowerCase() === 'edge' && (s.name || '').trim() !== ''
+  ).map(s => ({
+    name: s.name,
+    effect: s.effect || ''
+  }));
+
+  // 2. Pull from the Advances Tab
+  const sourceEdges = state.allEdges || state.edges || [];
+  const advE = (state.progressions || []).filter(p => 
+    p.type && p.type.toLowerCase() === 'edge' && (p.selection || '').trim() !== ''
+  ).map(p => {
+    // Attempt to pull the description automatically from the Edges reference tab
+    const ref = sourceEdges.find(re => (re.name || '').toLowerCase() === p.selection.toLowerCase());
+    return {
+      name: p.selection,
+      effect: ref ? ref.effect : (p.effect || '')
+    };
+  });
+
+  // Combine them together
+  const allE = [...startE, ...advE];
+
+  if (!allE.length) {
+    container.innerHTML = '<div style="color:var(--text-dim);font-size:13px;font-style:italic;">No edges. Add to Starting or Advances tabs.</div>';
+    return;
   }
-  if (field || row.length) { row.push(field.trim()); rows.push(row); }
-  return rows;
-}
 
-
-// Robust boolean check — handles TRUE, true, True, 1, yes, checked from Google Sheets checkboxes
-function isTrue(val) {
-  if (!val) return false;
-  const v = String(val).trim().toLowerCase();
-  return v === 'true' || v === '1' || v === 'yes' || v === 'checked';
-}
-async function fetchSheet(name) {
-  const resp = await fetch(csvUrl(name));
-  if (!resp.ok) throw new Error(`Failed to fetch ${name}: ${resp.status}`);
-  const text = await resp.text();
-  const rows = parseCSV(text);
-  if (rows.length < 2) return [];
-  // Row 0 = headers, Row 1+ = data. Simple and clean.
-  const headers = rows[0].map(h => (h||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''));
-  console.log(`[${name}] headers:`, headers);
-  return rows.slice(1).filter(r => r.some(c => c && c.trim())).map(r => {
-    const obj = {};
-    headers.forEach((h, i) => { if (h) obj[h] = (r[i] || '').trim(); });
-    return obj;
+  allE.forEach(e => {
+    container.innerHTML += `<div class="trait-row">
+      <div class="trait-name">${e.name}</div>
+      <div class="trait-desc">${e.effect || ''}</div>
+    </div>`;
   });
 }
 
@@ -2682,7 +2707,11 @@ async function loadAllSheets() {
     ]);
 
     // ── Populate state (headers now match exactly) ───────────
-    state.attrs        = attrsData;
+    // Filter out empty rows or budget warning rows from Attributes
+    state.attrs = attrsData.filter(a => {
+      const nm = (a.name||'').trim();
+      return nm && !nm.startsWith('⚠') && nm.toLowerCase() !== 'name';
+    });
     // Filter out note rows (name starts with ⚠ or base is not a number)
     state.skills = skillsData.filter(s => {
       const nm = (s.name||'').trim();
