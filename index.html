@@ -107,10 +107,10 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
   .mb{margin-bottom:10px;}
   /* Reference — stack to single col */
   .ref-grid{grid-template-columns:1fr;}
-  .ref-table{min-width:380px;font-size:11px;width:max-content;}
+  .ref-table{min-width:0;font-size:11px;width:100%;}
   .ref-table td,.ref-table th{padding:4px 6px;}
-  #sp-ref-table{min-width:280px;}
   #sp-ref-table .sp-notes-col{display:none;}
+  .ref-col-hide-mobile{display:none;}
   .ref-search{font-size:13px;padding:6px 10px;}
   /* Char top grid — stack to single col */
   .char-top-grid{grid-template-columns:1fr !important;}
@@ -241,8 +241,20 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .ref-table th{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);font-weight:600;padding:6px 10px;text-align:left;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;}
 .ref-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;}
 .ref-table tr:hover td{background:var(--surface2);}
-.ref-wrap{max-height:600px;overflow-y:auto;overflow-x:auto;border:1px solid var(--border);border-radius:4px;}
+.ref-wrap{max-height:420px;overflow-y:auto;overflow-x:auto;border:1px solid var(--border);border-radius:4px;}
 .ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+
+/* Acquire/Remove button in library */
+.btn-acquire{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:3px;cursor:pointer;border:1px solid var(--green);color:var(--green);background:none;transition:all 0.2s;white-space:nowrap;}
+.btn-acquire:hover{background:var(--green);color:var(--bg);}
+.btn-acquire.acquired{border-color:var(--red);color:var(--red);}
+.btn-acquire.acquired:hover{background:var(--red);color:var(--bg);}
+.btn-equip{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:3px;cursor:pointer;border:1px solid var(--accent2);color:var(--accent2);background:none;transition:all 0.2s;white-space:nowrap;margin-left:4px;}
+.btn-equip:hover{background:var(--accent2);color:var(--bg);}
+.btn-equip.equipped{border-color:var(--blue);color:var(--blue);}
+.btn-equip.equipped:hover{background:var(--blue);color:var(--bg);}
+.gear-divider{border:none;border-top:1px solid var(--border);margin:8px 0;opacity:0.5;}
+.gear-section-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);font-weight:600;margin:6px 0 3px;}
 
 /* DICE */
 .dice-section{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:16px;}
@@ -696,7 +708,7 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
         <input class="ref-search" id="weap-search" placeholder="Search weapons..." oninput="filterRef('weap-search','weapons-ref-table','weapons-acc')">
         <div class="acc-list" id="weapons-acc"></div>
         <div class="ref-wrap"><table class="ref-table" id="weapons-ref-table">
-          <thead><tr><th>Weapon</th><th>Damage</th><th>Skill</th><th>Notes</th><th>Book</th></tr></thead>
+          <thead><tr><th>Weapon</th><th class="ref-col-hide-mobile">Damage</th><th class="ref-col-hide-mobile">Skill</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
           <tbody id="weapons-ref-body"></tbody>
         </table></div>
       </div>
@@ -705,10 +717,19 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
         <input class="ref-search" id="armor-search" placeholder="Search armor..." oninput="filterRef('armor-search','armor-ref-table','armor-acc')">
         <div class="acc-list" id="armor-acc"></div>
         <div class="ref-wrap"><table class="ref-table" id="armor-ref-table">
-          <thead><tr><th>Armor</th><th>Value</th><th>Wt</th><th>Notes</th><th>Book</th></tr></thead>
+          <thead><tr><th>Armor</th><th class="ref-col-hide-mobile">Value</th><th class="ref-col-hide-mobile">Wt</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
           <tbody id="armor-ref-body"></tbody>
         </table></div>
       </div>
+    </div>
+    <div class="mb">
+      <div class="section-header">Gear Library</div>
+      <input class="ref-search" id="gear-search" placeholder="Search gear..." oninput="filterRef('gear-search','gear-ref-table','gear-acc')">
+      <div class="acc-list" id="gear-acc"></div>
+      <div class="ref-wrap"><table class="ref-table" id="gear-ref-table">
+        <thead><tr><th>Item</th><th class="ref-col-hide-mobile">Wt</th><th class="ref-col-hide-mobile">Cost</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
+        <tbody id="gear-ref-body"></tbody>
+      </table></div>
     </div>
   </div>
 </div>
@@ -812,9 +833,13 @@ const state = {
   powers: [],       // [{tier, name, mod, base, adj, spp, effect, upgrades}] + .active
   hindrances: [],   // [{name, severity, effect, bolohad, source}]
   allEdges: [],     // reference only
-  allWeapons: [],   // [{name, damage, skill, tags, notes, source, dynamic, acquired, book}] + .equipped
-  allArmor: [],     // [{location, armorvalue, weight, notes, equipped, category, minstr, book}] + .equipped
-  allGear: [],      // [{name, weight, cost, notes, category, acquired, book}] + .equipped
+  allWeapons: [],   // [{name, damage, skill, tags, notes, source, dynamic, acquired, equipped, book}]
+  allArmor: [],     // [{name, armorvalue, weight, notes, location, acquired, equipped, category, minstr, book}]
+  allGear: [],      // [{name, weight, cost, notes, category, acquired, book}]
+  // Runtime toggle state — overrides sheet on current session
+  // keyed by item name: {Sword: true, Shield: true}
+  acqState: {},     // acquired overrides
+  eqState: {},      // equipped overrides
   edgesRef: [],
   hindrancesRef: [],
   spPowers: [],
@@ -942,12 +967,48 @@ function parseArmorLocations(locStr) {
 }
 
 // Returns equipped armor items from sheet (isTrue(equipped))
+// ── Acquired / Equipped helpers ──────────────────────────────
+// Runtime state overrides sheet checkbox if present
+function isAcquired(item) {
+  const nm = (item.name||'').trim();
+  if (state.acqState.hasOwnProperty(nm)) return state.acqState[nm];
+  return isTrue(item.acquired);
+}
+function isEquipped(item) {
+  const nm = (item.name||'').trim();
+  if (state.eqState.hasOwnProperty(nm)) return state.eqState[nm];
+  return isTrue(item.equipped);
+}
+function toggleAcquired(name) {
+  const allItems = [...state.allWeapons, ...state.allArmor, ...state.allGear];
+  const item = allItems.find(i => (i.name||'').trim() === name);
+  if (!item) return;
+  const current = isAcquired(item);
+  state.acqState[name] = !current;
+  // If un-acquiring, also un-equip
+  if (current) state.eqState[name] = false;
+  saveState();
+  renderWeapons(); renderArmor(); renderGear();
+  renderWeaponsRef(); renderArmorRef();
+}
+function toggleEquipped(name) {
+  const allItems = [...state.allWeapons, ...state.allArmor];
+  const item = allItems.find(i => (i.name||'').trim() === name);
+  if (!item) return;
+  const current = isEquipped(item);
+  state.eqState[name] = !current;
+  // Equipping implies acquired
+  if (!current) state.acqState[name] = true;
+  saveState();
+  renderWeapons(); renderArmor();
+  renderWeaponsRef(); renderArmorRef();
+  updateStatusBar();
+}
+
 function getEquippedArmor() {
   return state.allArmor.filter(a => {
     const nm = String(a.name||'').trim();
-    // Skip the legacy slot rows (Head/Torso/Arms/Legs with no armor value context)
-    // and skip reference-only rows
-    return isTrue(a.equipped) && nm && !ARMOR_SLOTS.includes(nm);
+    return isEquipped(a) && nm && !ARMOR_SLOTS.includes(nm);
   });
 }
 
@@ -1358,31 +1419,51 @@ function computeWeapons() {
     computed.push({name:'Enhanced Fists',damage:fistBonus?`${strDie}+${fistBonus}+${pd}`:`${strDie}+${pd}`,skillLabel:fightingLabel,tags:['Natural Weapon','Heavy Weapon'],notes:enhNote,upgraded:true,source:'Melee Attack Power'});
   }
   // Add acquired non-dynamic weapons from sheet
-  state.allWeapons.filter(w=>!isTrue(w.dynamic)&&isTrue(w.acquired)).forEach(w=>{
+  state.allWeapons.filter(w=>!isTrue(w.dynamic)&&isAcquired(w)).forEach(w=>{
     computed.push({name:w.name,damage:w.damage,skillLabel:`${w.skill} ${dieFor(computeSkillLevel(w.skill))}`,tags:(w.tags||'').split(',').filter(Boolean),notes:w.notes,upgraded:false,source:w.source});
   });
   return computed;
 }
 
 function renderWeapons() {
-  const weapons=computeWeapons();
-  let html=`<table class="weapon-table"><thead><tr><th>Weapon</th><th>Damage</th><th>Skill</th><th>Tags / Notes</th></tr></thead><tbody>`;
   const wMods = computeSkillMods();
-  weapons.forEach(w=>{
-    const tags=w.tags.map(t=>`<span class="wtag ${t==='Heavy Weapon'?'heavy':t==='Natural Weapon'?'natural':''}">${t}</span>`).join('');
-    // For sheet weapons (not dynamic), append skill mod note if applicable
+
+  function weaponRow(w, showEquipBtn) {
+    const tags = w.tags.map(t=>`<span class="wtag ${t==='Heavy Weapon'?'heavy':t==='Natural Weapon'?'natural':''}">${t}</span>`).join('');
     let skillDisplay = w.skillLabel;
     if (w.skill && !w.skillLabel.includes('(+') && !w.skillLabel.includes('(-')) {
       const sm = wMods[(w.skill||'').toLowerCase()]||[];
       const sb = sm.reduce((a,m)=>a+m.val,0);
-      if (sb !== 0) {
-        skillDisplay += ` <span style="font-size:10px;color:${sb>0?'var(--green)':'var(--red)'}">(${sb>0?'+':''}${sb})</span>`;
-      }
+      if (sb !== 0) skillDisplay += ` <span style="font-size:10px;color:${sb>0?'var(--green)':'var(--red)'}">(${sb>0?'+':''}${sb})</span>`;
     }
-    html+=`<tr><td><div class="wname">${w.name}</div><span class="wsource">${w.source}</span></td><td><div class="wdmg${w.upgraded?' up':''}">${w.damage}</div></td><td><div style="font-size:13px;color:var(--text-dim)">${skillDisplay}</div></td><td><div>${tags}</div><div style="font-size:12px;color:var(--text-dim);margin-top:3px">${w.notes||''}</div></td></tr>`;
+    const removeBtn = w.source && w.source !== 'Racial/Edges' && w.source !== 'Melee Attack Power'
+      ? `<button class="btn-acquire acquired" onclick="toggleAcquired('${w.name.replace(/'/g,"\'")}')">Remove</button>`
+      : '';
+    const equipBtn = showEquipBtn && removeBtn
+      ? `<button class="btn-equip ${w.equipped?'equipped':''}" onclick="toggleEquipped('${w.name.replace(/'/g,"\'")}')">
+          ${w.equipped?'Equipped':'Equip'}</button>`
+      : '';
+    return `<tr><td><div class="wname">${w.name}</div><span class="wsource">${w.source}</span>${removeBtn}${equipBtn}</td><td><div class="wdmg${w.upgraded?' up':''}">${w.damage}</div></td><td><div style="font-size:13px;color:var(--text-dim)">${skillDisplay}</div></td><td><div>${tags}</div><div style="font-size:12px;color:var(--text-dim);margin-top:3px">${w.notes||''}</div></td></tr>`;
+  }
+
+  // Compute weapons — attach equipped status
+  const raw = computeWeapons();
+  raw.forEach(w => {
+    const sheet = state.allWeapons.find(sw => (sw.name||'').trim() === w.name);
+    w.equipped = sheet ? isEquipped(sheet) : false;
   });
-  html+='</tbody></table>';
-  document.getElementById('weapons-table').innerHTML=html;
+
+  const equipped = raw.filter(w => w.equipped || w.source === 'Racial/Edges' || w.source === 'Melee Attack Power');
+  const acquiredOnly = raw.filter(w => !w.equipped && w.source !== 'Racial/Edges' && w.source !== 'Melee Attack Power');
+
+  let html = `<table class="weapon-table"><thead><tr><th>Weapon</th><th>Damage</th><th>Skill</th><th>Tags / Notes</th></tr></thead><tbody>`;
+  equipped.forEach(w => { html += weaponRow(w, true); });
+  if (acquiredOnly.length) {
+    html += `<tr><td colspan="4"><div class="gear-divider"></div><div class="gear-section-label">Owned — not equipped</div></td></tr>`;
+    acquiredOnly.forEach(w => { html += weaponRow(w, true); });
+  }
+  html += '</tbody></table>';
+  document.getElementById('weapons-table').innerHTML = html;
 }
 
 // ============================================================
@@ -1427,14 +1508,15 @@ function renderArmor() {
 // ============================================================
 function renderGear() {
   const el = document.getElementById('gear-section');
-  const acquired = state.allGear.filter(g=>isTrue(g.acquired));
+  const acquired = state.allGear.filter(g => isAcquired(g));
   if(!acquired.length){
-    el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:13px">No gear acquired yet. Mark items as acquired in the Google Sheet.</div>';
+    el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:13px">No gear acquired. Use Acquire buttons in the Reference tab or mark acquired in the Google Sheet.</div>';
     return;
   }
-  let html=`<table class="gear-table"><thead><tr><th>Item</th><th>Wt</th><th>Cost</th><th>Notes</th><th>Category</th></tr></thead><tbody>`;
+  let html=`<table class="gear-table"><thead><tr><th>Item</th><th>Wt</th><th>Cost</th><th>Notes</th><th></th></tr></thead><tbody>`;
   acquired.forEach(g=>{
-    html+=`<tr><td style="font-weight:700">${g.name}</td><td style="font-family:'Share Tech Mono',monospace">${g.weight||'—'}</td><td style="font-family:'Share Tech Mono',monospace">${g.cost||'—'}</td><td>${g.notes||''}</td><td style="color:var(--text-dim)">${g.category||''}</td></tr>`;
+    const nm = (g.name||'').replace(/'/g,"\'");
+    html+=`<tr><td style="font-weight:700">${g.name}</td><td style="font-family:'Share Tech Mono',monospace">${g.weight||'—'}</td><td style="font-family:'Share Tech Mono',monospace">${g.cost||'—'}</td><td style="font-size:12px;color:var(--text-dim)">${g.notes||''}</td><td><button class="btn-acquire acquired" onclick="toggleAcquired('${nm}')">Remove</button></td></tr>`;
   });
   html+='</tbody></table>';
   el.innerHTML=html;
@@ -1941,18 +2023,47 @@ function renderArmorRef() {
   state.armorRef.forEach(a=>{
     const nm = String(f(a,'name','location','armor')||'').trim();
     if(!nm || isTrue(nm) || nm.toLowerCase()==='false') return;
+    if(ARMOR_SLOTS.includes(nm)) return; // skip slot placeholder rows
     const bookCls=(f(a,'book')||'SWADE').toUpperCase()==='SPC'?'spc':'swade';
     const val   = f(a,'armorvalue','armor_value','value');
     const wt    = f(a,'weight','wt');
     const notes = f(a,'notes','note','description');
     const book  = f(a,'book')||'SWADE';
+    const acq = isAcquired(a);
+    const eq  = isEquipped(a);
+    const nmEsc = nm.replace(/'/g,"\\'");
+    const acqBtn = `<button class="btn-acquire${acq?' acquired':''}" onclick="toggleAcquired('${nmEsc}')">${acq?'Remove':'Acquire'}</button>`;
+    const eqBtn  = acq ? `<button class="btn-equip${eq?' equipped':''}" onclick="toggleEquipped('${nmEsc}')">${eq?'Equipped':'Equip'}</button>` : '';
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:700">${nm}</td><td style="font-family:'Share Tech Mono',monospace">${val}</td><td>${wt}</td><td style="color:var(--text-dim)">${notes}</td><td><span class="book-tag ${bookCls}">${book}</span></td>`;
+    tr.innerHTML=`<td style="font-weight:700">${nm}</td><td style="font-family:'Share Tech Mono',monospace" class="ref-col-hide-mobile">+${val}</td><td class="ref-col-hide-mobile">${wt||'—'}</td><td style="color:var(--text-dim);font-size:12px" class="ref-col-hide-mobile">${notes}</td><td>${acqBtn}${eqBtn}</td>`;
     tb.appendChild(tr);
-    acc.appendChild(buildAccItem(nm, bookBadge(book), [
-      {label:'Armor',    value:`+${val}`},
-      {label:'Weight',   value:wt ? `${wt} lbs` : ''},
-      {label:'Notes',    value:notes}
+    acc.appendChild(buildAccItem(nm, `${bookBadge(book)}${acqBtn}${eqBtn}`, [
+      {label:'Armor',  value:`+${val}`},
+      {label:'Weight', value:wt ? `${wt} lbs` : ''},
+      {label:'Notes',  value:notes}
+    ]));
+  });
+}
+
+function renderGearRef() {
+  const tb = document.getElementById('gear-ref-body');
+  const acc = document.getElementById('gear-acc');
+  if (!tb) return;
+  tb.innerHTML=''; if(acc) acc.innerHTML='';
+  state.allGear.forEach(g => {
+    const nm = String(g.name||'').trim();
+    if (!nm) return;
+    const acq = isAcquired(g);
+    const nmEsc = nm.replace(/'/g,"\\'");
+    const acqBtn = `<button class="btn-acquire${acq?' acquired':''}" onclick="toggleAcquired('${nmEsc}')">${acq?'Remove':'Acquire'}</button>`;
+    const bookCls = (g.book||'SWADE').toUpperCase()==='SPC'?'spc':'swade';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="font-weight:700">${nm}</td><td style="font-family:'Share Tech Mono',monospace" class="ref-col-hide-mobile">${g.weight||'—'}</td><td style="font-family:'Share Tech Mono',monospace" class="ref-col-hide-mobile">${g.cost||'—'}</td><td style="color:var(--text-dim);font-size:12px" class="ref-col-hide-mobile">${g.notes||''}</td><td>${acqBtn}</td>`;
+    tb.appendChild(tr);
+    if(acc) acc.appendChild(buildAccItem(nm, acqBtn, [
+      {label:'Weight', value: g.weight ? `${g.weight} lbs` : ''},
+      {label:'Cost',   value: g.cost ? `$${g.cost}` : ''},
+      {label:'Notes',  value: g.notes||''}
     ]));
   });
 }
@@ -1963,11 +2074,17 @@ function renderWeaponsRef() {
   state.weaponsRef.forEach(w=>{
     const nm = String(w.name||'').trim();
     if(!nm || nm==='TRUE' || nm==='FALSE' || nm==='true' || nm==='false') return;
+    if(isTrue(w.dynamic)) return; // skip computed weapons
     const bookCls=(w.book||'SWADE').toUpperCase()==='SPC'?'spc':'swade';
+    const acq = isAcquired(w);
+    const eq  = isEquipped(w);
+    const nmEsc = nm.replace(/'/g,"\\'");
+    const acqBtn = `<button class="btn-acquire${acq?' acquired':''}" onclick="toggleAcquired('${nmEsc}')">${acq?'Remove':'Acquire'}</button>`;
+    const eqBtn  = acq ? `<button class="btn-equip${eq?' equipped':''}" onclick="toggleEquipped('${nmEsc}')">${eq?'Equipped':'Equip'}</button>` : '';
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:700">${nm}</td><td style="font-family:'Share Tech Mono',monospace">${w.damage||''}</td><td>${w.skill||''}</td><td style="color:var(--text-dim)">${w.notes||''}</td><td><span class="book-tag ${bookCls}">${w.book||'SWADE'}</span></td>`;
+    tr.innerHTML=`<td style="font-weight:700">${nm}</td><td style="font-family:'Share Tech Mono',monospace" class="ref-col-hide-mobile">${w.damage||''}</td><td class="ref-col-hide-mobile">${w.skill||''}</td><td style="color:var(--text-dim);font-size:12px" class="ref-col-hide-mobile">${w.notes||''}</td><td>${acqBtn}${eqBtn}</td>`;
     tb.appendChild(tr);
-    acc.appendChild(buildAccItem(nm, bookBadge(w.book), [
+    acc.appendChild(buildAccItem(nm, `${bookBadge(w.book)}${acqBtn}${eqBtn}`, [
       {label:'Damage', value:w.damage||''},
       {label:'Skill',  value:w.skill||''},
       {label:'Notes',  value:w.notes||''}
@@ -2298,7 +2415,9 @@ function buildSavePayload() {
     fatigue:     state.fatigue,
     fatigueIncap:state.fatigueIncap,
     shaken:      state.shaken,
-    forceField:  state.forceField
+    forceField:  state.forceField,
+    acqState:    state.acqState,
+    eqState:     state.eqState
   });
 }
 
@@ -2337,6 +2456,8 @@ function applyPayload(s) {
   if (s.shaken !== undefined)       state.shaken = s.shaken;
   if (s.forceField !== undefined)   state.forceField = s.forceField;
   if (s.showUnskilled !== undefined) state.showUnskilled = s.showUnskilled;
+  if (s.acqState) state.acqState = s.acqState;
+  if (s.eqState)  state.eqState  = s.eqState;
 }
 
 // ── Google Sheets write ───────────────────────────────────────
@@ -2659,6 +2780,7 @@ async function loadAllSheets() {
     renderSPRef();
     renderWeaponsRef();
     renderArmorRef();
+    renderGearRef();
 
     // Update URL bar to reflect current sheet (makes URL always shareable/bookmarkable)
     const currentParams = new URLSearchParams(window.location.search);
