@@ -1142,13 +1142,13 @@ function renderHindrances() {
 
   // Starting tab hindrances — match by name against Hindrances library for severity/effect
   const byStarting = state.starting
-    .filter(s => s.on && ['hindrance','minor','major'].includes((f(s,'type')||'').toLowerCase().trim()))
+    .filter(s => s.on && ['hindrance','hindrance-major','hindrance-minor','minor','major'].includes((f(s,'type')||'').toLowerCase().trim()))
     .map(s => {
       const nm = f(s,'name')||'';
       // Look up severity/effect from library
       const lib = state.hindrances.find(h=>(h.name||'').toLowerCase().trim()===nm.toLowerCase().trim());
       const tp = (f(s,'type')||'').trim();
-      const inferredSeverity = (tp.toLowerCase()==='minor'||tp.toLowerCase()==='major') ? tp : '';
+      const inferredSeverity = tp.includes('major') ? 'Major' : tp.includes('minor') ? 'Minor' : '';
       return {
         name: nm,
         severity: lib ? (lib.severity||inferredSeverity) : inferredSeverity,
@@ -1256,7 +1256,7 @@ function renderEdges() {
       const tp=(f(s,'type')||'').toLowerCase().trim();
       const eff=f(s,'effect')||'';
       // Skip hindrance entries — they belong in renderHindrances, not here
-      if (tp === 'hindrance' || tp === 'minor' || tp === 'major') return;
+      if (tp.includes('hindrance') || tp === 'minor' || tp === 'major') return;
       const cls = classifyEdge(nm);
       items.push({cls, html:`<div class="edge-item ${cls==='passive'?'passive-item':''}"><strong>${nm}</strong> — ${eff}</div>`});
     }
@@ -1731,10 +1731,16 @@ function addBenny(){state.maxBennies++;state.bennies++;renderBennies();saveState
 // ============================================================
 function renderStarting() {
   const container=document.getElementById('starting-list'); container.innerHTML='';
+  // attribute/skill/money are budget-math only — no toggle needed, effect is in the sheet tabs
+  const BUDGET_ONLY = new Set(['attribute','skill','money']);
   state.starting.forEach((s,i)=>{
+    const tp = (s.type||'').toLowerCase().trim();
+    if (BUDGET_ONLY.has(tp)) return;
     const row=document.createElement('div');
     row.className='starting-row'+(s.on?' checked':'');
-    row.innerHTML=`<div class="prog-chk">${s.on?'✓':''}</div><div><div class="prog-sel">${s.name}</div><div class="prog-pre">${s.type}</div></div><div class="prog-eff">${s.effect}</div>`;
+    // Show a readable type label
+    const typeLabel = tp.replace('hindrance-','').replace('-',' ');
+    row.innerHTML=`<div class="prog-chk">${s.on?'✓':''}</div><div><div class="prog-sel">${s.name}</div><div class="prog-pre">${typeLabel}</div></div><div class="prog-eff">${s.effect||''}</div>`;
     row.onclick=()=>{state.starting[i].on=!state.starting[i].on;fullRefresh();};
     container.appendChild(row);
   });
@@ -2080,7 +2086,20 @@ function computeSkillMods() {
     mods[skill].push({label, val});
   }
   // Hindrances with skill penalties
-  state.hindrances.filter(h=>isTrue(f(h,'bolohad','bolo_had','bolo'))).forEach(h=>{
+  // Collect active hindrances from both bolohad and Starting tab
+  const activeHindrances = [
+    ...state.hindrances.filter(h=>isTrue(f(h,'bolohad','bolo_had','bolo'))),
+    ...state.starting.filter(s=>s.on && (f(s,'type')||'').toLowerCase().includes('hindrance'))
+      .map(s=>{
+        const nm=f(s,'name')||'';
+        const lib=state.hindrances.find(h=>(h.name||'').toLowerCase().trim()===nm.toLowerCase().trim());
+        return lib||{name:nm,effect:f(s,'effect')||''};
+      })
+  ];
+  // deduplicate
+  const seenH=new Set();
+  const dedupH=activeHindrances.filter(h=>{const n=(h.name||'').toLowerCase();if(seenH.has(n))return false;seenH.add(n);return true;});
+  dedupH.forEach(h=>{
     const eff = (f(h,'effect')||'').toLowerCase();
     const nm = f(h,'name')||'';
     // Parse patterns like "-2 persuasion" or "persuasion -2"
@@ -2570,16 +2589,11 @@ async function loadAllSheets() {
       if (!nm || nm.startsWith('⚠') || nm.startsWith('NOTE')) return false;
       return true;
     });
-    // Filter Starting tab — only keep rows that have an actual name filled in
-    // The new Starting tab has 3 sections with section labels, repeat headers, and blank data rows
-    // All of these are skipped — only rows with a real name value are valid entries
+    // Filter Starting tab — only keep rows with a real name
     state.starting = startingData
       .filter(s => {
         const nm = (s.name||'').trim();
-        // Must have a non-empty name that isn't a section label or repeat header
-        if (!nm) return false;
-        if (nm.startsWith('🎭') || nm.startsWith('⚡') || nm.startsWith('🧬') || nm.startsWith('⚠')) return false;
-        if (nm.toLowerCase() === 'name') return false;
+        if (!nm || nm.startsWith('⚠') || nm.toLowerCase() === 'name') return false;
         return true;
       })
       .map(s=>({...s, on: isTrue(s.defaulton)}));
