@@ -979,27 +979,78 @@ function isEquipped(item) {
   if (state.eqState.hasOwnProperty(nm)) return state.eqState[nm];
   return isTrue(item.equipped);
 }
+// ── Sheet write-back ─────────────────────────────────────────
+// Writes TRUE/FALSE to a specific cell in the background if OAuth is connected
+async function writeBackCell(sheetName, row, col, value) {
+  if (!isConnected || !gAuthToken || Date.now() > gTokenExpiry) return;
+  const colLetter = String.fromCharCode(64 + col); // 1=A, 2=B, etc.
+  const range = `${sheetName}!${colLetter}${row}`;
+  try {
+    await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=RAW`,
+      {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${gAuthToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ values: [[value ? 'TRUE' : 'FALSE']] })
+      }
+    );
+  } catch(e) {
+    console.warn('writeBackCell failed:', range, e);
+  }
+}
+
+// Column indices for each tab
+const COL = {
+  WEAPONS_ACQUIRED: 8,   // col H
+  WEAPONS_EQUIPPED: 9,   // col I
+  ARMOR_ACQUIRED:   8,   // col H
+  ARMOR_EQUIPPED:   9,   // col I
+  GEAR_ACQUIRED:    6,   // col F
+  HINDRANCES_ACQUIRED: 4 // col D (renamed from bolohad)
+};
+
 function toggleAcquired(name) {
-  const allItems = [...state.allWeapons, ...state.allArmor, ...state.allGear];
-  const item = allItems.find(i => (i.name||'').trim() === name);
+  const newVal = !isAcquired({name, acquired: false}); // compute new value
+  // Find item in each tab to get row + determine which tab
+  const weapon = state.allWeapons.find(i => (i.name||'').trim() === name);
+  const armor  = state.allArmor.find(i  => (i.name||'').trim() === name);
+  const gear   = state.allGear.find(i   => (i.name||'').trim() === name);
+  const item   = weapon || armor || gear;
   if (!item) return;
   const current = isAcquired(item);
   state.acqState[name] = !current;
-  // If un-acquiring, also un-equip
-  if (current) state.eqState[name] = false;
+  if (current) state.eqState[name] = false; // un-acquiring clears equipped
   saveState();
+  // Write back to sheet in background
+  if (weapon) {
+    writeBackCell('Weapons', weapon._row, COL.WEAPONS_ACQUIRED, !current);
+    if (current) writeBackCell('Weapons', weapon._row, COL.WEAPONS_EQUIPPED, false);
+  } else if (armor) {
+    writeBackCell('Armor', armor._row, COL.ARMOR_ACQUIRED, !current);
+    if (current) writeBackCell('Armor', armor._row, COL.ARMOR_EQUIPPED, false);
+  } else if (gear) {
+    writeBackCell('Gear', gear._row, COL.GEAR_ACQUIRED, !current);
+  }
   renderWeapons(); renderArmor(); renderGear();
-  renderWeaponsRef(); renderArmorRef();
+  renderWeaponsRef(); renderArmorRef(); renderGearRef();
 }
 function toggleEquipped(name) {
-  const allItems = [...state.allWeapons, ...state.allArmor];
-  const item = allItems.find(i => (i.name||'').trim() === name);
+  const weapon = state.allWeapons.find(i => (i.name||'').trim() === name);
+  const armor  = state.allArmor.find(i  => (i.name||'').trim() === name);
+  const item   = weapon || armor;
   if (!item) return;
   const current = isEquipped(item);
   state.eqState[name] = !current;
-  // Equipping implies acquired
-  if (!current) state.acqState[name] = true;
+  if (!current) state.acqState[name] = true; // equipping implies acquired
   saveState();
+  // Write back to sheet in background
+  if (weapon) {
+    writeBackCell('Weapons', weapon._row, COL.WEAPONS_EQUIPPED, !current);
+    if (!current) writeBackCell('Weapons', weapon._row, COL.WEAPONS_ACQUIRED, true);
+  } else if (armor) {
+    writeBackCell('Armor', armor._row, COL.ARMOR_EQUIPPED, !current);
+    if (!current) writeBackCell('Armor', armor._row, COL.ARMOR_ACQUIRED, true);
+  }
   renderWeapons(); renderArmor();
   renderWeaponsRef(); renderArmorRef();
   updateStatusBar();
@@ -1199,7 +1250,7 @@ function renderHindrances() {
   // Collect hindrances two ways:
   // 1. bolohad=TRUE in the Hindrances reference tab (legacy)
   // 2. type='hindrance' in the Starting tab (new system)
-  const byBolohad = state.hindrances.filter(h=>isTrue(f(h,'bolohad','bolo_had','bolo')));
+  const byBolohad = state.hindrances.filter(h=>isTrue(f(h,'acquired','bolohad','bolo_had','bolo')));
 
   // Starting tab hindrances — match by name against Hindrances library for severity/effect
   const byStarting = state.starting
@@ -1225,7 +1276,7 @@ function renderHindrances() {
     if (nm && !seen.has(nm)) { seen.add(nm); allH.push(h); }
   });
 
-  if(!allH.length){el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:13px">No hindrances. Add to Starting tab (type=hindrance) or set bolohad=TRUE in Hindrances tab.</div>';return;}
+  if(!allH.length){el.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:13px">No hindrances. Add to Starting tab (type=hindrance) or set acquired=TRUE in Hindrances tab.</div>';return;}
 
   const items = allH.map(h=>{
     const nm=h.name||'', sev=h.severity||'', eff=h.effect||'';
@@ -1471,36 +1522,55 @@ function renderWeapons() {
 // ============================================================
 function renderArmor() {
   const tb = document.getElementById('armor-body');
-  const equipped = getEquippedArmor();
+  const equippedItems = getEquippedArmor();
   const slots = computeArmorBySlot();
 
-  if (!equipped.length) {
-    tb.innerHTML = ARMOR_SLOTS.map(slot =>
-      `<tr><td class="aname">${slot}</td><td style="font-family:'Share Tech Mono',monospace;color:var(--text-dim)">0</td><td style="font-size:12px;color:var(--text-dim)">Unarmored</td></tr>`
-    ).join('');
-    return;
-  }
-
-  // Build slot → items map for display
+  // Build slot → items map
   const slotMap = {};
   ARMOR_SLOTS.forEach(s => slotMap[s] = []);
-  equipped.forEach(a => {
+  equippedItems.forEach(a => {
     parseArmorLocations(a.location||'').forEach(loc => slotMap[loc].push(a));
   });
 
-  tb.innerHTML = ARMOR_SLOTS.map(slot => {
+  // Equipped armor by slot
+  const slotRows = ARMOR_SLOTS.map(slot => {
     const items = slotMap[slot];
     const val = slots[slot] || 0;
     if (!items.length) {
-      return `<tr><td class="aname">${slot}</td><td style="font-family:'Share Tech Mono',monospace;color:var(--text-dim)">0</td><td style="font-size:12px;color:var(--text-dim)">Unarmored</td></tr>`;
+      return `<tr><td class="aname">${slot}</td><td style="font-family:'Share Tech Mono',monospace;color:var(--text-dim)">0</td><td style="font-size:12px;color:var(--text-dim)" colspan="2">Unarmored</td></tr>`;
     }
     const itemNames = items.map((a,i) => {
       const v = parseInt(a.armorvalue)||0;
       const effective = i === 0 ? v : Math.floor(v/2);
       return `${a.name}${i>0?` (×½=${effective})`:''}`;
     }).join(', ');
-    return `<tr><td class="aname">${slot}</td><td style="font-family:'Share Tech Mono',monospace;color:var(--green);font-weight:bold">+${val}</td><td style="font-size:12px;color:var(--text-dim)">${itemNames}</td></tr>`;
+    return `<tr><td class="aname">${slot}</td><td style="font-family:'Share Tech Mono',monospace;color:var(--green);font-weight:bold">+${val}</td><td style="font-size:12px;color:var(--text-dim)" colspan="2">${itemNames}</td></tr>`;
   }).join('');
+
+  // Acquired but not equipped
+  const ownedNotEquipped = state.allArmor.filter(a => {
+    const nm = String(a.name||'').trim();
+    return isAcquired(a) && !isEquipped(a) && nm && !ARMOR_SLOTS.includes(nm);
+  });
+
+  let ownedRows = '';
+  if (ownedNotEquipped.length) {
+    ownedRows = `<tr><td colspan="4"><div class="gear-divider"></div><div class="gear-section-label">Owned — not equipped</div></td></tr>`;
+    ownedNotEquipped.forEach(a => {
+      const nm = (a.name||'').replace(/'/g,"\\'");
+      const val = parseInt(a.armorvalue)||0;
+      ownedRows += `<tr>
+        <td class="aname">${a.name}</td>
+        <td style="font-family:'Share Tech Mono',monospace;color:var(--text-dim)">+${val}</td>
+        <td style="font-size:12px;color:var(--text-dim)">${a.notes||''}</td>
+        <td>
+          <button class="btn-acquire acquired" onclick="toggleAcquired('${nm}')">Remove</button>
+          <button class="btn-equip" onclick="toggleEquipped('${nm}')">Equip</button>
+        </td></tr>`;
+    });
+  }
+
+  tb.innerHTML = slotRows + ownedRows;
 }
 
 // ============================================================
@@ -2205,7 +2275,7 @@ function computeSkillMods() {
   // Hindrances with skill penalties
   // Collect active hindrances from both bolohad and Starting tab
   const activeHindrances = [
-    ...state.hindrances.filter(h=>isTrue(f(h,'bolohad','bolo_had','bolo'))),
+    ...state.hindrances.filter(h=>isTrue(f(h,'acquired','bolohad','bolo_had','bolo'))),
     ...state.starting.filter(s=>s.on && (f(s,'type')||'').toLowerCase().includes('hindrance'))
       .map(s=>{
         const nm=f(s,'name')||'';
@@ -2722,14 +2792,15 @@ async function loadAllSheets() {
     state.powerTiers   = tierData;
     state.powers       = powersData.map(p=>({...p, active: isTrue(p.defaultactive)}));
     state.hindrances   = hindrancesData;
-    state.allWeapons   = weaponsData;
-    state.allArmor     = armorData;
-    state.allGear      = gearData;
+    // Store row numbers (1-indexed, header=1, data starts row 2)
+    state.allWeapons   = weaponsData.map((w,i) => ({...w, _row: i+2}));
+    state.allArmor     = armorData.map((a,i)  => ({...a, _row: i+2}));
+    state.allGear      = gearData.map((g,i)   => ({...g, _row: i+2}));
     state.edgesRef         = edgesRefData;
     state.hindrancesRef    = hindrancesData;
     state.spPowers         = spData;
-    state.weaponsRef       = weaponsData;
-    state.armorRef         = armorData;
+    state.weaponsRef       = state.allWeapons; // share same objects with row numbers
+    state.armorRef         = state.allArmor;
 
     // Read flat character config from State tab (pace, size)
     if (charStateData && charStateData.length) {
