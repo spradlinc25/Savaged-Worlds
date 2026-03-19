@@ -8,7 +8,7 @@
 <style>
 :root{--bg:#0a0c0f;--surface:#111418;--surface2:#181c22;--border:#2a3040;--accent:#e85d26;--accent2:#f4a436;--green:#3ddc84;--blue:#4dabf7;--red:#ff4444;--muted:#4a5568;--text:#c8d3e0;--text-dim:#7a8aa0;--heading:#ffffff;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden;overflow-y:auto;}
 
 /* NAV — sticky, slim, always visible */
 nav{background:#0d0f13;border-bottom:2px solid var(--accent);display:flex;align-items:center;position:sticky;top:0;z-index:100;padding:0 10px;flex-wrap:wrap;min-height:40px;}
@@ -101,9 +101,9 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
   .stat-bar-toggle{display:block;}
   .stat-bar-inner.sb-collapsed{display:none;}
   .stat-pill{border-right:none;}
-  /* Tighten tab content padding */
-  .tab{padding:8px;}
-  .card{padding:10px;}
+  /* Tighten tab content padding and fix clipping */
+  .tab{padding:8px 8px 140px;}
+  .card{padding:10px; overflow: visible;}
   .mb{margin-bottom:10px;}
   /* Reference — stack to single col */
   .ref-grid{grid-template-columns:1fr;}
@@ -128,13 +128,13 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 }
 
 /* TABS */
-.tab{display:none;padding:16px;max-width:1400px;margin:0 auto;}
+.tab{display:none;padding:16px 16px 120px;max-width:1400px;margin:0 auto;overflow:visible;}
 .tab.active{display:block;}
 .section-header{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:3px;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
 .section-header::before{content:'';display:block;width:4px;height:18px;background:var(--accent);border-radius:2px;}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .mb{margin-bottom:16px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;height:auto;overflow:visible;}
 
 /* ATTRS / SKILLS */
 .attr-table{width:100%;border-collapse:collapse;}
