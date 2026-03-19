@@ -645,70 +645,250 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 
 <script>
 // ============================================================
-// COMPUTATION: SKILL MODIFIERS
+// UTILITIES & GLOBALS
 // ============================================================
-function computeSkillMods() {
-  const mods = {};
-  const addMod = (skill, val, source) => {
-    const s = skill.toLowerCase();
-    if (!mods[s]) mods[s] = [];
-    mods[s].push({ val, source });
-  };
+let SHEET_ID = new URLSearchParams(window.location.search).get('sheet') || localStorage.getItem('swade_sheet_id') || '';
 
-  // 1. Gather all active Edges (from Starting and Advances)
-  const startE = (state.starting || []).filter(s => s.type && s.type.toLowerCase() === 'edge').map(s => s.name || '');
-  const advE = (state.progressions || []).filter(p => p.type && p.type.toLowerCase() === 'edge').map(p => p.selection || '');
-  const edges = [...startE, ...advE].map(e => e.toLowerCase().trim());
+function isTrue(val) {
+  if (val === undefined || val === null) return false;
+  const str = String(val).trim().toLowerCase();
+  return str === 'true' || str === 'yes' || str === 'y' || str === '1';
+}
 
-  // 2. Gather all active Hindrances (from Starting and Hindrances tab)
-  const startH = (state.starting || []).filter(s => s.type && s.type.toLowerCase().startsWith('hindrance')).map(s => s.name || '');
-  const sourceHindrances = state.allHindrances || state.hindrances || [];
-  const acqH = sourceHindrances.filter(h => String(h.acquired).toUpperCase() === 'TRUE').map(h => h.name || '');
-  const hinds = [...startH, ...acqH].map(h => h.toLowerCase().trim());
-  
-  const hasEdge = (name) => edges.includes(name);
-  const hasHind = (name) => hinds.some(h => h.includes(name));
+async function fetchSheet(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Fetch failed for ${sheetName}`);
+  const text = await res.text();
+  return parseCSV(text);
+}
 
-  // ── Mutually Exclusive / Upgraded Edges ──────────────────
-  
-  // Unarmed Combat
-  if (hasEdge('martial warrior')) {
-    addMod('fighting', 2, 'Martial Warrior');
-  } else if (hasEdge('martial artist')) {
-    addMod('fighting', 1, 'Martial Artist');
+function parseCSV(text) {
+  const rows = []; let row = []; let inQuotes = false; let currentVal = '';
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char === '"') inQuotes = !inQuotes;
+    else if (char === ',' && !inQuotes) { row.push(currentVal.replace(/^"|"$/g, '').trim()); currentVal = ''; }
+    else if (char === '\n' && !inQuotes) { row.push(currentVal.replace(/^"|"$/g, '').trim()); rows.push(row); row = []; currentVal = ''; }
+    else currentVal += char;
   }
-
-  // Appearance / Charisma
-  if (hasEdge('very attractive')) {
-    addMod('performance', 2, 'Very Attractive');
-    addMod('persuasion', 2, 'Very Attractive');
-  } else if (hasEdge('attractive')) {
-    addMod('performance', 1, 'Attractive');
-    addMod('persuasion', 1, 'Attractive');
-  }
-
-  // ── Standard Edges ─────────────────────────────────────────
-  if (hasEdge('acrobat')) addMod('athletics', 1, 'Acrobat');
-  if (hasEdge('woodsman')) { addMod('survival', 2, 'Woodsman'); addMod('stealth', 1, 'Woodsman'); }
-  if (hasEdge('thief')) { addMod('thievery', 1, 'Thief'); addMod('stealth', 1, 'Thief'); }
-  if (hasEdge('investigator')) { addMod('research', 2, 'Investigator'); addMod('notice', 2, 'Investigator'); }
-  if (hasEdge('alertness')) addMod('notice', 2, 'Alertness');
-  if (hasEdge('menacing')) addMod('intimidation', 2, 'Menacing');
-
-  // ── Hindrances ─────────────────────────────────────────────
-  if (hasHind('outsider')) addMod('persuasion', -2, 'Outsider');
-  if (hasHind('clueless')) { addMod('common knowledge', -1, 'Clueless'); addMod('notice', -1, 'Clueless'); }
-  if (hasHind('bad eyes (minor)')) addMod('notice', -1, 'Bad Eyes');
-  if (hasHind('bad eyes (major)')) addMod('notice', -2, 'Bad Eyes');
-  if (hasHind('hard of hearing (minor)')) addMod('notice', -1, 'Hard of Hearing');
-  if (hasHind('hard of hearing (major)')) addMod('notice', -2, 'Hard of Hearing');
-
-  return mods;
+  if (currentVal) row.push(currentVal.replace(/^"|"$/g, '').trim());
+  if (row.length > 0) rows.push(row);
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(h => h.toLowerCase().trim());
+  return rows.slice(1).map(r => {
+    const obj = {}; headers.forEach((h, i) => obj[h] = r[i] || ''); return obj;
+  });
 }
 
 // ============================================================
-// COMPUTATION: DERIVED STATS
+// RENDER: HINDRANCES
 // ============================================================
+function renderHindrances() {
+  const container = document.getElementById('hindrance-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // 1. Pull from the Starting Tab
+  const startH = (state.starting || []).filter(s => 
+    s.type && s.type.toLowerCase().startsWith('hindrance') && (s.name || '').trim() !== ''
+  ).map(s => ({
+    name: s.name,
+    severity: s.type.toLowerCase().includes('major') ? 'Major' : 'Minor',
+    effect: s.effect
+  }));
+
+  // 2. Pull from the Hindrances Tab (where acquired is set to TRUE)
+  // Accommodates both variable names depending on the Promise.all fetch
+  const sourceHindrances = state.allHindrances || state.hindrances || [];
+  const acqH = sourceHindrances.filter(h => 
+    String(h.acquired).toUpperCase() === 'TRUE' && (h.name || '').trim() !== ''
+  ).map(h => ({
+    name: h.name,
+    severity: h.severity || 'Minor',
+    effect: h.effect
+  }));
+
+  // Combine them together
+  const allH = [...startH, ...acqH];
+
+  if (!allH.length) {
+    container.innerHTML = '<div style="color:var(--text-dim);font-size:13px;font-style:italic;">No hindrances. Add to Starting tab or check "acquired" in Hindrances tab.</div>';
+    return;
+  }
+
+  allH.forEach(h => {
+    container.innerHTML += `<div class="trait-row">
+      <div class="trait-name">${h.name} <span class="h-sev">${h.severity}</span></div>
+      <div class="trait-desc">${h.effect || ''}</div>
+    </div>`;
+  });
+}
+
+// ============================================================
+// RENDER: EDGES
+// ============================================================
+function renderEdges() {
+  const container = document.getElementById('edge-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // 1. Pull from the Starting Tab
+  const startE = (state.starting || []).filter(s => 
+    s.type && s.type.toLowerCase() === 'edge' && (s.name || '').trim() !== ''
+  ).map(s => ({
+    name: s.name,
+    effect: s.effect || ''
+  }));
+
+  // 2. Pull from the Advances Tab
+  const sourceEdges = state.allEdges || state.edges || [];
+  const advE = (state.progressions || []).filter(p => 
+    p.type && p.type.toLowerCase() === 'edge' && (p.selection || '').trim() !== ''
+  ).map(p => {
+    // Attempt to pull the description automatically from the Edges reference tab
+    const ref = sourceEdges.find(re => (re.name || '').toLowerCase() === p.selection.toLowerCase());
+    return {
+      name: p.selection,
+      effect: ref ? ref.effect : (p.effect || '')
+    };
+  });
+
+  // Combine them together
+  const allE = [...startE, ...advE];
+
+  if (!allE.length) {
+    container.innerHTML = '<div style="color:var(--text-dim);font-size:13px;font-style:italic;">No edges. Add to Starting or Advances tabs.</div>';
+    return;
+  }
+
+  allE.forEach(e => {
+    container.innerHTML += `<div class="trait-row">
+      <div class="trait-name">${e.name}</div>
+      <div class="trait-desc">${e.effect || ''}</div>
+    </div>`;
+  });
+}
+
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  // These get populated from sheets on load
+  attrs: [],        // [{name, base}]
+  skills: [],       // [{name, base, linkedattr}]
+  starting: [],     // [{name, type, effect, defaulton}] + .on
+  progressions: [], // [{adv, rank, type, selection, prereq, effect}] + .checked
+  powerTiers: [],   // [{tier, title, spplabel, defaultactive}]
+  powers: [],       // [{tier, name, mod, base, adj, spp, effect, upgrades}] + .active
+  hindrances: [],   // [{name, severity, effect, bolohad, source}]
+  allEdges: [],     // reference only
+  allWeapons: [],   // [{name, damage, skill, tags, notes, source, dynamic, acquired, equipped, book}]
+  allArmor: [],     // [{name, armorvalue, weight, notes, location, acquired, equipped, category, minstr, book}]
+  allGear: [],      // [{name, weight, cost, notes, category, acquired, book}]
+  // Runtime toggle state — overrides sheet on current session
+  // keyed by item name: {Sword: true, Shield: true}
+  acqState: {},     // acquired overrides
+  eqState: {},      // equipped overrides
+  edgesRef: [],
+  hindrancesRef: [],
+  spPowers: [],
+  weaponsRef: [],
+  armorRef: [],
+
+  // Session state
+  bennies: 3, maxBennies: 3,
+  wounds: [false,false,false,false,false],
+  woundIncap: false,
+  fatigue: [false,false],
+  fatigueIncap: false,
+  shaken: false,
+  forceField: false,
+  pace: 6,
+  size: 0,
+  showUnskilled: true,
+  loaded: false
+};
+
+// ============================================================
+// COMPUTED
+// ============================================================
+const DIE_NAMES = ['d4','d6','d8','d10','d12','d12+1','d12+2'];
+function dieFor(lvl) { return DIE_NAMES[Math.min(Math.max(lvl-1,0), DIE_NAMES.length-1)]; }
+function dieVal(lvl) { return [4,6,8,10,12,12,12][Math.min(Math.max(lvl-1,0),6)]; }
+function dieMod(lvl) { return Math.max(0, lvl - 5); } // returns +1 or +2 for d12+1/+2
+function hasEdge(name) {
+  const n = name.toLowerCase().trim();
+  return !!state.progressions.find(p => p.checked && (p.selection||'').toLowerCase().trim() === n);
+}
+function hasStart(name) {
+  const n = name.toLowerCase().trim();
+  return !!state.starting.find(s => s.on && (s.name||'').toLowerCase().trim() === n);
+}
+
+function computeAttrLevel(name) {
+  const a = state.attrs.find(x => x.name && x.name.toLowerCase()===name.toLowerCase());
+  if(!a) return 1;
+  let lvl = parseInt(a.base)||1;
+  // Progression advances
+  state.progressions.forEach(p=>{
+    if(!p.checked) return;
+    if(p.type==='Attribute' && p.selection && p.selection.toLowerCase().includes(name.toLowerCase())) lvl++;
+  });
+  // Super Attribute power bonuses
+  const shortMap = {strength:'str',vigor:'vig',agility:'agi',smarts:'sma',spirit:'spi'};
+  const shortName = shortMap[name.toLowerCase()] || name.toLowerCase().substring(0,3);
+  const superPowers = state.powers.filter(p => {
+    if (!p.active) return false;
+    const pname = (f(p,'name','power')||'').toLowerCase();
+    return pname.includes('super attr') && pname.includes(shortName);
+  });
+  if (superPowers.length) {
+    const best = superPowers.reduce((a,b) => (parseInt(b.base)||0) > (parseInt(a.base)||0) ? b : a);
+    lvl += Math.floor((parseInt(best.base)||0) / 2);
+  }
+  return Math.min(7, lvl); // d4=1 through d12+2=7
+}
+
+function computeSkillLevel(name) {
+  const s = state.skills.find(x => x.name && x.name.toLowerCase()===name.toLowerCase());
+  if(!s) return 0;
+  // base=0 means unskilled, base=1 means d4 trained
+  let lvl = parseInt(s.base)||0;
+  state.progressions.forEach(p=>{
+    if(!p.checked) return;
+    const isSkill = p.type==='Skill'||p.type==='Skill (Above Attr)'||p.type==='Skill x2'||p.type==='Skill (Above Attr / x2)';
+    // All skill types give 1 die raise — "Above Attr" just costs more advances, same result
+    if(isSkill && p.selection && p.selection.toLowerCase().includes(name.toLowerCase()))
+      lvl += 1;
+  });
+  return Math.min(5,lvl);
+}
+
+function getActivePower(name) {
+  // Get ALL active powers matching the name, return highest tier (highest base value)
+  const matches = state.powers.filter(p => {
+    if (!p.active) return false;
+    const pname = f(p,'name','power') || '';
+    return pname.replace(/\s*↑+$/,'') === name;
+  });
+  if (!matches.length) return null;
+  // Return the one with the highest base value (cumulative upgrades)
+  return matches.reduce((best, p) => {
+    return (parseInt(p.base)||0) > (parseInt(best.base)||0) ? p : best;
+  });
+}
+
+function computeParry() {
+  const fLvl = computeSkillLevel('Fighting');
+  let p = 2 + Math.floor(dieVal(fLvl)/2);
+  if(hasStart('Martial Artist')) p += 1;
+  if(hasEdge('Martial Warrior')) p += 1;
+  if(hasEdge('Imp. Block'))      p += 2;
+  else if(hasEdge('Block'))      p += 1;
+  return p;
+}
+
 function computeToughness() {
   const vigLvl = computeAttrLevel('Vigor');
   let t = 2 + Math.floor(dieVal(vigLvl)/2);
@@ -2055,6 +2235,118 @@ function rollDie(sides, forceWild=false, diePlusMod=0) {
   re.innerHTML = `<div class="roll-num">${fr}</div><div><div class="roll-suc ${sc}">${st}</div><div class="roll-det">${finalDetail}</div></div>`;
 }
 
+function computeSkillMods() {
+  // Returns {skillName: [{label, value}]} from edges, hindrances, powers
+  const mods = {};
+  function addMod(skill, label, val) {
+    skill = skill.toLowerCase();
+    if (!mods[skill]) mods[skill] = [];
+    mods[skill].push({label, val});
+  }
+  // Hindrances with skill penalties
+  // Collect active hindrances from both bolohad and Starting tab
+  const activeHindrances = [
+    ...state.hindrances.filter(h=>isTrue(f(h,'acquired','bolohad','bolo_had','bolo'))),
+    ...state.starting.filter(s=>s.on && (f(s,'type')||'').toLowerCase().includes('hindrance'))
+      .map(s=>{
+        const nm=f(s,'name')||'';
+        const lib=state.hindrances.find(h=>(h.name||'').toLowerCase().trim()===nm.toLowerCase().trim());
+        return lib||{name:nm,effect:f(s,'effect')||''};
+      })
+  ];
+  // deduplicate
+  const seenH=new Set();
+  const dedupH=activeHindrances.filter(h=>{const n=(h.name||'').toLowerCase();if(seenH.has(n))return false;seenH.add(n);return true;});
+  dedupH.forEach(h=>{
+    const eff = (f(h,'effect')||'').toLowerCase();
+    const nm = f(h,'name')||'';
+    // Parse patterns like "-2 persuasion" or "persuasion -2"
+    const skillPenaltyRe = /([+-]?\d+)\s+to\s+([\w\s]+?)(?:\s+rolls?)?(?:\.|$|,)/gi;
+    let m;
+    while ((m = skillPenaltyRe.exec(eff)) !== null) {
+      const val = parseInt(m[1]);
+      const sk = m[2].trim();
+      addMod(sk, `${nm} (${val>=0?'+':''}${val})`, val);
+    }
+    // Outsider: -2 Persuasion
+    if (nm.toLowerCase().includes('outsider') && eff.includes('persuasion')) addMod('persuasion', 'Outsider (-2)', -2);
+    if (nm.toLowerCase().includes('all thumbs')) addMod('electronics', 'All Thumbs (-2)', -2);
+    if (nm.toLowerCase().includes('anemic')) addMod('vigor', 'Anemic (-2 vs Fatigue)', -2);
+    if (nm.toLowerCase().includes('bad eyes') && !nm.toLowerCase().includes('imp')) { addMod('shooting', 'Bad Eyes (-2)', -2); addMod('athletics', 'Bad Eyes thrown (-2)', -2); }
+    if (nm.toLowerCase().includes('clumsy')) { addMod('athletics', 'Clumsy (-2)', -2); addMod('stealth', 'Clumsy (-2)', -2); }
+    if (nm.toLowerCase().includes('hard of hearing')) addMod('notice', 'Hard of Hearing (-4 audio)', -4);
+    if (nm.toLowerCase().includes('yellow')) addMod('spirit', 'Yellow (-2 Fear)', -2);
+  });
+  // Starting edges with modifiers — check both starting and progression sources
+  const allActiveEdges = [
+    ...state.starting.filter(s=>s.on).map(s=>({nm:(f(s,'name')||'').toLowerCase(), eff:(f(s,'effect')||'').toLowerCase()})),
+    ...state.progressions.filter(p=>p.checked && f(p,'type')==='Edge').map(p=>({nm:(f(p,'selection','name')||'').toLowerCase(), eff:(f(p,'effect')||'').toLowerCase()})),
+  ];
+
+  // Use hasE to check for specific edges to safely override upgrades without looping
+  const edgeNames = allActiveEdges.map(e => e.nm);
+  const hasE = (str) => edgeNames.some(n => n.includes(str));
+
+  // ── Awareness / perception ──────────────────────────────
+  if (hasE('alertness'))     addMod('notice',      'Alertness (+2)', 2);
+  if (hasE('danger sense'))  addMod('notice',      'Danger Sense (+2 ambush)', 2);
+  if (hasE('infravision'))   addMod('notice',      'Infravision (halves dark penalty)', 0);
+  
+  // ── Combat — Fighting ───────────────────────────────────
+  // Martial Warrior supersedes Martial Artist — don't double-stack
+  if (hasE('martial warrior')) {
+    addMod('fighting', 'Martial Warrior (+2 unarmed)', 2);
+  } else if (hasE('martial artist')) {
+    addMod('fighting', 'Martial Artist (+1 unarmed)', 1);
+  }
+  if (hasE('brawler') && !hasE('improved brawler')) addMod('fighting', 'Brawler (nat. weapon tag)', 0);
+  
+  // ── Combat — Shooting ───────────────────────────────────
+  if (hasE('steady hands'))  addMod('shooting',    'Steady Hands (no running penalty)', 0);
+  if (hasE('marksman'))      addMod('shooting',    'Marksman (+2 if no move)', 2);
+  if (hasE('dead shot'))     addMod('shooting',    'Dead Shot (dbl damage raise)', 0);
+  
+  // ── Social ──────────────────────────────────────────────
+  if (hasE('very attractive')) {
+    addMod('performance', 'Very Attractive (+2)', 2);
+    addMod('persuasion', 'Very Attractive (+2)', 2);
+  } else if (hasE('attractive')) {
+    addMod('performance', 'Attractive (+1)', 1);
+    addMod('persuasion', 'Attractive (+1)', 1);
+  }
+  if (hasE('charismatic'))   addMod('persuasion',  'Charismatic (+2)', 2);
+  if (hasE('streetwise'))    addMod('persuasion',  'Streetwise (+2 criminal)', 2);
+  if (hasE('strong willed')) { addMod('intimidation','Strong Willed (+2)', 2); addMod('taunt','Strong Willed (+2)', 2); }
+  
+  // ── Knowledge / Research ────────────────────────────────
+  if (hasE('investigator'))  { addMod('research',  'Investigator (+2)', 2); addMod('notice','Investigator (+2 research)', 2); }
+  if (hasE('scholar'))       { addMod('academics', 'Scholar (+2)', 2); addMod('science','Scholar (+2)', 2); }
+  if (hasE('jack-of-all'))   addMod('notice',      'Jack-of-All (no unskilled penalty)', 0);
+  
+  // ── Vehicles ────────────────────────────────────────────
+  if (hasE('ace'))           { addMod('driving',   'Ace (+2)', 2); addMod('piloting','Ace (+2)', 2); addMod('boating','Ace (+2)', 2); }
+  
+  // ── Survival / Stealth ──────────────────────────────────
+  if (hasE('woodsman'))      { addMod('survival',  'Woodsman (+2)', 2); addMod('stealth','Woodsman (+2 wild)', 2); }
+  if (hasE('thief'))         { addMod('stealth',   'Thief (+2)', 2); addMod('thievery','Thief (+2)', 2); }
+  
+  // ── Healing ─────────────────────────────────────────────
+  if (hasE('healer'))        addMod('healing',     'Healer (+2)', 2);
+  
+  const liqCourage = allActiveEdges.find(e => e.nm.includes('liquid courage'));
+  if (liqCourage && liqCourage.eff.includes('vigor')) {
+    addMod('vigor', 'Liquid Courage (+1 die type)', 0);
+  }
+
+  // Active powers with skill effects
+  state.powers.filter(p=>p.active).forEach(p=>{
+    const nm = (p.name||'').toLowerCase();
+    if (nm.includes('awareness')) addMod('notice', `Awareness (ignores ${parseInt(p.base)||1} attack penalties)`, 0);
+    if (nm.includes('genius')) addMod('com. knowledge', 'Genius (free reroll)', 0);
+  });
+  return mods;
+}
+
 function renderSkillQuickRef() {
   const mods = computeSkillMods();
   const all=[...state.attrs.map(a=>({name:a.name,isAttr:true})),...state.skills.map(s=>({name:s.name,isAttr:false}))];
@@ -2491,22 +2783,17 @@ async function loadAllSheets() {
         return true;
       })
       .map(s=>({...s, on: isTrue(s.defaulton)}));
-    
-    // CRITICAL FIX: Ensure explanation rows starting with ⚠ are globally filtered out 
-    // from all reference libraries so they don't corrupt the data logic.
-    state.progressions = progData.filter(p=>!(p.adv||'').startsWith('⚠')).map(p=>({...p, checked: false}));
-    state.powerTiers   = tierData.filter(t=>!(t.tier||'').startsWith('⚠'));
-    state.powers       = powersData.filter(p=>!(p.name||'').startsWith('⚠')).map(p=>({...p, active: isTrue(p.defaultactive)}));
-    state.hindrances   = hindrancesData.filter(h=>!(h.name||'').startsWith('⚠'));
-    
+    state.progressions = progData.map(p=>({...p, checked: false}));
+    state.powerTiers   = tierData;
+    state.powers       = powersData.map(p=>({...p, active: isTrue(p.defaultactive)}));
+    state.hindrances   = hindrancesData;
     // Store row numbers (1-indexed, header=1, data starts row 2)
-    state.allWeapons   = weaponsData.map((w,i) => ({...w, _row: i+2})).filter(w=>!(w.name||'').startsWith('⚠'));
-    state.allArmor     = armorData.map((a,i)  => ({...a, _row: i+2})).filter(a=>!(a.name||'').startsWith('⚠'));
-    state.allGear      = gearData.map((g,i)   => ({...g, _row: i+2})).filter(g=>!(g.name||'').startsWith('⚠'));
-    
-    state.edgesRef         = edgesRefData.filter(e=>!(e.name||'').startsWith('⚠'));
-    state.hindrancesRef    = state.hindrances;
-    state.spPowers         = spData.filter(p=>!(p.name||'').startsWith('⚠'));
+    state.allWeapons   = weaponsData.map((w,i) => ({...w, _row: i+2}));
+    state.allArmor     = armorData.map((a,i)  => ({...a, _row: i+2}));
+    state.allGear      = gearData.map((g,i)   => ({...g, _row: i+2}));
+    state.edgesRef         = edgesRefData;
+    state.hindrancesRef    = hindrancesData;
+    state.spPowers         = spData;
     state.weaponsRef       = state.allWeapons; // share same objects with row numbers
     state.armorRef         = state.allArmor;
 
