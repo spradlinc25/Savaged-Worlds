@@ -459,51 +459,6 @@ function updateConditionalVisibility() {
   const ffNotes = document.getElementById('ff-combat-notes');
   if (ffNotes) ffNotes.style.display = hasFF ? '' : 'none';
 }
-// ============================================================
-function renderWoundTrack() {
-  const {nosIgnore,maxWounds}=getWoundEdgeInfo();
-  document.getElementById('wound-track-label').textContent=`Wounds (Max ${maxWounds} before Incap)`;
-  const container=document.getElementById('wound-boxes'); container.innerHTML='';
-  for(let i=0;i<maxWounds;i++){
-    const ignored=i<nosIgnore;
-    const box=document.createElement('div');
-    box.id=`wound-${i}`;
-    box.className=`tbox wound${state.wounds[i]?' checked':''}${ignored?' nos-ignored':''}`;
-    box.onclick=()=>toggleWound(i);
-    box.innerHTML=`<span class="pen" style="${ignored?'text-decoration:line-through;opacity:0.5':''}">-${i+1}</span><span style="font-size:9px">${i===0?'Wound':'Wounds'}${ignored?' ★':''}</span>`;
-    container.appendChild(box);
-  }
-  const incap=document.createElement('div');
-  incap.id='wound-incap';
-  incap.className=`tbox incap${state.woundIncap?' checked':''}`;
-  incap.onclick=toggleIncap;
-  incap.innerHTML=`<span style="font-size:13px;font-weight:900">✕</span><span style="font-size:9px">INCAP</span>`;
-  container.appendChild(incap);
-}
-
-function updateWoundDisplay() {
-  renderWoundTrack();
-  const {nosIgnore,maxWounds}=getWoundEdgeInfo();
-  const wc=state.wounds.slice(0,maxWounds).filter(Boolean).length;
-  const ep=Math.max(0,wc-nosIgnore);
-  const pen=ep>0?`-${ep}`:'0';
-  const el=document.getElementById('wound-pen-display');
-  el.textContent=pen; el.className='pval '+(wc>=maxWounds?'danger':ep>0?'warning':'ok');
-  document.getElementById('sb-wound-pen').textContent=pen;
-  document.getElementById('incap-warning').classList.toggle('show',state.woundIncap);
-  const ni=document.getElementById('nos-indicator');
-  if(nosIgnore>0){ni.style.display='block';ni.style.color='var(--green)';ni.textContent=nosIgnore===2?'★ Imp. NOS: first 2 penalties ignored':'★ NOS: first penalty ignored';}
-  else ni.style.display='none';
-}
-
-function updateFatigueDisplay() {
-  const fc=state.fatigue.filter(Boolean).length;
-  for(let i=0;i<2;i++) document.getElementById(`fatigue-${i}`).classList.toggle('checked',state.fatigue[i]);
-  document.getElementById('fatigue-incap').classList.toggle('checked',state.fatigueIncap);
-  const pen=fc>0?`-${fc}`:'0';
-  const el=document.getElementById('fatigue-pen-display');
-  el.textContent=pen; el.className='pval '+(fc>=2?'danger':fc>0?'warning':'ok');
-}
 
 // ============================================================
 // WOUND / FATIGUE DISPLAY — now in status bar
