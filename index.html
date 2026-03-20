@@ -97,6 +97,7 @@
 
 <nav>
   <div class="nav-title" id="nav-char-name" style="cursor:default">SWADE</div>
+  <img id="portrait-nav-img" class="portrait-nav-img" src="" alt="" style="display:none" onclick="openPortraitModal()" title="Click to change portrait">
   <div class="nav-sub" id="nav-char-sub" style="display:none">—&nbsp;<span id="nav-rank-display">Novice</span></div>
   <div class="nav-tabs">
     <button class="active" onclick="showTab('sheet',this)">Character</button>
@@ -185,15 +186,6 @@
 <div id="tab-sheet" class="tab active">
   <div id="sheet-loading" class="loading"><span class="loading-spinner"></span>Loading character data from Google Sheets...</div>
   <div id="sheet-content" style="display:none">
-    <!-- PORTRAIT BANNER — only visible when portrait is set -->
-    <div id="portrait-display" style="display:none" class="portrait-display mb">
-      <img id="portrait-img" src="" alt="Character portrait" class="portrait-img" onclick="openPortraitModal()" title="Click to change portrait">
-      <div class="portrait-info">
-        <div class="portrait-char-name" id="portrait-char-name">—</div>
-        <div class="portrait-char-rank" id="portrait-char-rank">Novice</div>
-        <div class="portrait-edit-hint">click portrait to change</div>
-      </div>
-    </div>
     <!-- TOP ROW: Attrs+Skills combined | Hindrances+Edges -->
     <div style="display:grid;grid-template-columns:auto 1fr;gap:16px;margin-bottom:16px;" class="char-top-grid">
       <div class="card" style="width:360px;flex-shrink:0;">
@@ -213,10 +205,6 @@
     <div class="card mb" id="sp-summary-card">
       <div class="section-header card-toggle" onclick="toggleCard('sp-summary')">Active Super Powers <span class="card-arrow">▼</span></div>
       <div id="sp-summary"></div>
-    </div>
-    <div class="card mb" id="advances-quick-card">
-      <div class="section-header card-toggle" onclick="toggleCard('advances-quick-body')">Advances <span id="advances-quick-badge" style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--accent2);font-weight:400;margin-left:6px"></span><span class="card-arrow">▼</span></div>
-      <div id="advances-quick-body"></div>
     </div>
     <div class="card mb">
       <div class="section-header">Combat Notes</div>
@@ -262,7 +250,7 @@
       <div class="section-header" style="margin-bottom:0;border:none;padding-bottom:0">Advances</div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
         <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:5px 14px;font-family:'Share Tech Mono',monospace;">
-          <span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim)">Advances: </span><span id="adv-count" style="font-size:16px;color:var(--accent2);font-weight:bold">0</span><span style="font-size:10px;color:var(--text-dim)"> / <span id="adv-total">0</span></span>
+          <span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim)">Advances: </span><span id="adv-count" class="adv-count-edit" contenteditable="true" inputmode="numeric" title="Click to edit" onblur="setAdvancesCount(this.textContent)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}if(event.key==='Escape'){renderProgressions();this.blur();}">0</span><span style="font-size:10px;color:var(--text-dim)"> / <span id="adv-total">0</span></span>
         </div>
         <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:5px 14px;">
           <span style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim)">Rank: </span><span id="adv-rank" style="font-size:14px;font-weight:bold;color:var(--accent2)">Novice</span>

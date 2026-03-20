@@ -60,44 +60,21 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .sb-box.incap-box.incap-on{background:var(--red);border-color:var(--red);color:white;}
 .sb-box.nos-box{opacity:0.45;border-style:dashed;}
 
-/* CHARACTER PORTRAIT */
-.portrait-display{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px 14px;overflow:hidden;}
-.portrait-img{width:80px;height:80px;object-fit:cover;border-radius:5px;border:2px solid var(--border);cursor:pointer;flex-shrink:0;transition:border-color 0.2s;}
-.portrait-img:hover{border-color:var(--accent);}
-.portrait-info{display:flex;flex-direction:column;gap:3px;min-width:0;}
-.portrait-char-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--heading);line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.portrait-char-rank{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--accent2);font-weight:700;}
-.portrait-edit-hint{font-size:10px;color:var(--muted);margin-top:2px;}
+/* CHARACTER PORTRAIT — nav thumbnail */
+.portrait-nav-img{width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid var(--border);cursor:pointer;flex-shrink:0;transition:border-color 0.2s;margin-left:6px;margin-right:2px;}
+.portrait-nav-img:hover{border-color:var(--accent);}
+/* Portrait modal */
 #portrait-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px;}
 #portrait-modal.open{display:flex;}
 .portrait-modal-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:100%;max-width:420px;padding:24px 28px;}
 .portrait-modal-box h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:14px;}
 @media(max-width:600px){
-  .portrait-img{width:60px;height:60px;}
-  .portrait-char-name{font-size:18px;}
+  .portrait-nav-img{width:26px;height:26px;}
 }
 
-/* QUICK ADVANCES */
-.adv-quick-list{margin-top:4px;}
-/* Rank-level toggle header (mirrors Power Tier pt-header) */
-.adv-rank-header{background:var(--surface2);border:1px solid var(--border);border-radius:6px 6px 0 0;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background 0.2s;margin-top:10px;}
-.adv-rank-header:first-of-type{margin-top:2px;}
-.adv-rank-header:hover{background:#1e2530;}
-.adv-rank-header.adv-rank-on{border-color:var(--accent);}
-.adv-rank-header.adv-rank-on .adv-rank-name{color:var(--accent);}
-.adv-rank-name{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:var(--heading);}
-/* Individual advance rows inside a rank */
-.adv-rank-items{border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;overflow:hidden;margin-bottom:4px;}
-.adv-rank-items .adv-quick-row{border-radius:0;margin-bottom:0;border-bottom:1px solid var(--border);}
-.adv-rank-items .adv-quick-row:last-child{border-bottom:none;}
-.adv-quick-row{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:8px;padding:6px 10px;cursor:pointer;transition:background 0.15s;font-size:13px;}
-.adv-quick-row:hover{background:var(--surface2);}
-.adv-quick-row.adv-on{background:#0f1a0f;}
-.adv-quick-chk{width:20px;height:20px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all 0.15s;}
-.adv-quick-row.adv-on .adv-quick-chk{background:var(--green);border-color:var(--green);color:var(--bg);font-weight:700;}
-.adv-quick-sel{font-weight:700;color:var(--heading);}
-.adv-quick-type{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);}
-.adv-quick-eff{font-size:11px;color:var(--text-dim);text-align:right;max-width:180px;}
+/* ADVANCES COUNT — editable span */
+.adv-count-edit{cursor:text;border-bottom:1px dashed var(--accent2);outline:none;min-width:14px;display:inline-block;}
+.adv-count-edit:focus{color:var(--text);border-bottom-color:var(--accent);}
 
 /* CARD COLLAPSE (Edges, Hindrances, SP on Character tab) */
 .card-toggle{cursor:pointer;user-select:none;justify-content:space-between;}

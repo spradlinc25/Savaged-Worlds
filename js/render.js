@@ -715,7 +715,10 @@ function renderProgressions() {
   const advCount = document.getElementById('adv-count');
   const advTotal = document.getElementById('adv-total');
   const advRank  = document.getElementById('adv-rank');
-  if (advCount) advCount.textContent = checked;
+  // Use manual override if set, otherwise fall back to computed checked count
+  const displayCount = (state.advancesCount !== undefined && state.advancesCount !== null)
+    ? state.advancesCount : checked;
+  if (advCount && document.activeElement !== advCount) advCount.textContent = displayCount;
   if (advTotal) advTotal.textContent = total;
   if (advRank)  { advRank.textContent = rank; advRank.style.color = rankColor(rank); }
 
@@ -1277,69 +1280,17 @@ function showTab(name,btn){
 }
 
 // ============================================================
-// RENDER: QUICK ADVANCES (Character tab compact toggle list)
+// ADVANCES COUNT — manual editable override
 // ============================================================
-function renderAdvancesQuick() {
-  const body = document.getElementById('advances-quick-body');
-  const badge = document.getElementById('advances-quick-badge');
-  if (!body) return;
-
-  const checked = state.progressions.filter(p => p.checked).length;
-  const total   = state.progressions.length;
-  if (badge) badge.textContent = total ? `${checked}/${total}` : '';
-
-  if (!total) {
-    body.innerHTML = '<div style="color:var(--text-dim);font-size:13px;font-style:italic;padding:4px 0">No advances in sheet. Add rows to the Advances tab.</div>';
-    return;
+function setAdvancesCount(val) {
+  const total = state.progressions.length;
+  const n = parseInt(val, 10);
+  if (isNaN(n) || String(val).trim() === '') {
+    state.advancesCount = undefined;
+  } else {
+    state.advancesCount = Math.max(0, Math.min(n, total));
   }
-
-  // Group by rank
-  const groups = {};
-  state.progressions.forEach((p, gi) => {
-    const rank = p.rank || 'Novice';
-    if (!groups[rank]) groups[rank] = [];
-    groups[rank].push({ p, gi });
-  });
-
-  const RANK_ORDER = ['Novice','Seasoned','Veteran','Heroic','Legendary'];
-  let html = '<div class="adv-quick-list">';
-  RANK_ORDER.forEach(rank => {
-    if (!groups[rank]) return;
-    const items   = groups[rank];
-    const allOn   = items.every(({ p }) => p.checked);
-    const countOn = items.filter(({ p }) => p.checked).length;
-    html += `
-      <div class="adv-rank-header${allOn?' adv-rank-on':''}" onclick="toggleRankActive('${rank}')">
-        <span class="adv-rank-name">${rank}</span>
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:12px;color:var(--text-dim)">${countOn}/${items.length}</span>
-          <span style="font-size:20px;color:var(--text-dim)">${allOn?'●':'○'}</span>
-        </div>
-      </div>
-      <div class="adv-rank-items">`;
-    items.forEach(({ p, gi }) => {
-      const on    = p.checked;
-      const label = p.selection || p.type || '—';
-      const sub   = p.type && p.selection ? p.type : '';
-      html += `<div class="adv-quick-row${on?' adv-on':''}" onclick="event.stopPropagation();state.progressions[${gi}].checked=!state.progressions[${gi}].checked;renderAdvancesQuick();renderProgressions();saveState();">
-        <div class="adv-quick-chk">${on?'✓':''}</div>
-        <div><div class="adv-quick-sel">${label}</div>${sub?`<div class="adv-quick-type">${sub}</div>`:''}</div>
-        ${p.effect?`<div class="adv-quick-eff">${p.effect}</div>`:''}
-      </div>`;
-    });
-    html += `</div>`;
-  });
-  html += '</div>';
-  body.innerHTML = html;
-}
-
-function toggleRankActive(rank) {
-  const rankItems = state.progressions.filter(p => (p.rank || 'Novice') === rank);
-  const allOn = rankItems.every(p => p.checked);
-  rankItems.forEach(p => p.checked = !allOn);
-  renderAdvancesQuick();
   renderProgressions();
-  fullRefresh();
   saveState();
 }
 
@@ -1351,19 +1302,15 @@ function portraitKey() {
 }
 
 function renderPortrait() {
-  const img = document.getElementById('portrait-img');
-  const display = document.getElementById('portrait-display');
-  const nameEl = document.getElementById('portrait-char-name');
-  const rankEl = document.getElementById('portrait-char-rank');
-  if (!img || !display) return;
+  const navImg = document.getElementById('portrait-nav-img');
+  if (!navImg) return;
   const src = localStorage.getItem(portraitKey());
   if (src) {
-    img.src = src;
-    display.style.display = 'flex';
-    if (nameEl) nameEl.textContent = document.getElementById('nav-char-name')?.textContent || '—';
-    if (rankEl) rankEl.textContent = document.getElementById('sb-rank')?.textContent || 'Novice';
+    navImg.src = src;
+    navImg.style.display = 'block';
   } else {
-    display.style.display = 'none';
+    navImg.src = '';
+    navImg.style.display = 'none';
   }
   const btn = document.getElementById('portrait-nav-btn');
   if (btn) btn.style.opacity = src ? '1' : '0.55';
@@ -1398,29 +1345,39 @@ function closePortraitModal() {
 function handlePortraitUpload(input) {
   const file = input.files[0];
   if (!file) return;
-  if (file.size > 2 * 1024 * 1024) {
-    if (!confirm('This image is larger than 2MB and may use significant storage. Continue?')) return;
-  }
-  const reader = new FileReader();
-  reader.onload = (e) => {
+  const objectUrl = URL.createObjectURL(file);
+  const tempImg = new Image();
+  tempImg.onload = () => {
+    URL.revokeObjectURL(objectUrl);
+    // Compress: resize to max 400px on longest side, encode as JPEG 80%
+    const MAX = 400;
+    let w = tempImg.width, h = tempImg.height;
+    if (w > MAX || h > MAX) {
+      if (w >= h) { h = Math.round(h * MAX / w); w = MAX; }
+      else        { w = Math.round(w * MAX / h); h = MAX; }
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(tempImg, 0, 0, w, h);
+    const compressed = canvas.toDataURL('image/jpeg', 0.80);
     try {
-      localStorage.setItem(portraitKey(), e.target.result);
+      localStorage.setItem(portraitKey(), compressed);
     } catch(err) {
       alert('Could not save portrait — storage may be full. Try a smaller image.');
       return;
     }
     renderPortrait();
     const previewImg = document.getElementById('portrait-preview-img');
-    const preview = document.getElementById('portrait-preview-wrap');
-    const emptyMsg = document.getElementById('portrait-empty-msg');
-    const removeBtn = document.getElementById('portrait-remove-btn');
-    if (previewImg) previewImg.src = e.target.result;
-    if (preview) preview.style.display = 'block';
-    if (emptyMsg) emptyMsg.style.display = 'none';
-    if (removeBtn) removeBtn.style.display = 'inline-block';
+    const preview    = document.getElementById('portrait-preview-wrap');
+    const emptyMsg   = document.getElementById('portrait-empty-msg');
+    const removeBtn  = document.getElementById('portrait-remove-btn');
+    if (previewImg) previewImg.src = compressed;
+    if (preview)    preview.style.display = 'block';
+    if (emptyMsg)   emptyMsg.style.display = 'none';
+    if (removeBtn)  removeBtn.style.display = 'inline-block';
     input.value = '';
   };
-  reader.readAsDataURL(file);
+  tempImg.src = objectUrl;
 }
 
 function removePortrait() {
@@ -1467,7 +1424,6 @@ function toggleStatBar(){
 function fullRefresh() {
   renderStarting();
   renderProgressions();
-  renderAdvancesQuick();
   renderAttrs();
   renderSkills();
   renderHindrances();

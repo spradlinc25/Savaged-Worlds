@@ -30,8 +30,9 @@ function buildSavePayload() {
     fatigueIncap:state.fatigueIncap,
     shaken:      state.shaken,
     forceField:  state.forceField,
-    acqState:    state.acqState,
-    eqState:     state.eqState
+    acqState:     state.acqState,
+    eqState:      state.eqState,
+    advancesCount:state.advancesCount
   });
 }
 
@@ -72,6 +73,7 @@ function applyPayload(s) {
   if (s.showUnskilled !== undefined) state.showUnskilled = s.showUnskilled;
   if (s.acqState) state.acqState = s.acqState;
   if (s.eqState)  state.eqState  = s.eqState;
+  if (s.advancesCount !== undefined) state.advancesCount = s.advancesCount;
 }
 
 // ── Google Sheets write ───────────────────────────────────────
