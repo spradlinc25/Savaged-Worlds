@@ -17,6 +17,7 @@ const STATE_RANGE = 'State!B2';
 
 function buildSavePayload() {
   return JSON.stringify({
+    _ts:         Date.now(),
     starting:    state.starting.map(s => s.on),
     progressions:state.progressions.map(p => p.checked),
     powers:      state.powers.map(p => p.active),
@@ -110,25 +111,25 @@ async function doSheetsSync() {
   }
 }
 
-async function loadFromSheets() {
-  if (!gAuthToken) return false;
+async function fetchCloudRaw() {
+  if (!gAuthToken) return null;
   try {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(STATE_RANGE)}`;
-    const resp = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${gAuthToken}` }
-    });
-    if (!resp.ok) return false;
+    const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${gAuthToken}` } });
+    if (!resp.ok) return null;
     const data = await resp.json();
-    const raw = data.values?.[0]?.[0];
-    if (!raw) return false;
-    const parsed = JSON.parse(raw);
-    applyPayload(parsed);
-    // Also update localStorage with the cloud version
+    return data.values?.[0]?.[0] || null;
+  } catch(e) { return null; }
+}
+
+async function loadFromSheets() {
+  const raw = await fetchCloudRaw();
+  if (!raw) return false;
+  try {
+    applyPayload(JSON.parse(raw));
     localStorage.setItem(SAVE_KEY, raw);
     return true;
-  } catch(e) {
-    return false;
-  }
+  } catch(e) { return false; }
 }
 
 // ── OAuth flow ────────────────────────────────────────────────
@@ -359,10 +360,21 @@ async function loadAllSheets() {
       // show_unskilled is managed locally, not stored in sheet
     }
 
-    // Restore session state — try cloud first if connected, else localStorage
+    // Restore session state — prefer whichever is newer (local vs cloud)
     if (isConnected) {
-      const cloudLoaded = await loadFromSheets();
-      if (!cloudLoaded) loadState(); // fallback to local
+      const localRaw = localStorage.getItem(SAVE_KEY);
+      const localTs  = localRaw ? (JSON.parse(localRaw)._ts || 0) : 0;
+      const cloudRaw = await fetchCloudRaw();
+      const cloudTs  = cloudRaw ? (JSON.parse(cloudRaw)._ts || 0) : 0;
+      if (cloudRaw && cloudTs >= localTs) {
+        // Cloud is same age or newer — use it and sync localStorage
+        applyPayload(JSON.parse(cloudRaw));
+        localStorage.setItem(SAVE_KEY, cloudRaw);
+      } else {
+        // Local is newer (unsync'd changes) — use local, push to cloud
+        loadState();
+        if (cloudTs < localTs) scheduleSheetsSync();
+      }
     } else {
       loadState();
     }
@@ -388,6 +400,7 @@ async function loadAllSheets() {
     renderBennies();
     renderStarting();
     renderProgressions();
+    renderAdvancesQuick();
     renderPowerTiers();
     renderDiceButtons();
     updateFatigueDisplay();

@@ -804,11 +804,11 @@ function toggleTierActive(tierNum) {
   const tierPowers = state.powers.filter(p => parseInt(p.tier||0) === parseInt(tierNum||0));
   const allOn = tierPowers.every(p=>p.active);
   tierPowers.forEach(p=>p.active=!allOn);
-  renderPowerTiers(); updateStatusBar();
+  renderPowerTiers(); fullRefresh();
 }
 function togglePowerByIdx(idx) {
   state.powers[idx].active=!state.powers[idx].active;
-  renderPowerTiers(); updateStatusBar();
+  renderPowerTiers(); fullRefresh();
 }
 
 // ============================================================
@@ -948,6 +948,26 @@ function renderGearRef() {
 function renderWeaponsRef() {
   const tb=document.getElementById('weapons-ref-body'); tb.innerHTML='';
   const acc=document.getElementById('weapons-acc'); acc.innerHTML='';
+
+  // ── Prepend computed weapons (Fists, Enhanced Fists) ──────
+  const cw = computeWeapons().filter(w => w.source === 'Racial/Edges' || w.source === 'Melee Attack Power');
+  cw.forEach(w => {
+    const isEF = w.source === 'Melee Attack Power';
+    const efOn = !Object.prototype.hasOwnProperty.call(state,'enhancedFistsOn') || state.enhancedFistsOn;
+    const toggleBtn = isEF
+      ? `<button class="btn-equip${efOn?' equipped':''}" onclick="state.enhancedFistsOn=!state.enhancedFistsOn;renderWeapons();renderWeaponsRef();saveState()">${efOn?'Active':'Inactive'}</button>`
+      : '';
+    const badge = `<span class="wsource" style="margin-left:4px">Racial/Edge</span>`;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-weight:700">${w.name}${badge}</td><td style="font-family:'Share Tech Mono',monospace" class="ref-col-hide-mobile">${w.damage}</td><td class="ref-col-hide-mobile">${w.skillLabel.replace(/<[^>]+>/g,'')}</td><td style="color:var(--text-dim);font-size:12px" class="ref-col-hide-mobile">${w.notes||''}</td><td>${toggleBtn}</td>`;
+    tb.appendChild(tr);
+    acc.appendChild(buildAccItem(w.name, badge+toggleBtn, [
+      {label:'Damage', value:w.damage},
+      {label:'Skill',  value:w.skillLabel.replace(/<[^>]+>/g,'')},
+      {label:'Notes',  value:w.notes||''}
+    ]));
+  });
+
   state.weaponsRef.forEach(w=>{
     const nm = String(w.name||'').trim();
     if(!nm || nm==='TRUE' || nm==='FALSE' || nm==='true' || nm==='false') return;
@@ -1255,6 +1275,51 @@ function showTab(name,btn){
   if(name==='roller'&&state.loaded) renderSkillQuickRef();
 }
 
+// ============================================================
+// RENDER: QUICK ADVANCES (Character tab compact toggle list)
+// ============================================================
+function renderAdvancesQuick() {
+  const body = document.getElementById('advances-quick-body');
+  const badge = document.getElementById('advances-quick-badge');
+  if (!body) return;
+
+  const checked = state.progressions.filter(p => p.checked).length;
+  const total   = state.progressions.length;
+  if (badge) badge.textContent = total ? `${checked}/${total}` : '';
+
+  if (!total) {
+    body.innerHTML = '<div style="color:var(--text-dim);font-size:13px;font-style:italic;padding:4px 0">No advances in sheet. Add rows to the Advances tab.</div>';
+    return;
+  }
+
+  // Group by rank like the Progressions tab
+  const groups = {};
+  state.progressions.forEach((p, gi) => {
+    const rank = p.rank || 'Novice';
+    if (!groups[rank]) groups[rank] = [];
+    groups[rank].push({ p, gi });
+  });
+
+  const RANK_ORDER = ['Novice','Seasoned','Veteran','Heroic','Legendary'];
+  let html = '<div class="adv-quick-list">';
+  RANK_ORDER.forEach(rank => {
+    if (!groups[rank]) return;
+    html += `<div class="adv-quick-rank">${rank}</div>`;
+    groups[rank].forEach(({ p, gi }) => {
+      const on = p.checked;
+      const label = p.selection || p.type || '—';
+      const sub   = p.type && p.selection ? p.type : '';
+      html += `<div class="adv-quick-row${on?' adv-on':''}" onclick="state.progressions[${gi}].checked=!state.progressions[${gi}].checked;renderAdvancesQuick();renderProgressions();fullRefresh();">
+        <div class="adv-quick-chk">${on?'✓':''}</div>
+        <div><div class="adv-quick-sel">${label}</div>${sub?`<div class="adv-quick-type">${sub}</div>`:''}</div>
+        ${p.effect?`<div class="adv-quick-eff">${p.effect}</div>`:''}
+      </div>`;
+    });
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
+
 function toggleCard(bodyId) {
   const body = document.getElementById(bodyId);
   const header = body.previousElementSibling;
@@ -1287,6 +1352,7 @@ function toggleStatBar(){
 function fullRefresh() {
   renderStarting();
   renderProgressions();
+  renderAdvancesQuick();
   renderAttrs();
   renderSkills();
   renderHindrances();

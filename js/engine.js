@@ -336,6 +336,7 @@ function toggleAcquired(name) {
   }
   renderWeapons(); renderArmor(); renderGear();
   renderWeaponsRef(); renderArmorRef(); renderGearRef();
+  updateStatusBar(); // armor acquired state can affect Toughness
 }
 function toggleEquipped(name) {
   const weapon = state.allWeapons.find(i => (i.name||'').trim() === name);

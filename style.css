@@ -60,6 +60,19 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .sb-box.incap-box.incap-on{background:var(--red);border-color:var(--red);color:white;}
 .sb-box.nos-box{opacity:0.45;border-style:dashed;}
 
+/* QUICK ADVANCES */
+.adv-quick-list{margin-top:4px;}
+.adv-quick-rank{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent2);font-weight:700;margin:10px 0 4px;padding-bottom:3px;border-bottom:1px solid var(--border);}
+.adv-quick-rank:first-child{margin-top:2px;}
+.adv-quick-row{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:8px;padding:6px 10px;border-radius:4px;cursor:pointer;transition:background 0.15s;font-size:13px;margin-bottom:2px;}
+.adv-quick-row:hover{background:var(--surface2);}
+.adv-quick-row.adv-on{background:#0f1a0f;}
+.adv-quick-chk{width:20px;height:20px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all 0.15s;}
+.adv-quick-row.adv-on .adv-quick-chk{background:var(--green);border-color:var(--green);color:var(--bg);font-weight:700;}
+.adv-quick-sel{font-weight:700;color:var(--heading);}
+.adv-quick-type{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);}
+.adv-quick-eff{font-size:11px;color:var(--text-dim);text-align:right;max-width:180px;}
+
 /* CARD COLLAPSE (Edges, Hindrances, SP on Character tab) */
 .card-toggle{cursor:pointer;user-select:none;justify-content:space-between;}
 .card-toggle:hover{opacity:0.85;}
