@@ -76,6 +76,25 @@
 </div>
 
 
+<!-- ── PORTRAIT MODAL ── -->
+<div id="portrait-modal">
+  <div class="portrait-modal-box">
+    <h2>🖼 Character Portrait</h2>
+    <div id="portrait-preview-wrap" style="display:none;margin-bottom:14px;text-align:center">
+      <img id="portrait-preview-img" src="" alt="Character portrait" style="max-width:100%;max-height:260px;border-radius:6px;border:1px solid var(--border);object-fit:cover;">
+    </div>
+    <div id="portrait-empty-msg" style="color:var(--text-dim);font-size:13px;margin-bottom:14px">No portrait set. Choose an image file to add one.</div>
+    <label class="setup-btn secondary" style="cursor:pointer;display:inline-block;margin-bottom:8px">
+      Choose Image
+      <input type="file" id="portrait-file-input" accept="image/*" style="display:none" onchange="handlePortraitUpload(this)">
+    </label>
+    <button id="portrait-remove-btn" class="reset-btn" style="display:none;margin-left:8px;color:var(--red);border-color:var(--red)" onclick="removePortrait()">✕ Remove</button>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="setup-btn secondary" onclick="closePortraitModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <nav>
   <div class="nav-title" id="nav-char-name" style="cursor:default">SWADE</div>
   <div class="nav-sub" id="nav-char-sub" style="display:none">—&nbsp;<span id="nav-rank-display">Novice</span></div>
@@ -93,6 +112,7 @@
     <button class="reset-btn" onclick="importSave()" title="Load save file">↑</button>
     <button class="reset-btn" onclick="clearSave()" title="Reset">↺</button>
     <button class="reset-btn" onclick="openChangeSheet()" title="Change character sheet">⚙</button>
+    <button class="reset-btn portrait-nav-btn" id="portrait-nav-btn" onclick="openPortraitModal()" title="Set character portrait">🖼</button>
   </div>
 </nav>
 
@@ -165,6 +185,15 @@
 <div id="tab-sheet" class="tab active">
   <div id="sheet-loading" class="loading"><span class="loading-spinner"></span>Loading character data from Google Sheets...</div>
   <div id="sheet-content" style="display:none">
+    <!-- PORTRAIT BANNER — only visible when portrait is set -->
+    <div id="portrait-display" style="display:none" class="portrait-display mb">
+      <img id="portrait-img" src="" alt="Character portrait" class="portrait-img" onclick="openPortraitModal()" title="Click to change portrait">
+      <div class="portrait-info">
+        <div class="portrait-char-name" id="portrait-char-name">—</div>
+        <div class="portrait-char-rank" id="portrait-char-rank">Novice</div>
+        <div class="portrait-edit-hint">click portrait to change</div>
+      </div>
+    </div>
     <!-- TOP ROW: Attrs+Skills combined | Hindrances+Edges -->
     <div style="display:grid;grid-template-columns:auto 1fr;gap:16px;margin-bottom:16px;" class="char-top-grid">
       <div class="card" style="width:360px;flex-shrink:0;">

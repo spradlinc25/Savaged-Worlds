@@ -655,6 +655,7 @@ function updateStatusBar() {
   updateFFDisplay();
   renderWeapons();
   renderSPSummary();
+  renderPortrait();
   saveState();
 }
 
@@ -1318,6 +1319,98 @@ function renderAdvancesQuick() {
   });
   html += '</div>';
   body.innerHTML = html;
+}
+
+// ============================================================
+// CHARACTER PORTRAIT
+// ============================================================
+function portraitKey() {
+  return 'swade_portrait_' + (typeof SHEET_ID !== 'undefined' ? SHEET_ID : 'default');
+}
+
+function renderPortrait() {
+  const img = document.getElementById('portrait-img');
+  const display = document.getElementById('portrait-display');
+  const nameEl = document.getElementById('portrait-char-name');
+  const rankEl = document.getElementById('portrait-char-rank');
+  if (!img || !display) return;
+  const src = localStorage.getItem(portraitKey());
+  if (src) {
+    img.src = src;
+    display.style.display = 'flex';
+    if (nameEl) nameEl.textContent = document.getElementById('nav-char-name')?.textContent || '—';
+    if (rankEl) rankEl.textContent = document.getElementById('sb-rank')?.textContent || 'Novice';
+  } else {
+    display.style.display = 'none';
+  }
+  const btn = document.getElementById('portrait-nav-btn');
+  if (btn) btn.style.opacity = src ? '1' : '0.55';
+}
+
+function openPortraitModal() {
+  const modal = document.getElementById('portrait-modal');
+  const preview = document.getElementById('portrait-preview-wrap');
+  const previewImg = document.getElementById('portrait-preview-img');
+  const emptyMsg = document.getElementById('portrait-empty-msg');
+  const removeBtn = document.getElementById('portrait-remove-btn');
+  if (!modal) return;
+  const src = localStorage.getItem(portraitKey());
+  if (src) {
+    previewImg.src = src;
+    preview.style.display = 'block';
+    emptyMsg.style.display = 'none';
+    removeBtn.style.display = 'inline-block';
+  } else {
+    preview.style.display = 'none';
+    emptyMsg.style.display = 'block';
+    removeBtn.style.display = 'none';
+  }
+  modal.classList.add('open');
+}
+
+function closePortraitModal() {
+  const modal = document.getElementById('portrait-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+function handlePortraitUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    if (!confirm('This image is larger than 2MB and may use significant storage. Continue?')) return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      localStorage.setItem(portraitKey(), e.target.result);
+    } catch(err) {
+      alert('Could not save portrait — storage may be full. Try a smaller image.');
+      return;
+    }
+    renderPortrait();
+    const previewImg = document.getElementById('portrait-preview-img');
+    const preview = document.getElementById('portrait-preview-wrap');
+    const emptyMsg = document.getElementById('portrait-empty-msg');
+    const removeBtn = document.getElementById('portrait-remove-btn');
+    if (previewImg) previewImg.src = e.target.result;
+    if (preview) preview.style.display = 'block';
+    if (emptyMsg) emptyMsg.style.display = 'none';
+    if (removeBtn) removeBtn.style.display = 'inline-block';
+    input.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePortrait() {
+  if (!confirm('Remove character portrait?')) return;
+  localStorage.removeItem(portraitKey());
+  renderPortrait();
+  const preview = document.getElementById('portrait-preview-wrap');
+  const emptyMsg = document.getElementById('portrait-empty-msg');
+  const removeBtn = document.getElementById('portrait-remove-btn');
+  if (preview) preview.style.display = 'none';
+  if (emptyMsg) emptyMsg.style.display = 'block';
+  if (removeBtn) removeBtn.style.display = 'none';
 }
 
 function toggleCard(bodyId) {

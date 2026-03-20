@@ -406,6 +406,7 @@ async function loadAllSheets() {
     updateFatigueDisplay();
     updateConditionalVisibility();
     updateStatusBar();
+    renderPortrait();
     renderEdgesRef();
     renderHindrancesRef();
     renderSPRef();
