@@ -284,9 +284,9 @@ function computeWeapons() {
   computed.push({name:'Fists',damage:fistBonus?`${strDie}+${fistBonus}`:strDie,skillLabel:fightingLabel,tags:hasMA?['Natural Weapon']:[],notes:fistNote,upgraded:fistBonus&&fistBonus!=='d4',source:'Racial/Edges'});
 
   const mp=getActivePower('Melee Attack');
-  if(mp){
+  if(mp && (!Object.prototype.hasOwnProperty.call(state,'enhancedFistsOn') || state.enhancedFistsOn)){
     const extraDice=Math.floor((parseInt(mp.base)||0)/2);
-    const pd=Array(extraDice).fill('d6').join('+');
+    const pd=extraDice > 1 ? `${extraDice}d6` : 'd6';
     // Build enhanced fist breakdown note
     const enhBreakdown = [...fistBreakdown];
     enhBreakdown.push(`+${pd} Melee Attack (Tier ${mp.tier||'?'}, Heavy Weapon)`);
@@ -331,7 +331,14 @@ function renderWeapons() {
   const equipped = raw.filter(w => w.equipped || w.source === 'Racial/Edges' || w.source === 'Melee Attack Power');
   const acquiredOnly = raw.filter(w => !w.equipped && w.source !== 'Racial/Edges' && w.source !== 'Melee Attack Power');
 
-  let html = `<table class="weapon-table"><thead><tr><th>Weapon</th><th>Damage</th><th>Skill</th><th>Tags / Notes</th></tr></thead><tbody>`;
+  // Enhanced Fists toggle button (only shown when Melee Attack power is active)
+  const mpActive = !!getActivePower('Melee Attack');
+  const efOn = !Object.prototype.hasOwnProperty.call(state,'enhancedFistsOn') || state.enhancedFistsOn;
+  const efToggle = mpActive
+    ? `<div style="margin-bottom:8px"><button class="btn-acquire${efOn?' acquired':''}" onclick="state.enhancedFistsOn=!state.enhancedFistsOn;renderWeapons();saveState()" title="Toggle Enhanced Fists on/off">${efOn?'▶ Enhanced Fists: ON':'▶ Enhanced Fists: OFF'}</button></div>`
+    : '';
+
+  let html = `${efToggle}<table class="weapon-table"><thead><tr><th>Weapon</th><th>Damage</th><th>Skill</th><th>Tags / Notes</th></tr></thead><tbody>`;
   if (equipped.length) {
     html += `<tr><td colspan="4"><div class="gear-section-label" style="color:var(--accent2);margin-top:0;">Equipped Weapons</div></td></tr>`;
     equipped.forEach(w => { html += weaponRow(w, true); });
@@ -1246,6 +1253,24 @@ function showTab(name,btn){
   document.getElementById('tab-'+name).classList.add('active');
   if(btn) btn.classList.add('active');
   if(name==='roller'&&state.loaded) renderSkillQuickRef();
+}
+
+function toggleCard(bodyId) {
+  const body = document.getElementById(bodyId);
+  const header = body.previousElementSibling;
+  if (!body || !header) return;
+  const collapsed = body.classList.toggle('card-collapsed');
+  const arrow = header.querySelector('.card-arrow');
+  if (arrow) arrow.style.transform = collapsed ? 'rotate(-90deg)' : '';
+}
+
+function toggleLibSection(bodyId) {
+  const body = document.getElementById(bodyId);
+  const header = body ? body.previousElementSibling : null;
+  if (!body || !header) return;
+  const collapsed = body.classList.toggle('lib-collapsed');
+  const arrow = header.querySelector('.lib-arrow');
+  if (arrow) arrow.style.transform = collapsed ? 'rotate(-90deg)' : '';
 }
 
 function toggleStatBar(){

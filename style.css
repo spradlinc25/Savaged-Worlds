@@ -60,6 +60,18 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .sb-box.incap-box.incap-on{background:var(--red);border-color:var(--red);color:white;}
 .sb-box.nos-box{opacity:0.45;border-style:dashed;}
 
+/* CARD COLLAPSE (Edges, Hindrances, SP on Character tab) */
+.card-toggle{cursor:pointer;user-select:none;justify-content:space-between;}
+.card-toggle:hover{opacity:0.85;}
+.card-arrow{font-size:11px;color:var(--text-dim);transition:transform 0.2s;flex-shrink:0;margin-left:auto;}
+.card-collapsed{display:none;}
+
+/* LIBRARY SECTION COLLAPSE (Reference tab) */
+.lib-toggle{cursor:pointer;user-select:none;justify-content:space-between;}
+.lib-toggle:hover{opacity:0.85;}
+.lib-arrow{font-size:11px;color:var(--text-dim);transition:transform 0.2s;flex-shrink:0;margin-left:auto;}
+.lib-collapsed{display:none;}
+
 /* MOBILE ACCORDION for Reference tab */
 .acc-list{display:none;}
 .acc-item{border-bottom:1px solid var(--border);}
@@ -77,7 +89,7 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 
 @media(max-width:600px){
   /* Show accordion, hide table */
-  .acc-list{display:block;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;}
+  .acc-list{display:block;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:12px;max-height:380px;overflow-y:auto;}
   .ref-wrap{display:none;}
   .ref-search{display:block;}
   /* Nav — tabs on row 1 full width, sync buttons wrap to row 2 */
@@ -168,8 +180,9 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .weapon-table tr:last-child td{border-bottom:none;}
 .wname{font-weight:700;font-size:15px;color:var(--heading);}
 .wsource{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);padding:2px 6px;border:1px solid var(--border);border-radius:3px;display:inline-block;margin-top:3px;}
-.wdmg{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent2);letter-spacing:1px;}
+.wdmg{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent2);letter-spacing:1px;word-break:break-word;max-width:140px;}
 .wdmg.up{color:var(--green);}
+.weapon-table td{max-width:200px;word-break:break-word;}
 .wtag{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:1px 5px;border-radius:3px;border:1px solid var(--accent);color:var(--accent);margin-right:3px;margin-bottom:2px;}
 .wtag.heavy{border-color:var(--red);color:var(--red);}
 .wtag.natural{border-color:var(--blue);color:var(--blue);}

@@ -178,12 +178,12 @@
         <tbody id="skill-body"></tbody></table>
       </div>
       <div style="display:flex;flex-direction:column;gap:16px;">
-        <div class="card" style="flex:1"><div class="section-header">Hindrances</div><div id="hindrances-list"></div></div>
-        <div class="card" style="flex:1"><div class="section-header">Edges</div><div id="edges-list"></div></div>
+        <div class="card" style="flex:1"><div class="section-header card-toggle" onclick="toggleCard('hindrances-list')">Hindrances <span class="card-arrow">▼</span></div><div id="hindrances-list"></div></div>
+        <div class="card" style="flex:1"><div class="section-header card-toggle" onclick="toggleCard('edges-list')">Edges <span class="card-arrow">▼</span></div><div id="edges-list"></div></div>
       </div>
     </div>
     <div class="card mb" id="sp-summary-card">
-      <div class="section-header">Active Super Powers</div>
+      <div class="section-header card-toggle" onclick="toggleCard('sp-summary')">Active Super Powers <span class="card-arrow">▼</span></div>
       <div id="sp-summary"></div>
     </div>
     <div class="card mb">
@@ -260,61 +260,73 @@
   <div id="ref-content" style="display:none">
     <div class="ref-grid">
       <div>
-        <div class="section-header">Edges Library</div>
-        <input class="ref-search" id="edge-search" placeholder="Search edges..." oninput="filterRef('edge-search','edges-ref-table','edges-acc')">
-        <div class="acc-list" id="edges-acc"></div>
-        <div class="ref-wrap"><table class="ref-table" id="edges-ref-table">
-          <thead><tr><th>Edge</th><th>Category</th><th>Prereq</th><th>Effect</th><th>Book</th></tr></thead>
-          <tbody id="edges-ref-body"></tbody>
-        </table></div>
+        <div class="section-header lib-toggle" onclick="toggleLibSection('edges-lib-body')">Edges Library <span class="lib-arrow">▼</span></div>
+        <div class="lib-body lib-collapsed" id="edges-lib-body">
+          <input class="ref-search" id="edge-search" placeholder="Search edges..." oninput="filterRef('edge-search','edges-ref-table','edges-acc')">
+          <div class="acc-list" id="edges-acc"></div>
+          <div class="ref-wrap"><table class="ref-table" id="edges-ref-table">
+            <thead><tr><th>Edge</th><th>Category</th><th>Prereq</th><th>Effect</th><th>Book</th></tr></thead>
+            <tbody id="edges-ref-body"></tbody>
+          </table></div>
+        </div>
       </div>
       <div>
-        <div class="section-header">Hindrances Library</div>
-        <input class="ref-search" id="hind-search" placeholder="Search hindrances..." oninput="filterRef('hind-search','hindrances-ref-table','hindrances-acc')">
-        <div class="acc-list" id="hindrances-acc"></div>
-        <div class="ref-wrap"><table class="ref-table" id="hindrances-ref-table">
-          <thead><tr><th>Hindrance</th><th>Severity</th><th>Effect</th><th>Book</th></tr></thead>
-          <tbody id="hindrances-ref-body"></tbody>
-        </table></div>
+        <div class="section-header lib-toggle" onclick="toggleLibSection('hindrances-lib-body')">Hindrances Library <span class="lib-arrow">▼</span></div>
+        <div class="lib-body lib-collapsed" id="hindrances-lib-body">
+          <input class="ref-search" id="hind-search" placeholder="Search hindrances..." oninput="filterRef('hind-search','hindrances-ref-table','hindrances-acc')">
+          <div class="acc-list" id="hindrances-acc"></div>
+          <div class="ref-wrap"><table class="ref-table" id="hindrances-ref-table">
+            <thead><tr><th>Hindrance</th><th>Severity</th><th>Effect</th><th>Book</th></tr></thead>
+            <tbody id="hindrances-ref-body"></tbody>
+          </table></div>
+        </div>
       </div>
     </div>
     <div class="mb">
-      <div class="section-header">Super Powers Library</div>
-      <input class="ref-search" id="sp-search" placeholder="Search powers..." oninput="filterRef('sp-search','sp-ref-table','sp-acc')">
-      <div class="acc-list" id="sp-acc"></div>
-      <div class="ref-wrap"><table class="ref-table" id="sp-ref-table">
-        <thead><tr><th>Power</th><th>Cost</th><th>Type</th><th>Summary</th><th class="sp-notes-col">Notes</th><th>Source</th></tr></thead>
-        <tbody id="sp-ref-body"></tbody>
-      </table></div>
+      <div class="section-header lib-toggle" onclick="toggleLibSection('sp-lib-body')">Super Powers Library <span class="lib-arrow">▼</span></div>
+      <div class="lib-body lib-collapsed" id="sp-lib-body">
+        <input class="ref-search" id="sp-search" placeholder="Search powers..." oninput="filterRef('sp-search','sp-ref-table','sp-acc')">
+        <div class="acc-list" id="sp-acc"></div>
+        <div class="ref-wrap"><table class="ref-table" id="sp-ref-table">
+          <thead><tr><th>Power</th><th>Cost</th><th>Type</th><th>Summary</th><th class="sp-notes-col">Notes</th><th>Source</th></tr></thead>
+          <tbody id="sp-ref-body"></tbody>
+        </table></div>
+      </div>
     </div>
     <div class="ref-grid">
       <div>
-        <div class="section-header">Weapons Library</div>
-        <input class="ref-search" id="weap-search" placeholder="Search weapons..." oninput="filterRef('weap-search','weapons-ref-table','weapons-acc')">
-        <div class="acc-list" id="weapons-acc"></div>
-        <div class="ref-wrap"><table class="ref-table" id="weapons-ref-table">
-          <thead><tr><th>Weapon</th><th class="ref-col-hide-mobile">Damage</th><th class="ref-col-hide-mobile">Skill</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
-          <tbody id="weapons-ref-body"></tbody>
-        </table></div>
+        <div class="section-header lib-toggle" onclick="toggleLibSection('weapons-lib-body')">Weapons Library <span class="lib-arrow">▼</span></div>
+        <div class="lib-body lib-collapsed" id="weapons-lib-body">
+          <input class="ref-search" id="weap-search" placeholder="Search weapons..." oninput="filterRef('weap-search','weapons-ref-table','weapons-acc')">
+          <div class="acc-list" id="weapons-acc"></div>
+          <div class="ref-wrap"><table class="ref-table" id="weapons-ref-table">
+            <thead><tr><th>Weapon</th><th class="ref-col-hide-mobile">Damage</th><th class="ref-col-hide-mobile">Skill</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
+            <tbody id="weapons-ref-body"></tbody>
+          </table></div>
+        </div>
       </div>
       <div>
-        <div class="section-header">Armor Library</div>
-        <input class="ref-search" id="armor-search" placeholder="Search armor..." oninput="filterRef('armor-search','armor-ref-table','armor-acc')">
-        <div class="acc-list" id="armor-acc"></div>
-        <div class="ref-wrap"><table class="ref-table" id="armor-ref-table">
-          <thead><tr><th>Armor</th><th class="ref-col-hide-mobile">Value</th><th class="ref-col-hide-mobile">Wt</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
-          <tbody id="armor-ref-body"></tbody>
-        </table></div>
+        <div class="section-header lib-toggle" onclick="toggleLibSection('armor-lib-body')">Armor Library <span class="lib-arrow">▼</span></div>
+        <div class="lib-body lib-collapsed" id="armor-lib-body">
+          <input class="ref-search" id="armor-search" placeholder="Search armor..." oninput="filterRef('armor-search','armor-ref-table','armor-acc')">
+          <div class="acc-list" id="armor-acc"></div>
+          <div class="ref-wrap"><table class="ref-table" id="armor-ref-table">
+            <thead><tr><th>Armor</th><th class="ref-col-hide-mobile">Value</th><th class="ref-col-hide-mobile">Wt</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
+            <tbody id="armor-ref-body"></tbody>
+          </table></div>
+        </div>
       </div>
     </div>
     <div class="mb">
-      <div class="section-header">Gear Library</div>
-      <input class="ref-search" id="gear-search" placeholder="Search gear..." oninput="filterRef('gear-search','gear-ref-table','gear-acc')">
-      <div class="acc-list" id="gear-acc"></div>
-      <div class="ref-wrap"><table class="ref-table" id="gear-ref-table">
-        <thead><tr><th>Item</th><th class="ref-col-hide-mobile">Wt</th><th class="ref-col-hide-mobile">Cost</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
-        <tbody id="gear-ref-body"></tbody>
-      </table></div>
+      <div class="section-header lib-toggle" onclick="toggleLibSection('gear-lib-body')">Gear Library <span class="lib-arrow">▼</span></div>
+      <div class="lib-body lib-collapsed" id="gear-lib-body">
+        <input class="ref-search" id="gear-search" placeholder="Search gear..." oninput="filterRef('gear-search','gear-ref-table','gear-acc')">
+        <div class="acc-list" id="gear-acc"></div>
+        <div class="ref-wrap"><table class="ref-table" id="gear-ref-table">
+          <thead><tr><th>Item</th><th class="ref-col-hide-mobile">Wt</th><th class="ref-col-hide-mobile">Cost</th><th class="ref-col-hide-mobile">Notes</th><th>Status</th></tr></thead>
+          <tbody id="gear-ref-body"></tbody>
+        </table></div>
+      </div>
     </div>
   </div>
 </div>
