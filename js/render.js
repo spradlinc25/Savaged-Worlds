@@ -1293,7 +1293,7 @@ function renderAdvancesQuick() {
     return;
   }
 
-  // Group by rank like the Progressions tab
+  // Group by rank
   const groups = {};
   state.progressions.forEach((p, gi) => {
     const rank = p.rank || 'Novice';
@@ -1305,20 +1305,42 @@ function renderAdvancesQuick() {
   let html = '<div class="adv-quick-list">';
   RANK_ORDER.forEach(rank => {
     if (!groups[rank]) return;
-    html += `<div class="adv-quick-rank">${rank}</div>`;
-    groups[rank].forEach(({ p, gi }) => {
-      const on = p.checked;
+    const items   = groups[rank];
+    const allOn   = items.every(({ p }) => p.checked);
+    const countOn = items.filter(({ p }) => p.checked).length;
+    html += `
+      <div class="adv-rank-header${allOn?' adv-rank-on':''}" onclick="toggleRankActive('${rank}')">
+        <span class="adv-rank-name">${rank}</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:12px;color:var(--text-dim)">${countOn}/${items.length}</span>
+          <span style="font-size:20px;color:var(--text-dim)">${allOn?'●':'○'}</span>
+        </div>
+      </div>
+      <div class="adv-rank-items">`;
+    items.forEach(({ p, gi }) => {
+      const on    = p.checked;
       const label = p.selection || p.type || '—';
       const sub   = p.type && p.selection ? p.type : '';
-      html += `<div class="adv-quick-row${on?' adv-on':''}" onclick="state.progressions[${gi}].checked=!state.progressions[${gi}].checked;renderAdvancesQuick();renderProgressions();fullRefresh();">
+      html += `<div class="adv-quick-row${on?' adv-on':''}" onclick="event.stopPropagation();state.progressions[${gi}].checked=!state.progressions[${gi}].checked;renderAdvancesQuick();renderProgressions();saveState();">
         <div class="adv-quick-chk">${on?'✓':''}</div>
         <div><div class="adv-quick-sel">${label}</div>${sub?`<div class="adv-quick-type">${sub}</div>`:''}</div>
         ${p.effect?`<div class="adv-quick-eff">${p.effect}</div>`:''}
       </div>`;
     });
+    html += `</div>`;
   });
   html += '</div>';
   body.innerHTML = html;
+}
+
+function toggleRankActive(rank) {
+  const rankItems = state.progressions.filter(p => (p.rank || 'Novice') === rank);
+  const allOn = rankItems.every(p => p.checked);
+  rankItems.forEach(p => p.checked = !allOn);
+  renderAdvancesQuick();
+  renderProgressions();
+  fullRefresh();
+  saveState();
 }
 
 // ============================================================
