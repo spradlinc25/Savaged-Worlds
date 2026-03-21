@@ -402,7 +402,6 @@ async function loadAllSheets() {
     renderBennies();
     renderStarting();
     renderProgressions();
-    renderAdvancesQuick();
     renderPowerTiers();
     renderDiceButtons();
     updateFatigueDisplay();
