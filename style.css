@@ -293,7 +293,7 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .incap-warn.show{display:block;}
 
 /* EDGES LIBRARY — accordion on all screen sizes, flat table hidden */
-#edges-lib-body .acc-list{display:block;border:1px solid var(--border);border-radius:4px;overflow-y:auto;max-height:420px;margin-bottom:12px;}
+#edges-acc{display:block;border:1px solid var(--border);border-radius:4px;overflow-y:auto;max-height:420px;margin-bottom:12px;}
 #edges-lib-body .ref-wrap{display:none;}
 /* Grid layout — column header row + each acc-header share the same columns */
 .edges-acc-header-row,
