@@ -862,6 +862,7 @@ function renderEdgesRef() {
       + (e.effect ? `<span class="edge-eff">${e.effect}</span>` : '')
       + bookBadge(e.book);
     acc.appendChild(buildAccItem(e.name||'', edgeBadge, [
+      {label:'Category',    value:e.category||''},
       {label:'Prereq',      value:e.prereq||''},
       {label:'Description', value:e.description||''}
     ]));
