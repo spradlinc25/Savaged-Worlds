@@ -420,8 +420,8 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 }
 
 /* ── SETUP SCREEN ──────────────────────────────────────────── */
-#setup-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
-.setup-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:100%;max-width:560px;padding:32px 36px;}
+#setup-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+.setup-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:100%;max-width:560px;padding:32px 36px;margin:auto;}
 .setup-logo{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--accent);letter-spacing:6px;margin-bottom:4px;}
 .setup-sub{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:28px;}
 .setup-step{margin-bottom:22px;}

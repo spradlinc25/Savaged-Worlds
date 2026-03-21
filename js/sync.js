@@ -474,6 +474,9 @@ async function boot() {
   // ?new=1 from roster page — force setup screen regardless of stored sheet
   if (new URLSearchParams(window.location.search).get('new') === '1') {
     window.history.replaceState({}, '', window.location.pathname);
+    // Clear stored sheet ID so the input doesn't pre-fill with the last character
+    localStorage.removeItem('swade_sheet_id');
+    SHEET_ID = '';
     showSetupScreen();
     return;
   }

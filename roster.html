@@ -320,7 +320,6 @@
     .manual-add-form {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto auto;
       gap: 10px;
     }
     .manual-input {
@@ -334,12 +333,16 @@
       outline: none;
       width: 100%;
     }
-    /* Sheet ID spans full width, button sits beside it */
-    #manual-sheet-id { grid-column: 1 / 2; }
-    .btn-manual-add  { grid-column: 2 / 3; align-self: stretch; }
+    /* Row 1: name | sheet ID — each half width */
+    /* Row 2: email | button — each half width */
+    #manual-name    { grid-column: 1; }
+    #manual-sheet-id{ grid-column: 2; }
+    #manual-email   { grid-column: 1; }
+    .btn-manual-add { grid-column: 2; align-self: stretch; }
     @media (max-width: 600px) {
       .manual-add-form { grid-template-columns: 1fr; }
-      #manual-sheet-id, .btn-manual-add { grid-column: 1; }
+      #manual-name, #manual-sheet-id,
+      #manual-email, .btn-manual-add { grid-column: 1; }
     }
     .manual-input:focus { border-color: var(--accent2); }
     .manual-input::placeholder { color: var(--text-dim); }
