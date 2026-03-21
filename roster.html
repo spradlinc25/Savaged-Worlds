@@ -387,7 +387,7 @@
         <div class="roster-title">All Characters</div>
         <div class="roster-subtitle">Savaged Worlds Campaign</div>
       </div>
-      <a class="new-char-btn" href="index.html">＋ New Character</a>
+      <a class="new-char-btn" href="index.html?new=1">＋ New Character</a>
     </div>
 
     <!-- Character list -->
@@ -418,6 +418,12 @@
           id="manual-sheet-id"
           type="text"
           placeholder="Google Sheet ID or URL"
+        />
+        <input
+          class="manual-input"
+          id="manual-email"
+          type="email"
+          placeholder="Player email (optional)"
         />
         <button class="btn-manual-add" onclick="manualAdd()">Add</button>
       </div>
@@ -489,10 +495,12 @@
     // ── Manual add ───────────────────────────────────────────
     async function manualAdd() {
       const nameEl     = document.getElementById('manual-name');
+      const emailEl    = document.getElementById('manual-email');
       const idEl       = document.getElementById('manual-sheet-id');
       const feedbackEl = document.getElementById('manual-feedback');
 
-      const name = nameEl.value.trim();
+      const name  = nameEl.value.trim();
+      const email = emailEl ? emailEl.value.trim() : '';
       const raw  = idEl.value.trim();
 
       // Accept full URL or bare ID
@@ -522,7 +530,7 @@
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, sheet_id: sheetId, email: '' })
+          body: JSON.stringify({ name, sheet_id: sheetId, email })
         });
 
         feedbackEl.className = 'manual-feedback ok';

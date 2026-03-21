@@ -471,6 +471,12 @@ async function loadAllSheets() {
 // Boot — try silent OAuth restore, then load sheet data
 // ── Boot sequence ────────────────────────────────────────────
 async function boot() {
+  // ?new=1 from roster page — force setup screen regardless of stored sheet
+  if (new URLSearchParams(window.location.search).get('new') === '1') {
+    window.history.replaceState({}, '', window.location.pathname);
+    showSetupScreen();
+    return;
+  }
   if (!SHEET_ID) {
     showSetupScreen();
     return;
