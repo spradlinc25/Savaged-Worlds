@@ -107,7 +107,13 @@ async function doSheetsSync() {
       },
       body: JSON.stringify({ values: [[payload]] })
     });
-    if (!resp.ok) throw new Error(`Sheets write failed: ${resp.status}`);
+    if (!resp.ok) {
+      // ── HOOK 1: 403 means connected account doesn't own this sheet ──
+      if (resp.status === 403 && typeof handleSheetWriteForbidden === 'function') {
+        handleSheetWriteForbidden();
+      }
+      throw new Error(`Sheets write failed: ${resp.status}`);
+    }
     flashSave('cloud');
     // Also persist token info
     localStorage.setItem('bolo_gtoken', JSON.stringify({ token: gAuthToken, expiry: gTokenExpiry }));
@@ -145,6 +151,8 @@ function handleSyncBtn() {
     gAuthToken = null; gTokenExpiry = 0; isConnected = false;
     localStorage.removeItem('bolo_gtoken');
     setSyncStatus('disconnected');
+    // ── HOOK 2 (disconnect): re-check ownership to update banner ──
+    if (typeof checkSheetOwnership === 'function') checkSheetOwnership();
     return;
   }
   if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com') {
@@ -161,6 +169,8 @@ function handleSyncBtn() {
       gTokenExpiry = Date.now() + (resp.expires_in * 1000) - 60000; // 1min buffer
       isConnected = true;
       setSyncStatus('connected');
+      // ── HOOK 2 (connect): register with roster + check ownership ──
+      if (typeof tryAutoRegister === 'function') tryAutoRegister();
       // Try to load cloud save — if it's newer than local, use it
       setSyncStatus('loading');
       const loaded = await loadFromSheets();
@@ -443,6 +453,9 @@ async function loadAllSheets() {
       indicator.textContent = 'Auto-saves locally';
       indicator.style.color = 'var(--text-dim)';
     }
+
+    // ── HOOK 3: after sheet loads, check ownership for banner ──
+    if (typeof checkSheetOwnership === 'function') checkSheetOwnership();
 
   } catch(err) {
     console.error('Sheet load error:', err);

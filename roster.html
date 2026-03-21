@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SWADE — All Characters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0a0c0f;
+      --surface:  #111418;
+      --surface2: #181c22;
+      --border:   #2a3040;
+      --accent:   #e85d26;
+      --accent2:  #f4a436;
+      --green:    #3ddc84;
+      --blue:     #4dabf7;
+      --red:      #ff4444;
+      --text:     #c8d3e0;
+      --text-dim: #7a8aa0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    nav {
+      background: #0d0f13;
+      border-bottom: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 14px;
+      min-height: 40px;
+      gap: 10px;
+    }
+    .nav-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      color: var(--accent);
+      letter-spacing: 3px;
+      padding-right: 10px;
+      border-right: 1px solid var(--border);
+      margin-right: 2px;
+      white-space: nowrap;
+      line-height: 40px;
+      flex-shrink: 0;
+    }
+    .nav-sub {
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex: 1;
+    }
+    .nav-back {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      background: none;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .nav-back:hover { border-color: var(--accent2); color: var(--accent2); }
+
+    /* ── PAGE LAYOUT ─────────────────────────────────────────── */
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 16px 80px;
+    }
+
+    /* ── HEADER ──────────────────────────────────────────────── */
+    .roster-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .roster-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      color: var(--accent);
+      letter-spacing: 5px;
+      line-height: 1;
+    }
+    .roster-subtitle {
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .new-char-btn {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 10px 22px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .new-char-btn:hover { background: #d14d1a; }
+
+    /* ── DIVIDER ─────────────────────────────────────────────── */
+    .section-header {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14px;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-header::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 14px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* ── CHARACTER GRID ──────────────────────────────────────── */
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    /* ── CHARACTER CARD ──────────────────────────────────────── */
+    .char-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.2s, transform 0.15s;
+      position: relative;
+      overflow: hidden;
+      animation: cardIn 0.3s ease both;
+    }
+    .char-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px 0 0 3px;
+    }
+    .char-card:hover {
+      border-color: var(--accent2);
+      transform: translateY(-2px);
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--text);
+      line-height: 1;
+    }
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .card-email {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-added {
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .card-id {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--border);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .btn-load {
+      flex: 1;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 7px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid var(--accent);
+      background: none;
+      color: var(--accent);
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .btn-load:hover { background: var(--accent); color: #fff; }
+
+    /* ── LOADING STATE ───────────────────────────────────────── */
+    .roster-loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-dim);
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── EMPTY STATE ─────────────────────────────────────────── */
+    .roster-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-dim);
+    }
+    .roster-empty-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+      opacity: 0.4;
+    }
+    .roster-empty h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .roster-empty p {
+      font-size: 13px;
+      line-height: 1.6;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+
+    /* ── ERROR STATE ─────────────────────────────────────────── */
+    .roster-error {
+      background: #1a0a0a;
+      border: 1px solid var(--red);
+      border-radius: 4px;
+      padding: 14px 18px;
+      color: var(--red);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    /* ── MANUAL ADD SECTION ──────────────────────────────────── */
+    .manual-add {
+      margin-top: 36px;
+    }
+    .manual-add-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .manual-input {
+      flex: 1;
+      min-width: 200px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      padding: 9px 12px;
+      border-radius: 4px;
+      outline: none;
+    }
+    .manual-input:focus { border-color: var(--accent2); }
+    .manual-input::placeholder { color: var(--text-dim); }
+    .btn-manual-add {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 9px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid var(--accent2);
+      background: none;
+      color: var(--accent2);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-manual-add:hover { background: var(--accent2); color: var(--bg); }
+    .manual-feedback {
+      font-size: 12px;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+    .manual-feedback.ok  { color: var(--green); }
+    .manual-feedback.err { color: var(--red); }
+
+    /* ── MOBILE ──────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .page { padding: 16px 10px 80px; }
+      .roster-title { font-size: 28px; }
+      .char-grid { grid-template-columns: 1fr; }
+      .roster-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <span class="nav-title">SWADE</span>
+    <span class="nav-sub">Character Roster</span>
+    <a class="nav-back" href="index.html">← Sheet</a>
+  </nav>
+
+  <!-- PAGE -->
+  <div class="page">
+
+    <!-- Header -->
+    <div class="roster-header">
+      <div>
+        <div class="roster-title">All Characters</div>
+        <div class="roster-subtitle">Savaged Worlds Campaign</div>
+      </div>
+      <a class="new-char-btn" href="index.html">＋ New Character</a>
+    </div>
+
+    <!-- Character list -->
+    <div class="section-header">Active Characters</div>
+    <div id="roster-content">
+      <div class="roster-loading">
+        <span class="loading-spinner"></span> Loading characters…
+      </div>
+    </div>
+
+    <!-- Manual add -->
+    <div class="manual-add">
+      <div class="section-header">Add Character Manually</div>
+      <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px;line-height:1.5;">
+        Characters are added automatically when a player connects their Google account on their sheet.
+        You can also add one manually by pasting the Google Sheet ID below.
+      </p>
+      <div class="manual-add-form">
+        <input
+          class="manual-input"
+          id="manual-name"
+          type="text"
+          placeholder="Character name"
+          maxlength="60"
+        />
+        <input
+          class="manual-input"
+          id="manual-sheet-id"
+          type="text"
+          placeholder="Google Sheet ID or URL"
+        />
+        <button class="btn-manual-add" onclick="manualAdd()">Add</button>
+      </div>
+      <div class="manual-feedback" id="manual-feedback"></div>
+    </div>
+
+  </div><!-- /page -->
+
+  <script>
+    const ROSTER_SHEET_ID = '1HntAxiEwIJiqjcKq7UePjAQj8zqF8HEaQOa0hxIMu00';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNsCvJ85Uq1Ji_K50TCDDZKr-t2n1z6dVk6ryDEe2FdwLF_X3KqWBNMPx7AL2bKOSd/exec';
+
+    // ── Fetch and render roster ──────────────────────────────
+    async function loadRoster() {
+      const el = document.getElementById('roster-content');
+      try {
+        const url = `https://docs.google.com/spreadsheets/d/${ROSTER_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const csv = await resp.text();
+        const rows = parseCSV(csv);
+
+        // First row is headers — skip it
+        const chars = rows.slice(1).filter(r => r[1] && r[1].trim());
+
+        if (chars.length === 0) {
+          el.innerHTML = `
+            <div class="roster-empty">
+              <div class="roster-empty-icon">⚔</div>
+              <h3>No Characters Yet</h3>
+              <p>Characters appear here automatically when a player connects their Google account on their sheet. Or add one manually below.</p>
+            </div>`;
+          return;
+        }
+
+        let html = '<div class="char-grid">';
+        chars.forEach((row, i) => {
+          const name    = row[0] || 'Unknown';
+          const sheetId = (row[1] || '').trim();
+          const email   = row[2] || '';
+          const added   = row[3] ? formatDate(row[3]) : '';
+
+          html += `
+            <div class="char-card" style="animation-delay:${i * 0.05}s">
+              <div class="card-name">${escHtml(name)}</div>
+              <div class="card-meta">
+                ${email ? `<div class="card-email">👤 ${escHtml(email)}</div>` : ''}
+                ${added ? `<div class="card-added">Added ${added}</div>` : ''}
+                <div class="card-id">${escHtml(sheetId)}</div>
+              </div>
+              <div class="card-actions">
+                <a class="btn-load" href="index.html?sheet=${encodeURIComponent(sheetId)}">Load Sheet →</a>
+              </div>
+            </div>`;
+        });
+        html += '</div>';
+        el.innerHTML = html;
+
+      } catch(err) {
+        el.innerHTML = `
+          <div class="roster-error">
+            ⚠ Could not load roster: ${escHtml(err.message)}<br><br>
+            Make sure the Roster Sheet is published (File → Share → Publish to web).
+          </div>`;
+        console.error('Roster load error:', err);
+      }
+    }
+
+    // ── Manual add ───────────────────────────────────────────
+    async function manualAdd() {
+      const nameEl     = document.getElementById('manual-name');
+      const idEl       = document.getElementById('manual-sheet-id');
+      const feedbackEl = document.getElementById('manual-feedback');
+
+      const name = nameEl.value.trim();
+      const raw  = idEl.value.trim();
+
+      // Accept full URL or bare ID
+      const urlMatch = raw.match(/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
+      const sheetId  = urlMatch ? urlMatch[1] : raw;
+
+      feedbackEl.className = 'manual-feedback';
+      feedbackEl.textContent = '';
+
+      if (!name) {
+        feedbackEl.className = 'manual-feedback err';
+        feedbackEl.textContent = 'Please enter a character name.';
+        return;
+      }
+      if (!sheetId || sheetId.length < 20 || !/^[A-Za-z0-9_-]+$/.test(sheetId)) {
+        feedbackEl.className = 'manual-feedback err';
+        feedbackEl.textContent = 'Invalid Sheet ID — paste the ID or full URL from the address bar.';
+        return;
+      }
+
+      feedbackEl.textContent = 'Adding…';
+
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, sheet_id: sheetId, email: '' })
+        });
+
+        feedbackEl.className = 'manual-feedback ok';
+        feedbackEl.textContent = `✓ ${name} added to roster.`;
+        nameEl.value = '';
+        idEl.value   = '';
+
+        // Refresh the list
+        setTimeout(() => loadRoster(), 800);
+
+      } catch(err) {
+        feedbackEl.className = 'manual-feedback err';
+        feedbackEl.textContent = `Failed to add: ${err.message}`;
+      }
+    }
+
+    // ── Helpers ──────────────────────────────────────────────
+    function parseCSV(text) {
+      // Simple CSV parser — handles quoted fields
+      const rows = [];
+      const lines = text.split('\n');
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        const cols = [];
+        let cur = '', inQ = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+            else inQ = !inQ;
+          } else if (ch === ',' && !inQ) {
+            cols.push(cur); cur = '';
+          } else {
+            cur += ch;
+          }
+        }
+        cols.push(cur);
+        rows.push(cols);
+      }
+      return rows;
+    }
+
+    function formatDate(str) {
+      try {
+        const d = new Date(str);
+        if (isNaN(d)) return str;
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      } catch(e) { return str; }
+    }
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    // Boot
+    loadRoster();
+  </script>
+</body>
+</html>

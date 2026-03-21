@@ -45,7 +45,8 @@
       <div class="setup-error" id="setup-error">⚠ Please enter a valid Sheet ID</div>
     </div>
 
-    <div style="display:flex;justify-content:flex-end;margin-top:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;gap:10px;">
+      <a href="roster.html" class="setup-btn secondary" style="text-decoration:none">👥 Browse Existing Characters</a>
       <button class="setup-btn primary" onclick="setupLoadSheet()">Load My Sheet →</button>
     </div>
 
@@ -87,6 +88,7 @@
     <button onclick="showTab('roller',this)">Dice Roller</button>
   </div>
   <div class="nav-right">
+    <a href="roster.html" class="reset-btn" style="text-decoration:none" title="All Characters">👥</a>
     <span id="save-indicator" class="sync-status">Loading...</span>
     <button id="sync-btn" class="sync-btn connect" onclick="handleSyncBtn()" title="Connect Google account to sync across devices">☁ Sync</button>
     <button class="reset-btn" onclick="exportSave()" title="Download save file">↓</button>
@@ -95,6 +97,12 @@
     <button class="reset-btn" onclick="openChangeSheet()" title="Change character sheet">⚙</button>
   </div>
 </nav>
+
+<!-- ── NOT LINKED BANNER (shown by roster.js when sheet ownership mismatch) ── -->
+<div id="roster-not-linked-banner" style="display:none">
+  <span class="roster-banner-msg"></span>
+  <button class="roster-banner-close" onclick="hideNotLinkedBanner()" title="Dismiss">✕</button>
+</div>
 
 <div class="stat-bar">
   <button class="stat-bar-toggle" onclick="toggleStatBar()" id="stat-bar-toggle-btn">▼ Stats &amp; Tracking</button>
@@ -354,5 +362,6 @@
 <script src="js/engine.js"></script>
 <script src="js/render.js"></script>
 <script src="js/sync.js"></script>
+<script src="js/roster.js"></script>
 </body>
 </html>
