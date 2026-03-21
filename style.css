@@ -93,7 +93,7 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .acc-val{color:var(--text);flex:1;}
 /* Edge accordion — category + effect in collapsed header */
 .edge-cat{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);white-space:nowrap;flex-shrink:0;}
-.edge-eff{font-size:11px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+.edge-eff{font-size:11px;color:var(--text-dim);overflow:hidden;min-width:0;white-space:normal;}
 
 @media(max-width:600px){
   /* Show accordion, hide table */
@@ -308,7 +308,6 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
   #edges-lib-body .edge-cat{display:none;}
   .edges-acc-header-row span:nth-child(2){display:none;}
 }
-.edge-eff{white-space:normal;}
 
 /* ── SETUP SCREEN ──────────────────────────────────────────── */
 #setup-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
