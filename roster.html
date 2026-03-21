@@ -516,8 +516,11 @@
       feedbackEl.textContent = 'Adding…';
 
       try {
+        // no-cors required for Apps Script — we can't read the response
+        // but the append still fires server-side
         await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
+          mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, sheet_id: sheetId, email: '' })
         });
@@ -527,8 +530,8 @@
         nameEl.value = '';
         idEl.value   = '';
 
-        // Refresh the list
-        setTimeout(() => loadRoster(), 800);
+        // Refresh the list after a short delay for the sheet to update
+        setTimeout(() => loadRoster(), 1500);
 
       } catch(err) {
         feedbackEl.className = 'manual-feedback err';
