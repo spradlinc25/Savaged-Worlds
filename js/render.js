@@ -847,6 +847,11 @@ function bookBadge(book) {
 function renderEdgesRef() {
   const tb=document.getElementById('edges-ref-body'); tb.innerHTML='';
   const acc=document.getElementById('edges-acc'); acc.innerHTML='';
+  // Sticky column header row (not an acc-item, ignored by filterRef)
+  const hdr=document.createElement('div');
+  hdr.className='edges-acc-header-row';
+  hdr.innerHTML='<span>Edge</span><span>Category</span><span>Effect</span><span>Book</span><span></span>';
+  acc.appendChild(hdr);
   state.edgesRef.forEach(e=>{
     const bookCls=(e.book||'SWADE').toUpperCase()==='SPC'?'spc':'swade';
     const tr=document.createElement('tr');
@@ -866,11 +871,12 @@ function renderHindrancesRef() {
   const tb=document.getElementById('hindrances-ref-body'); tb.innerHTML='';
   const acc=document.getElementById('hindrances-acc'); acc.innerHTML='';
   state.hindrancesRef.forEach(h=>{
+    const nm=f(h,'name','hindrance','hindrance_name','title')||'';
     const bookCls=(h.book||'SWADE').toUpperCase()==='SPC'?'spc':'swade';
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:700">${h.name||''}</td><td>${h.severity||''}</td><td>${h.effect||''}</td><td><span class="book-tag ${bookCls}">${h.book||'SWADE'}</span></td>`;
+    tr.innerHTML=`<td style="font-weight:700">${nm}</td><td>${h.severity||''}</td><td>${h.effect||''}</td><td><span class="book-tag ${bookCls}">${h.book||'SWADE'}</span></td>`;
     tb.appendChild(tr);
-    acc.appendChild(buildAccItem(h.name||'', bookBadge(h.book), [
+    acc.appendChild(buildAccItem(nm, bookBadge(h.book), [
       {label:'Severity', value:h.severity||''},
       {label:'Effect',   value:h.effect||''}
     ]));
