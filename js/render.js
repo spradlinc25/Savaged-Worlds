@@ -115,13 +115,17 @@ function renderHindrances() {
 
 function classifyEdge(name) {
   const n = (name||'').toLowerCase().trim();
-  // Check Edges reference library for sheet-defined classification
+  const VALID = new Set(['tracker','activate','active','passive']);
   const ref = state.edgesRef.find(e => (e.name||'').toLowerCase().trim() === n);
-  if (ref && ref.active) return ref.active.toLowerCase() === 'passive' ? 'passive' : 'active';
-  // Also check starting edges
+  if (ref && ref.active) {
+    const v = ref.active.toLowerCase().trim();
+    if (VALID.has(v)) return v;
+  }
   const st = state.starting.find(s => (f(s,'name')||'').toLowerCase().trim() === n);
-  if (st && st.active) return st.active.toLowerCase() === 'passive' ? 'passive' : 'active';
-  // Fallback: hardcoded defaults
+  if (st && st.active) {
+    const v = st.active.toLowerCase().trim();
+    if (VALID.has(v)) return v;
+  }
   const passiveSet = new Set([
     'brawler','martial artist','bruiser','martial warrior','brawny',
     'block','improved block','tough as nails','tougher than nails',
@@ -130,9 +134,11 @@ function classifyEdge(name) {
     'professional','expert','master','trademark weapon',
     'alertness','attractive','very attractive','arcane background',
     'ambidextrous','elan','fast healer','fleet-footed',
-    'luck','great luck','quick','rich','filthy rich','scholar','healer',
+    'quick','rich','filthy rich','scholar','healer',
   ]);
-  return passiveSet.has(n) ? 'passive' : 'active';
+  if (passiveSet.has(n)) return 'passive';
+  if (n === 'luck' || n === 'great luck') return 'tracker';
+  return 'activate';
 }
 
 function classifyHindrance(name) {
@@ -169,12 +175,22 @@ function classifyPower(name) {
 }
 
 function edgeGroup(items) {
-  const active = items.filter(i=>i.cls==='active');
-  const passive = items.filter(i=>i.cls==='passive');
+  const trackers  = items.filter(i=>i.cls==='tracker');
+  const activates = items.filter(i=>i.cls==='activate');
+  const always    = items.filter(i=>i.cls==='active');
+  const passive   = items.filter(i=>i.cls==='passive');
   let html = '';
-  if (active.length) {
-    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin:6px 0 3px;font-weight:700">▶ Active</div>`;
-    active.forEach(i => { html += i.html; });
+  if (trackers.length) {
+    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin:6px 0 3px;font-weight:700">⬡ Tracker (limited uses)</div>`;
+    trackers.forEach(i => { html += i.html; });
+  }
+  if (activates.length) {
+    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin:8px 0 3px;font-weight:700">▶ Activate / Trigger</div>`;
+    activates.forEach(i => { html += i.html; });
+  }
+  if (always.length) {
+    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin:8px 0 3px;font-weight:700">● Always Active</div>`;
+    always.forEach(i => { html += i.html; });
   }
   if (passive.length) {
     html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin:8px 0 3px;font-weight:700">◼ Passive (reflected in stats)</div>`;
