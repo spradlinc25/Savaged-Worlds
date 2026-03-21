@@ -655,7 +655,6 @@ function updateStatusBar() {
   updateFFDisplay();
   renderWeapons();
   renderSPSummary();
-  renderPortrait();
   saveState();
 }
 
@@ -1284,112 +1283,23 @@ function showTab(name,btn){
 // ============================================================
 function setAdvancesCount(val) {
   const total = state.progressions.length;
-  const n = parseInt(val, 10);
-  if (isNaN(n) || String(val).trim() === '') {
-    state.advancesCount = undefined;
-  } else {
-    state.advancesCount = Math.max(0, Math.min(n, total));
-  }
+  const raw = parseInt(val, 10);
+  const n = isNaN(raw) ? 0 : Math.max(0, Math.min(raw, total));
+  state.advancesCount = n;
+
+  // Auto-check first n advances in rank order, uncheck the rest
+  const RANK_ORDER = ['Novice','Seasoned','Veteran','Heroic','Legendary'];
+  const ordered = [];
+  RANK_ORDER.forEach(rank => {
+    state.progressions.forEach((p, i) => {
+      if ((p.rank || 'Novice') === rank) ordered.push(i);
+    });
+  });
+  ordered.forEach((idx, pos) => { state.progressions[idx].checked = pos < n; });
+
   renderProgressions();
+  fullRefresh();
   saveState();
-}
-
-// ============================================================
-// CHARACTER PORTRAIT
-// ============================================================
-function portraitKey() {
-  return 'swade_portrait_' + (typeof SHEET_ID !== 'undefined' ? SHEET_ID : 'default');
-}
-
-function renderPortrait() {
-  const navImg = document.getElementById('portrait-nav-img');
-  if (!navImg) return;
-  const src = localStorage.getItem(portraitKey());
-  if (src) {
-    navImg.src = src;
-    navImg.style.display = 'block';
-  } else {
-    navImg.src = '';
-    navImg.style.display = 'none';
-  }
-  const btn = document.getElementById('portrait-nav-btn');
-  if (btn) btn.style.opacity = src ? '1' : '0.55';
-}
-
-function openPortraitModal() {
-  const modal = document.getElementById('portrait-modal');
-  const preview = document.getElementById('portrait-preview-wrap');
-  const previewImg = document.getElementById('portrait-preview-img');
-  const emptyMsg = document.getElementById('portrait-empty-msg');
-  const removeBtn = document.getElementById('portrait-remove-btn');
-  if (!modal) return;
-  const src = localStorage.getItem(portraitKey());
-  if (src) {
-    previewImg.src = src;
-    preview.style.display = 'block';
-    emptyMsg.style.display = 'none';
-    removeBtn.style.display = 'inline-block';
-  } else {
-    preview.style.display = 'none';
-    emptyMsg.style.display = 'block';
-    removeBtn.style.display = 'none';
-  }
-  modal.classList.add('open');
-}
-
-function closePortraitModal() {
-  const modal = document.getElementById('portrait-modal');
-  if (modal) modal.classList.remove('open');
-}
-
-function handlePortraitUpload(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const objectUrl = URL.createObjectURL(file);
-  const tempImg = new Image();
-  tempImg.onload = () => {
-    URL.revokeObjectURL(objectUrl);
-    // Compress: resize to max 400px on longest side, encode as JPEG 80%
-    const MAX = 400;
-    let w = tempImg.width, h = tempImg.height;
-    if (w > MAX || h > MAX) {
-      if (w >= h) { h = Math.round(h * MAX / w); w = MAX; }
-      else        { w = Math.round(w * MAX / h); h = MAX; }
-    }
-    const canvas = document.createElement('canvas');
-    canvas.width = w; canvas.height = h;
-    canvas.getContext('2d').drawImage(tempImg, 0, 0, w, h);
-    const compressed = canvas.toDataURL('image/jpeg', 0.80);
-    try {
-      localStorage.setItem(portraitKey(), compressed);
-    } catch(err) {
-      alert('Could not save portrait — storage may be full. Try a smaller image.');
-      return;
-    }
-    renderPortrait();
-    const previewImg = document.getElementById('portrait-preview-img');
-    const preview    = document.getElementById('portrait-preview-wrap');
-    const emptyMsg   = document.getElementById('portrait-empty-msg');
-    const removeBtn  = document.getElementById('portrait-remove-btn');
-    if (previewImg) previewImg.src = compressed;
-    if (preview)    preview.style.display = 'block';
-    if (emptyMsg)   emptyMsg.style.display = 'none';
-    if (removeBtn)  removeBtn.style.display = 'inline-block';
-    input.value = '';
-  };
-  tempImg.src = objectUrl;
-}
-
-function removePortrait() {
-  if (!confirm('Remove character portrait?')) return;
-  localStorage.removeItem(portraitKey());
-  renderPortrait();
-  const preview = document.getElementById('portrait-preview-wrap');
-  const emptyMsg = document.getElementById('portrait-empty-msg');
-  const removeBtn = document.getElementById('portrait-remove-btn');
-  if (preview) preview.style.display = 'none';
-  if (emptyMsg) emptyMsg.style.display = 'block';
-  if (removeBtn) removeBtn.style.display = 'none';
 }
 
 function toggleCard(bodyId) {

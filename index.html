@@ -76,28 +76,8 @@
 </div>
 
 
-<!-- ── PORTRAIT MODAL ── -->
-<div id="portrait-modal">
-  <div class="portrait-modal-box">
-    <h2>🖼 Character Portrait</h2>
-    <div id="portrait-preview-wrap" style="display:none;margin-bottom:14px;text-align:center">
-      <img id="portrait-preview-img" src="" alt="Character portrait" style="max-width:100%;max-height:260px;border-radius:6px;border:1px solid var(--border);object-fit:cover;">
-    </div>
-    <div id="portrait-empty-msg" style="color:var(--text-dim);font-size:13px;margin-bottom:14px">No portrait set. Choose an image file to add one.</div>
-    <label class="setup-btn secondary" style="cursor:pointer;display:inline-block;margin-bottom:8px">
-      Choose Image
-      <input type="file" id="portrait-file-input" accept="image/*" style="display:none" onchange="handlePortraitUpload(this)">
-    </label>
-    <button id="portrait-remove-btn" class="reset-btn" style="display:none;margin-left:8px;color:var(--red);border-color:var(--red)" onclick="removePortrait()">✕ Remove</button>
-    <div style="display:flex;justify-content:flex-end;margin-top:16px">
-      <button class="setup-btn secondary" onclick="closePortraitModal()">Close</button>
-    </div>
-  </div>
-</div>
-
 <nav>
   <div class="nav-title" id="nav-char-name" style="cursor:default">SWADE</div>
-  <img id="portrait-nav-img" class="portrait-nav-img" src="" alt="" style="display:none" onclick="openPortraitModal()" title="Click to change portrait">
   <div class="nav-sub" id="nav-char-sub" style="display:none">—&nbsp;<span id="nav-rank-display">Novice</span></div>
   <div class="nav-tabs">
     <button class="active" onclick="showTab('sheet',this)">Character</button>
@@ -113,7 +93,6 @@
     <button class="reset-btn" onclick="importSave()" title="Load save file">↑</button>
     <button class="reset-btn" onclick="clearSave()" title="Reset">↺</button>
     <button class="reset-btn" onclick="openChangeSheet()" title="Change character sheet">⚙</button>
-    <button class="reset-btn portrait-nav-btn" id="portrait-nav-btn" onclick="openPortraitModal()" title="Set character portrait">🖼</button>
   </div>
 </nav>
 
