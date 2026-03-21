@@ -209,35 +209,25 @@ function renderEdges() {
     return;
   }
 
-  const passive  = edges.filter(e => e.type === 'passive');
-  const active   = edges.filter(e => e.type === 'active');
-  const trackers = edges.filter(e => e.type === 'tracker');
+  const passive   = edges.filter(e => e.type === 'passive');
+  const active    = edges.filter(e => e.type === 'active');
+  const trackers  = edges.filter(e => e.type === 'tracker');
+  const activates = edges.filter(e => e.type === 'activate');
 
   let html = '';
 
   // ── ACTIVE edges ────────────────────────────────────────────
   if (active.length) {
-    html += sectionHeader('▶ Active', 'var(--accent)');
+    html += sectionHeader('● Always Active', 'var(--green)');
     active.forEach(e => {
-      const isOn    = !!state.activeEdgeToggles[e.name];
-      const fallback = EDGE_FALLBACK_MAP[e.name] || {};
-      const mods    = fallback.activeModifiers || parseEdgeEffects(e.name, e.effect);
-      const modList = mods.map(m => m.label).join(' · ');
-      const note    = fallback.triggerNote || '';
-
       html += `
-        <div class="edge-item edge-active ${isOn ? 'edge-on' : 'edge-off'}">
+        <div class="edge-item edge-active edge-on">
           <div class="edge-row">
             <div class="edge-info">
               <strong>${titleCase(e.name)}</strong>
-              ${note ? `<div class="edge-trigger-note">${note}</div>` : ''}
-              ${isOn && modList ? `<div class="edge-mod-list">${modList}</div>` : ''}
               <div class="edge-effect-text">${e.effect}</div>
             </div>
-            <button class="edge-toggle-btn ${isOn ? 'toggle-on' : 'toggle-off'}"
-                    onclick="toggleEdgeActive('${e.name.replace(/'/g, "\\'")}')">
-              ${isOn ? 'ON' : 'OFF'}
-            </button>
+            <span class="edge-toggle-btn toggle-on" style="pointer-events:none;opacity:0.7">Always On</span>
           </div>
         </div>`;
     });
@@ -269,6 +259,27 @@ function renderEdges() {
     html += `<div style="text-align:right;margin-top:8px">
       <button class="btn-secondary" onclick="resetEdgeTrackers()">↺ Reset All Trackers</button>
     </div>`;
+  }
+
+  // ── ACTIVATE edges ───────────────────────────────────────────
+  if (activates.length) {
+    html += sectionHeader('▶ Activate / Trigger', 'var(--accent)');
+    activates.forEach(e => {
+      const isOn = !!state.activeEdgeToggles[e.name];
+      html += `
+        <div class="edge-item edge-active ${isOn ? 'edge-on' : 'edge-off'}">
+          <div class="edge-row">
+            <div class="edge-info">
+              <strong>${titleCase(e.name)}</strong>
+              <div class="edge-effect-text">${e.effect}</div>
+            </div>
+            <button class="edge-toggle-btn ${isOn ? 'toggle-on' : 'toggle-off'}"
+                    onclick="toggleEdgeActive('${e.name.replace(/'/g, "\\'")}')">
+              ${isOn ? 'ON' : 'OFF'}
+            </button>
+          </div>
+        </div>`;
+    });
   }
 
   // ── PASSIVE edges ────────────────────────────────────────────
