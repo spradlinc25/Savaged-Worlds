@@ -35,95 +35,6 @@ function parseCSV(text) {
 }
 
 // ============================================================
-// RENDER: HINDRANCES
-// ============================================================
-function renderHindrances() {
-  const container = document.getElementById('hindrance-list');
-  if (!container) return;
-  container.innerHTML = '';
-
-  // 1. Pull from the Starting Tab
-  const startH = (state.starting || []).filter(s => 
-    s.type && s.type.toLowerCase().startsWith('hindrance') && (s.name || '').trim() !== ''
-  ).map(s => ({
-    name: s.name,
-    severity: s.type.toLowerCase().includes('major') ? 'Major' : 'Minor',
-    effect: s.effect
-  }));
-
-  // 2. Pull from the Hindrances Tab (where acquired is set to TRUE)
-  // Accommodates both variable names depending on the Promise.all fetch
-  const sourceHindrances = state.allHindrances || state.hindrances || [];
-  const acqH = sourceHindrances.filter(h => 
-    String(h.acquired).toUpperCase() === 'TRUE' && (h.name || '').trim() !== ''
-  ).map(h => ({
-    name: h.name,
-    severity: h.severity || 'Minor',
-    effect: h.effect
-  }));
-
-  // Combine them together
-  const allH = [...startH, ...acqH];
-
-  if (!allH.length) {
-    container.innerHTML = '<div style="color:var(--text-dim);font-size:13px;font-style:italic;">No hindrances. Add to Starting tab or check "acquired" in Hindrances tab.</div>';
-    return;
-  }
-
-  allH.forEach(h => {
-    container.innerHTML += `<div class="trait-row">
-      <div class="trait-name">${h.name} <span class="h-sev">${h.severity}</span></div>
-      <div class="trait-desc">${h.effect || ''}</div>
-    </div>`;
-  });
-}
-
-// ============================================================
-// RENDER: EDGES
-// ============================================================
-function renderEdges() {
-  const container = document.getElementById('edge-list');
-  if (!container) return;
-  container.innerHTML = '';
-
-  // 1. Pull from the Starting Tab
-  const startE = (state.starting || []).filter(s => 
-    s.type && s.type.toLowerCase() === 'edge' && (s.name || '').trim() !== ''
-  ).map(s => ({
-    name: s.name,
-    effect: s.effect || ''
-  }));
-
-  // 2. Pull from the Advances Tab
-  const sourceEdges = state.allEdges || state.edges || [];
-  const advE = (state.progressions || []).filter(p => 
-    p.type && p.type.toLowerCase() === 'edge' && (p.selection || '').trim() !== ''
-  ).map(p => {
-    // Attempt to pull the description automatically from the Edges reference tab
-    const ref = sourceEdges.find(re => (re.name || '').toLowerCase() === p.selection.toLowerCase());
-    return {
-      name: p.selection,
-      effect: ref ? ref.effect : (p.effect || '')
-    };
-  });
-
-  // Combine them together
-  const allE = [...startE, ...advE];
-
-  if (!allE.length) {
-    container.innerHTML = '<div style="color:var(--text-dim);font-size:13px;font-style:italic;">No edges. Add to Starting or Advances tabs.</div>';
-    return;
-  }
-
-  allE.forEach(e => {
-    container.innerHTML += `<div class="trait-row">
-      <div class="trait-name">${e.name}</div>
-      <div class="trait-desc">${e.effect || ''}</div>
-    </div>`;
-  });
-}
-
-// ============================================================
 // STATE
 // ============================================================
 const state = {
@@ -149,6 +60,9 @@ const state = {
   weaponsRef: [],
   armorRef: [],
 
+  activeEdgeToggles: {},   // { 'berserk': true/false, ... }
+  edgeTrackers: {},        // { 'connections': true/false, ... }
+
   // Session state
   bennies: 3, maxBennies: 3,
   wounds: [false,false,false,false,false],
@@ -167,6 +81,66 @@ const state = {
 // COMPUTED
 // ============================================================
 const DIE_NAMES = ['d4','d6','d8','d10','d12','d12+1','d12+2'];
+
+// Hand-coded entries for edges whose effects can't be reliably parsed from text.
+// activeModifiers: applied when the edge is toggled ON (active type only)
+// passiveNote / trackerNote: display-only reminders for Part 2 UI rendering
+const EDGE_FALLBACK_MAP = {
+  'berserk': {
+    activeModifiers: [
+      { stat: 'fighting',      value: +2, label: 'Berserk (+2 Fighting)' },
+      { stat: 'toughness',     value: +2, label: 'Berserk (+2 Toughness)' },
+      { stat: 'parry',         value: -2, label: 'Berserk (-2 Parry)' },
+      { stat: 'wound_penalty', value: 999, label: 'Berserk (ignore Wound penalties)' },
+    ],
+    triggerNote: 'Activate after taking a Wound + failed Smarts roll'
+  },
+  'level headed': {
+    passiveNote: 'Draw 2 Action Cards, keep best — no stat modifier'
+  },
+  'improved level headed': {
+    passiveNote: 'Draw 3 Action Cards, keep best — no stat modifier'
+  },
+  'quick': {
+    passiveNote: 'Redraw Action Cards of 5 or lower — no stat modifier'
+  },
+  'dead shot': {
+    trackerNote: 'Double damage on a Joker — mark when Joker is drawn'
+  },
+  'mighty blow': {
+    trackerNote: 'Double Fighting damage on a Joker — mark when Joker is drawn'
+  },
+  'connections': {
+    trackerNote: 'Once per session — contact provides aid, info, or equipment'
+  },
+  'first strike': {
+    passiveNote: 'Free Attack when foe moves adjacent — handled in play'
+  },
+  'improved first strike': {
+    passiveNote: 'Free Attack against every foe moving adjacent — handled in play'
+  },
+  'counterattack': {
+    passiveNote: 'Free Attack on failed enemy Fighting roll — handled in play'
+  },
+  'improved counterattack': {
+    passiveNote: 'Free Attack against all failed Fighting rolls — handled in play'
+  },
+  'elan': {
+    passiveNote: '+2 when spending a Benny to reroll — reminder only'
+  },
+  'no mercy': {
+    trackerNote: 'Spend a Benny to reroll damage — tracker for session awareness'
+  },
+  'hard to kill': {
+    passiveNote: 'Ignore Wound penalties on Incapacitation rolls — reminder only'
+  },
+  'harder to kill': {
+    passiveNote: 'Spirit roll to survive death — reminder only'
+  },
+  'combat reflexes': {
+    passiveNote: '+2 Spirit to recover from Shaken — already in computeSkillMods'
+  },
+};
 function dieFor(lvl) { return DIE_NAMES[Math.min(Math.max(lvl-1,0), DIE_NAMES.length-1)]; }
 function dieVal(lvl) { return [4,6,8,10,12,12,12][Math.min(Math.max(lvl-1,0),6)]; }
 function dieMod(lvl) { return Math.max(0, lvl - 5); } // returns +1 or +2 for d12+1/+2
@@ -177,6 +151,51 @@ function hasEdge(name) {
 function hasStart(name) {
   const n = name.toLowerCase().trim();
   return !!state.starting.find(s => s.on && (s.name||'').toLowerCase().trim() === n);
+}
+
+// Returns array of { name, effect, type } for all edges the character currently has
+function getActiveEdges() {
+  const results = [];
+  const seen = new Set();
+  const edgesRef = state.edgesRef || [];
+
+  const addEdge = (name) => {
+    const n = (name || '').toLowerCase().trim();
+    if (!n || seen.has(n)) return;
+    seen.add(n);
+    const ref = edgesRef.find(e => (e.name||'').toLowerCase().trim() === n);
+    const effect = ref ? (ref.effect || '') : '';
+    const type = (ref && ref.type) ? ref.type.toLowerCase().trim()
+                                   : classifyEdgeType(n, effect);
+    results.push({ name: n, effect, type });
+  };
+
+  (state.starting || [])
+    .filter(s => s.on && (f(s,'type')||'').toLowerCase().trim() === 'edge')
+    .forEach(s => addEdge(f(s,'name') || ''));
+
+  (state.progressions || [])
+    .filter(p => p.checked && f(p,'type') === 'Edge')
+    .forEach(p => addEdge(f(p,'selection','name') || ''));
+
+  return results;
+}
+
+// Heuristic fallback when the markdown type field is missing
+function classifyEdgeType(name, effect) {
+  const eff = (effect || '').toLowerCase();
+
+  // Tracker signals
+  if (/once per session|once per scene|per session|free reroll|spend a benny/i.test(eff))
+    return 'tracker';
+
+  // Active signals — conditional modifiers that only apply in certain states
+  if (/while berserk|while active|when using|may activate|toggled/i.test(eff))
+    return 'active';
+  if (/while .{1,30}[,;]\s*(add|subtract|\+|-)\d/i.test(eff))
+    return 'active';
+
+  return 'passive';
 }
 
 function computeAttrLevel(name) {
@@ -232,27 +251,138 @@ function getActivePower(name) {
   });
 }
 
+// Parses an edge effect string and returns an array of modifier objects.
+// Each object: { stat, value, condition, label }
+function parseEdgeEffects(edgeName, effectText) {
+  const mods = [];
+  const eff = effectText || '';
+  const nm  = edgeName || '';
+
+  // Normalise a raw stat/skill name to the keys used in state
+  function normStat(raw) {
+    const r = raw.toLowerCase().trim();
+    const map = {
+      'fighting':'fighting','notice':'notice','parry':'parry',
+      'toughness':'toughness','spirit':'spirit','shooting':'shooting',
+      'athletics':'athletics','intimidation':'intimidation',
+      'persuasion':'persuasion','stealth':'stealth','pace':'pace',
+      'strength':'strength','agility':'agility','smarts':'smarts',
+      'vigor':'vigor','performance':'performance','research':'research',
+      'repair':'repair','survival':'survival',
+    };
+    for (const [k,v] of Object.entries(map)) { if (r.includes(k)) return v; }
+    return r;
+  }
+
+  function add(stat, value, condition, label) {
+    mods.push({ stat: normStat(stat), value, condition: condition || null, label });
+  }
+
+  // Pattern 1: "+N to [Stat] rolls [when condition]" — negative lookbehind prevents matching "add +N to ..." (Pattern 3 handles that)
+  const p1 = /(?<!add )([+-]\d+) to ([\w][\w\s]+?)(?:\s+rolls?)?(?:\s+when\s+([\w\s,]+?))?(?=[.,;]|$)/gi;
+  let m;
+  while ((m = p1.exec(eff)) !== null) {
+    add(m[2], parseInt(m[1]), m[3]||null, `${nm} (${m[1]} ${m[2].trim()})`);
+  }
+
+  // Pattern 2: "subtract N from [Stat]"
+  const p2 = /subtract (\d+) from ([\w][\w\s]+?)(?=[.,;]|$)/gi;
+  while ((m = p2.exec(eff)) !== null) {
+    add(m[2], -parseInt(m[1]), null, `${nm} (-${m[1]} ${m[2].trim()})`);
+  }
+
+  // Pattern 3: "add +N to [Stat]"
+  const p3 = /add ([+-]\d+) to ([\w][\w\s]+?)(?=[.,;]|$)/gi;
+  while ((m = p3.exec(eff)) !== null) {
+    add(m[2], parseInt(m[1]), null, `${nm} (${m[1]} ${m[2].trim()})`);
+  }
+
+  // Pattern 4: "Parry bonus increases to +N" or "Parry is +N"
+  const p4 = /[Pp]arry (?:bonus )?(?:increases? to|is) \+(\d+)/;
+  if ((m = p4.exec(eff))) add('parry', parseInt(m[1]), null, `${nm} (+${m[1]} Parry)`);
+
+  // Pattern 5: "Toughness by +N" or "Toughness increases by +N"
+  const p5 = /[Tt]oughness (?:by )?\+(\d+)/;
+  if ((m = p5.exec(eff))) add('toughness', parseInt(m[1]), null, `${nm} (+${m[1]} Toughness)`);
+
+  // Pattern 6: "Pace is increased by +N"
+  const p6 = /[Pp]ace (?:is )?increased by \+?(\d+)/;
+  if ((m = p6.exec(eff))) add('pace', parseInt(m[1]), null, `${nm} (+${m[1]} Pace)`);
+
+  // Pattern 7: "ignore N point(s) of Wound penalties"
+  const p7 = /ignore (\d+) points? of [Ww]ound penalt/;
+  if ((m = p7.exec(eff))) add('wound_penalty', parseInt(m[1]), null, `${nm} (ignore ${m[1]} Wound penalty)`);
+
+  // Pattern 8: "+N damage" or "add +N to damage"
+  const p8 = /(?:add )?\+(\d+)(?:\s+to)?\s+(?:total\s+)?damage/i;
+  if ((m = p8.exec(eff))) add('damage', parseInt(m[1]), null, `${nm} (+${m[1]} damage)`);
+
+  return mods;
+}
+
 function computeParry() {
   const fLvl = computeSkillLevel('Fighting');
-  let p = 2 + Math.floor(dieVal(fLvl)/2);
-  if(hasStart('Martial Artist')) p += 1;
-  if(hasEdge('Martial Warrior')) p += 1;
-  if(hasEdge('Imp. Block'))      p += 2;
-  else if(hasEdge('Block'))      p += 1;
-  return p;
+  let parry = 2 + Math.floor(dieVal(fLvl)/2);
+  if(hasStart('Martial Artist')) parry += 1;
+  if(hasEdge('Martial Warrior')) parry += 1;
+  if(hasEdge('Imp. Block'))      parry += 2;
+  else if(hasEdge('Block'))      parry += 1;
+
+  // Generic passive edge bonuses to Parry (parser-driven)
+  getActiveEdges().forEach(({name, effect, type}) => {
+    if (type !== 'passive') return;
+    // Skip edges already handled above to avoid double-counting
+    const skip = new Set(['block','improved block','imp. block','trademark weapon','acrobat','martial artist','martial warrior']);
+    if (skip.has(name)) return;
+    const fallback = EDGE_FALLBACK_MAP[name];
+    const mods = fallback ? [] : parseEdgeEffects(name, effect);
+    mods.filter(m => m.stat === 'parry').forEach(m => { parry += m.value; });
+  });
+
+  // Generic active edge bonuses to Parry (only when toggled on)
+  getActiveEdges().forEach(({name, effect, type}) => {
+    if (type !== 'active') return;
+    const isOn = state.activeEdgeToggles[name];
+    if (!isOn) return;
+    const fallback = EDGE_FALLBACK_MAP[name];
+    const mods = fallback ? (fallback.activeModifiers || []) : parseEdgeEffects(name, effect);
+    mods.filter(m => m.stat === 'parry').forEach(m => { parry += m.value; });
+  });
+
+  return parry;
 }
 
 function computeToughness() {
   const vigLvl = computeAttrLevel('Vigor');
-  let t = 2 + Math.floor(dieVal(vigLvl)/2);
-  if(hasStart('Brawler (Racial)')) t += 1;
-  if(hasEdge('Brawler'))           t += 1; // non-racial version
-  if(hasEdge('Bruiser'))           t += 1;
-  if(hasEdge('Brawny'))            t += 1; // Brawny gives Size+1 = Toughness+1
-  t += (state.size || 0);                  // Size modifier from State tab
+  let toughness = 2 + Math.floor(dieVal(vigLvl)/2);
+  if(hasStart('Brawler (Racial)')) toughness += 1;
+  if(hasEdge('Brawler'))           toughness += 1; // non-racial version
+  if(hasEdge('Bruiser'))           toughness += 1;
+  if(hasEdge('Brawny'))            toughness += 1; // Brawny gives Size+1 = Toughness+1
+  toughness += (state.size || 0);                  // Size modifier from State tab
   const tp = getActivePower('Toughness');
-  if(tp) t += parseInt(tp.base)||0;
-  return t;
+  if(tp) toughness += parseInt(tp.base)||0;
+
+  // Generic passive edge bonuses to Toughness
+  getActiveEdges().forEach(({name, effect, type}) => {
+    if (type !== 'passive') return;
+    const skip = new Set(['brawler','brawler (racial)','bruiser','brawny','nerves of steel','improved nerves of steel']);
+    if (skip.has(name)) return;
+    const fallback = EDGE_FALLBACK_MAP[name];
+    const mods = fallback ? [] : parseEdgeEffects(name, effect);
+    mods.filter(m => m.stat === 'toughness').forEach(m => { toughness += m.value; });
+  });
+
+  // Generic active edge bonuses to Toughness (only when toggled on)
+  getActiveEdges().forEach(({name, effect, type}) => {
+    if (type !== 'active') return;
+    if (!state.activeEdgeToggles[name]) return;
+    const fallback = EDGE_FALLBACK_MAP[name];
+    const mods = fallback ? (fallback.activeModifiers || []) : parseEdgeEffects(name, effect);
+    mods.filter(m => m.stat === 'toughness').forEach(m => { toughness += m.value; });
+  });
+
+  return toughness;
 }
 
 // ── Armor location parsing ────────────────────────────────────
@@ -436,8 +566,25 @@ function computeCarryLimit() {
   return (strDie / 4) * 20; // d4=20,d6=40,d8=60,d10=80,d12=100
 }
 
+function getWoundPenaltyIgnore() {
+  // Existing hardcoded checks (keep these)
+  if (hasEdge('Imp. Nerves of Steel') || hasStart('Improved Nerves of Steel')) return 2;
+  if (hasEdge('Nerves of Steel') || hasStart('Nerves of Steel')) return 1;
+
+  // Generic: active-toggled edges with wound_penalty modifier
+  let ignore = 0;
+  getActiveEdges().forEach(({name, effect, type}) => {
+    if (type !== 'active' || !state.activeEdgeToggles[name]) return;
+    const fallback = EDGE_FALLBACK_MAP[name];
+    const mods = fallback ? (fallback.activeModifiers || []) : parseEdgeEffects(name, effect);
+    mods.filter(m => m.stat === 'wound_penalty')
+        .forEach(m => { ignore = Math.max(ignore, m.value >= 99 ? 999 : m.value); });
+  });
+  return ignore;
+}
+
 function getWoundEdgeInfo() {
-  const nosIgnore = hasEdge('Imp. Nerves of Steel') ? 2 : hasEdge('Nerves of Steel') ? 1 : 0;
+  const nosIgnore = getWoundPenaltyIgnore();
   const maxWounds = hasEdge('Tougher than Nails') ? 5 : hasEdge('Tough as Nails') ? 4 : 3;
   return {nosIgnore, maxWounds};
 }
@@ -453,6 +600,67 @@ function computeRank() {
 
 function rankColor(rank) {
   return {Novice:'var(--blue)',Seasoned:'var(--green)',Veteran:'var(--accent2)',Heroic:'var(--accent)',Legendary:'#cc44ff'}[rank]||'var(--text)';
+}
+
+// ============================================================
+// SKILL MODIFIERS
+// ============================================================
+// Returns an object mapping skill names to arrays of { label, value }
+// representing all active modifiers from edges, hindrances, and powers.
+function computeSkillMods() {
+  const result = {};
+
+  function addMod(skill, label, value) {
+    const k = (skill || '').toLowerCase().trim();
+    if (!k) return;
+    if (!result[k]) result[k] = [];
+    result[k].push({ label, value });
+  }
+
+  // Hardcoded edge skill bonuses (edges in the skip set for generic loops)
+  if (hasEdge('Alertness')     || hasStart('Alertness'))     addMod('notice',       'Alertness (+2 Notice)', 2);
+  if (hasEdge('Martial Artist')|| hasStart('Martial Artist'))addMod('fighting',     'Martial Artist (+1 Fighting unarmed)', 1);
+  if (hasEdge('Martial Warrior'))                            addMod('fighting',     'Martial Warrior (+2 Fighting unarmed)', 2);
+  if (hasEdge('Combat Reflexes'))                            addMod('spirit',       'Combat Reflexes (+2 Spirit vs Shaken)', 2);
+  if (hasEdge('Investigator')  || hasStart('Investigator'))  addMod('research',     'Investigator (+2 Research)', 2);
+  if (hasEdge('Streetwise')    || hasStart('Streetwise'))    addMod('intimidation', 'Streetwise (+2)', 2);
+  if (hasEdge('Assassin')      || hasStart('Assassin'))      addMod('damage',       'Assassin (+2 damage, conditional)', 2);
+  if (hasEdge('Woodsman')      || hasStart('Woodsman')) {
+    addMod('survival',   'Woodsman (+2 Survival)', 2);
+    addMod('stealth',    'Woodsman (+2 Stealth in wild)', 2);
+  }
+  if (hasEdge('Menacing')      || hasStart('Menacing'))      addMod('intimidation', 'Menacing (+2 Intimidation)', 2);
+  if (hasEdge('Strong Willed') || hasStart('Strong Willed')) {
+    addMod('smarts', 'Strong Willed (+2 resist Tests)', 2);
+    addMod('spirit', 'Strong Willed (+2 resist Tests)', 2);
+  }
+  if (hasEdge('Acrobat')       || hasStart('Acrobat'))       addMod('athletics',   'Acrobat (free reroll acrobatics)', 0);
+
+  // Generic passive edge skill bonuses
+  getActiveEdges().forEach(({name, effect, type}) => {
+    if (type !== 'passive') return;
+    const skip = new Set(['alertness','martial artist','martial warrior','combat reflexes',
+                          'investigator','streetwise','assassin','acrobat','woodsman',
+                          'menacing','strong willed']);
+    if (skip.has(name)) return;
+    const mods = parseEdgeEffects(name, effect);
+    mods.filter(m => m.stat !== 'parry' && m.stat !== 'toughness' && m.stat !== 'pace'
+                  && m.stat !== 'wound_penalty' && m.stat !== 'damage')
+        .forEach(m => addMod(m.stat, m.label, m.value));
+  });
+
+  // Generic active edge skill bonuses (only when toggled on)
+  getActiveEdges().forEach(({name, effect, type}) => {
+    if (type !== 'active') return;
+    if (!state.activeEdgeToggles[name]) return;
+    const fallback = EDGE_FALLBACK_MAP[name];
+    const mods = fallback ? (fallback.activeModifiers || []) : parseEdgeEffects(name, effect);
+    mods.filter(m => m.stat !== 'parry' && m.stat !== 'toughness' && m.stat !== 'pace'
+                  && m.stat !== 'wound_penalty' && m.stat !== 'damage')
+        .forEach(m => addMod(m.stat, m.label, m.value));
+  });
+
+  return result;
 }
 
 // ============================================================

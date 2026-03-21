@@ -184,28 +184,107 @@ function edgeGroup(items) {
 }
 
 function renderEdges() {
-  const el=document.getElementById('edges-list');
-  const items = [];
-  state.starting.forEach(s=>{
-    if(s.on) {
-      const nm=f(s,'name')||'';
-      const tp=(f(s,'type')||'').toLowerCase().trim();
-      const eff=f(s,'effect')||'';
-      // Skip hindrance entries — they belong in renderHindrances, not here
-      if (tp.includes('hindrance') || tp === 'minor' || tp === 'major') return;
-      const cls = classifyEdge(nm);
-      items.push({cls, html:`<div class="edge-item ${cls==='passive'?'passive-item':''}"><strong>${nm}</strong> — ${eff}</div>`});
-    }
-  });
-  state.progressions.forEach(p=>{
-    const typ=f(p,'type'); const sel=f(p,'selection','name')||'';
-    const eff=f(p,'effect')||'';
-    if(p.checked && typ==='Edge') {
-      const cls = classifyEdge(sel);
-      items.push({cls, html:`<div class="edge-item ${cls==='passive'?'passive-item':''}"><strong>${sel}</strong> — ${eff}</div>`});
-    }
-  });
-  el.innerHTML = items.length ? edgeGroup(items) : '<div style="color:var(--text-dim);font-style:italic;font-size:13px">No active edges.</div>';
+  const el = document.getElementById('edges-list');
+  if (!el) return;
+
+  const edges = getActiveEdges();   // from engine.js — { name, effect, type }
+  if (!edges.length) {
+    el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:13px">No edges. Add via Starting tab (type=Edge) or check advances.</div>';
+    return;
+  }
+
+  const passive  = edges.filter(e => e.type === 'passive');
+  const active   = edges.filter(e => e.type === 'active');
+  const trackers = edges.filter(e => e.type === 'tracker');
+
+  let html = '';
+
+  // ── ACTIVE edges ────────────────────────────────────────────
+  if (active.length) {
+    html += sectionHeader('▶ Active', 'var(--accent)');
+    active.forEach(e => {
+      const isOn    = !!state.activeEdgeToggles[e.name];
+      const fallback = EDGE_FALLBACK_MAP[e.name] || {};
+      const mods    = fallback.activeModifiers || parseEdgeEffects(e.name, e.effect);
+      const modList = mods.map(m => m.label).join(' · ');
+      const note    = fallback.triggerNote || '';
+
+      html += `
+        <div class="edge-item edge-active ${isOn ? 'edge-on' : 'edge-off'}">
+          <div class="edge-row">
+            <div class="edge-info">
+              <strong>${titleCase(e.name)}</strong>
+              ${note ? `<div class="edge-trigger-note">${note}</div>` : ''}
+              ${isOn && modList ? `<div class="edge-mod-list">${modList}</div>` : ''}
+              <div class="edge-effect-text">${e.effect}</div>
+            </div>
+            <button class="edge-toggle-btn ${isOn ? 'toggle-on' : 'toggle-off'}"
+                    onclick="toggleEdgeActive('${e.name.replace(/'/g, "\\'")}')">
+              ${isOn ? 'ON' : 'OFF'}
+            </button>
+          </div>
+        </div>`;
+    });
+  }
+
+  // ── TRACKER edges ────────────────────────────────────────────
+  if (trackers.length) {
+    html += sectionHeader('◈ Trackers (Session Resources)', 'var(--accent2)');
+    trackers.forEach(e => {
+      const used     = !!state.edgeTrackers[e.name];
+      const fallback = EDGE_FALLBACK_MAP[e.name] || {};
+      const note     = fallback.trackerNote || e.effect;
+
+      html += `
+        <div class="edge-item edge-tracker ${used ? 'tracker-used' : ''}">
+          <div class="edge-row">
+            <div class="edge-info">
+              <strong style="${used ? 'text-decoration:line-through;opacity:0.5' : ''}">${titleCase(e.name)}</strong>
+              <div class="edge-effect-text" style="${used ? 'opacity:0.4' : ''}">${note}</div>
+            </div>
+            <button class="edge-toggle-btn ${used ? 'toggle-used' : 'toggle-available'}"
+                    onclick="toggleEdgeTracker('${e.name.replace(/'/g, "\\'")}')">
+              ${used ? '✓ Used' : 'Available'}
+            </button>
+          </div>
+        </div>`;
+    });
+
+    html += `<div style="text-align:right;margin-top:8px">
+      <button class="btn-secondary" onclick="resetEdgeTrackers()">↺ Reset All Trackers</button>
+    </div>`;
+  }
+
+  // ── PASSIVE edges ────────────────────────────────────────────
+  if (passive.length) {
+    html += sectionHeader('◼ Passive (reflected in stats)', 'var(--text-dim)');
+    passive.forEach(e => {
+      const fallback = EDGE_FALLBACK_MAP[e.name] || {};
+      const note     = fallback.passiveNote || '';
+      const mods     = note ? [] : parseEdgeEffects(e.name, e.effect);
+      const modList  = mods.filter(m => m.value !== 0).map(m => m.label).join(' · ');
+
+      html += `
+        <div class="edge-item passive-item">
+          <strong>${titleCase(e.name)}</strong>
+          ${modList ? `<span style="font-size:11px;color:var(--text-dim);margin-left:6px">${modList}</span>` : ''}
+          ${note     ? `<span style="font-size:11px;color:var(--text-dim);margin-left:6px;font-style:italic">${note}</span>` : ''}
+        </div>`;
+    });
+  }
+
+  el.innerHTML = html;
+}
+
+// Renders a section header divider for the edge groups
+function sectionHeader(label, color) {
+  return `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.5px;
+                      color:${color};margin:10px 0 4px;font-weight:700">${label}</div>`;
+}
+
+// Converts "berserk" → "Berserk", "improved first strike" → "Improved First Strike"
+function titleCase(str) {
+  return (str || '').replace(/\b\w/g, c => c.toUpperCase());
 }
 
 // ============================================================
@@ -593,6 +672,26 @@ function toggleFF() {
   state._ffBeforeShaken = false; // manual toggle clears auto-restore
   updateFFDisplay();
   document.getElementById('sb-toughness').textContent = buildToughnessDisplay();
+  saveState();
+}
+
+function toggleEdgeActive(edgeName) {
+  const n = edgeName.toLowerCase().trim();
+  state.activeEdgeToggles[n] = !state.activeEdgeToggles[n];
+  fullRefresh();   // stats change, so full re-render needed
+  saveState();
+}
+
+function toggleEdgeTracker(edgeName) {
+  const n = edgeName.toLowerCase().trim();
+  state.edgeTrackers[n] = !state.edgeTrackers[n];
+  renderEdges();   // only the edges tab needs updating — no stat change
+  saveState();
+}
+
+function resetEdgeTrackers() {
+  state.edgeTrackers = {};
+  renderEdges();
   saveState();
 }
 
