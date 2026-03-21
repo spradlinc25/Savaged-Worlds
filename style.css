@@ -450,3 +450,11 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .change-sheet-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:100%;max-width:480px;padding:24px 28px;}
 .change-sheet-box h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent);margin-bottom:16px;}
 
+
+/* ── ROSTER — NOT LINKED BANNER ───────────────────────────── */
+#roster-not-linked-banner{display:none;align-items:center;justify-content:space-between;gap:10px;padding:6px 14px;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+#roster-not-linked-banner.warn{background:#1a1400;border-bottom-color:var(--accent2);color:var(--accent2);}
+#roster-not-linked-banner.error{background:#1a0a0a;border-bottom-color:var(--red);color:var(--red);}
+.roster-banner-msg{flex:1;}
+.roster-banner-close{background:none;border:none;cursor:pointer;font-size:12px;padding:2px 6px;border-radius:3px;opacity:0.6;transition:opacity 0.2s;color:inherit;flex-shrink:0;}
+.roster-banner-close:hover{opacity:1;}
