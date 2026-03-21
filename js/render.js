@@ -847,6 +847,7 @@ function bookBadge(book) {
 function renderEdgesRef() {
   const tb=document.getElementById('edges-ref-body'); tb.innerHTML='';
   const acc=document.getElementById('edges-acc'); acc.innerHTML='';
+  acc.style.cssText='display:block;max-height:420px;overflow-y:auto;overflow-x:hidden;border-radius:4px;margin-bottom:12px;';
   // Sticky column header row (not an acc-item, ignored by filterRef)
   const hdr=document.createElement('div');
   hdr.className='edges-acc-header-row';
