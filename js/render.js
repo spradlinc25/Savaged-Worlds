@@ -852,10 +852,12 @@ function renderEdgesRef() {
     const tr=document.createElement('tr');
     tr.innerHTML=`<td style="font-weight:700">${e.name||''}</td><td>${e.category||''}</td><td style="color:var(--text-dim)">${e.prereq||''}</td><td>${e.effect||''}</td><td><span class="book-tag ${bookCls}">${e.book||'SWADE'}</span></td>`;
     tb.appendChild(tr);
-    acc.appendChild(buildAccItem(e.name||'', bookBadge(e.book), [
-      {label:'Category', value:e.category||''},
-      {label:'Prereq',   value:e.prereq||''},
-      {label:'Effect',   value:e.effect||''}
+    const edgeBadge = (e.category ? `<span class="edge-cat">${e.category}</span>` : '')
+      + (e.effect ? `<span class="edge-eff">${e.effect}</span>` : '')
+      + bookBadge(e.book);
+    acc.appendChild(buildAccItem(e.name||'', edgeBadge, [
+      {label:'Prereq',      value:e.prereq||''},
+      {label:'Description', value:e.description||''}
     ]));
   });
 }

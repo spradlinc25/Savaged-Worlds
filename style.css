@@ -91,6 +91,9 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .acc-row{display:flex;gap:6px;margin-bottom:5px;font-size:13px;}
 .acc-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);font-weight:600;min-width:60px;flex-shrink:0;padding-top:1px;}
 .acc-val{color:var(--text);flex:1;}
+/* Edge accordion — category + effect in collapsed header */
+.edge-cat{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);white-space:nowrap;flex-shrink:0;}
+.edge-eff{font-size:11px;color:var(--text-dim);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
 @media(max-width:600px){
   /* Show accordion, hide table */
@@ -116,7 +119,7 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
   .card{padding:10px; overflow: visible;}
   .mb{margin-bottom:10px;}
   /* Reference — stack to single col */
-  .ref-grid{grid-template-columns:1fr;}
+  .ref-grid{grid-template-columns:1fr !important;}
   .ref-table{min-width:0;font-size:11px;width:100%;}
   .ref-table td,.ref-table th{padding:4px 6px;}
   #sp-ref-table .sp-notes-col{display:none;}
