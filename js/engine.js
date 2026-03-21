@@ -165,8 +165,8 @@ function getActiveEdges() {
     seen.add(n);
     const ref = edgesRef.find(e => (e.name||'').toLowerCase().trim() === n);
     const effect = ref ? (ref.effect || '') : '';
-    const type = (ref && ref.type) ? ref.type.toLowerCase().trim()
-                                   : classifyEdgeType(n, effect);
+    const type = (ref && ref.active) ? ref.active.toLowerCase().trim()
+                                    : classifyEdgeType(n, effect);
     results.push({ name: n, effect, type });
   };
 
