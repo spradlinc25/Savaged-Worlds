@@ -269,6 +269,7 @@ function renderEdges() {
           <strong>${titleCase(e.name)}</strong>
           ${modList ? `<span style="font-size:11px;color:var(--text-dim);margin-left:6px">${modList}</span>` : ''}
           ${note     ? `<span style="font-size:11px;color:var(--text-dim);margin-left:6px;font-style:italic">${note}</span>` : ''}
+          ${e.effect ? `<div class="edge-effect-text">${e.effect}</div>` : ''}
         </div>`;
     });
   }
