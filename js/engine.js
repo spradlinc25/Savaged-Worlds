@@ -181,20 +181,21 @@ function getActiveEdges() {
   return results;
 }
 
-// Heuristic fallback when the markdown type field is missing
+// Heuristic fallback when the Google Sheet 'active' column is blank
 function classifyEdgeType(name, effect) {
   const eff = (effect || '').toLowerCase();
 
-  // Tracker signals
+  // Tracker: limited-use resources that reset per session/scene
   if (/once per session|once per scene|per session|free reroll|spend a benny/i.test(eff))
     return 'tracker';
 
-  // Active signals — conditional modifiers that only apply in certain states
+  // Activate/Trigger: conditional edges that require a specific situation
   if (/while berserk|while active|when using|may activate|toggled/i.test(eff))
-    return 'active';
+    return 'activate';
   if (/while .{1,30}[,;]\s*(add|subtract|\+|-)\d/i.test(eff))
-    return 'active';
+    return 'activate';
 
+  // Default: passive (stat bonus already baked in, no interaction needed)
   return 'passive';
 }
 
