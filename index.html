@@ -155,6 +155,10 @@
         <div class="sb-box" id="sb-fat-1" onclick="toggleFatigue(1)">-2</div>
         <div class="sb-box incap-box" id="sb-fat-incap" onclick="toggleFatigueIncap()" title="Incapacitated">✕</div>
       </div>
+      <div class="sb-track-row">
+        <span class="sb-track-label">Shaken</span>
+        <button class="tog-btn" id="shaken-btn" onclick="toggleShaken()">No</button>
+      </div>
     </div>
   </div>
 
@@ -167,12 +171,6 @@
       <span class="spl">Fatigue Pen.</span><span class="spv" id="sb-fat-pen" style="color:var(--text-dim)">0</span>
     </div>
     <div id="nos-indicator" style="display:none;font-size:10px;color:var(--green);letter-spacing:1px;text-transform:uppercase;"></div>
-  </div>
-
-  <!-- SHAKEN TOGGLE -->
-  <div class="stat-pill" style="flex-direction:column;gap:4px;">
-    <span class="spl">Shaken</span>
-    <button class="tog-btn" id="shaken-btn" onclick="toggleShaken()">No</button>
   </div>
 
   <!-- FORCE FIELD TOGGLE -->

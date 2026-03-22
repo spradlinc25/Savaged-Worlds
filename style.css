@@ -357,6 +357,11 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .col-c{font-family:'Share Tech Mono',monospace;font-size:12px;text-align:center;color:var(--text);}
 .col-spp{font-family:'Share Tech Mono',monospace;font-size:13px;text-align:center;color:var(--accent2);font-weight:bold;}
 .col-h{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);text-align:center;}
+@media(max-width:600px){
+  .pt-colhdr,.pt-row{grid-template-columns:24px 1fr 40px 40px 40px;gap:4px;padding:7px 8px;}
+  .pt-mod,.pt-colhdr>div:nth-child(3){display:none;}
+  .col-c,.col-spp{font-size:11px;}
+}
 
 /* REFERENCE TABS */
 .ref-search{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:8px 14px;border-radius:4px;margin-bottom:12px;outline:none;}

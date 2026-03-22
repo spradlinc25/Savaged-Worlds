@@ -564,9 +564,9 @@ function updateConditionalVisibility() {
   const spCard = document.getElementById('sp-summary-card');
   if (spCard) spCard.style.display = hasPowers ? '' : 'none';
 
-  // Force Field pill in status bar
+  // Force Field pill in status bar — only when FF power is active in current tier
   const ffPill = document.getElementById('ff-pill');
-  if (ffPill) ffPill.style.display = hasFF ? '' : 'none';
+  if (ffPill) ffPill.style.display = getActivePower('Force Field') ? '' : 'none';
 
   // Force Field status block in Combat Notes
   const ffNotes = document.getElementById('ff-combat-notes');
@@ -834,7 +834,9 @@ function renderProgressions() {
   const container=document.getElementById('prog-list'); container.innerHTML='';
 
   // Update advance counter
-  const total = state.progressions.length;
+  // Total = highest adv number in the sheet data, not row count (excludes empty/zero rows)
+  const advNums = state.progressions.map(p => Number(p.adv) || 0).filter(n => n > 0);
+  const total = advNums.length ? Math.max(...advNums) : state.progressions.length;
   const checked = state.progressions.filter(p=>p.checked).length;
   const rank = computeRank();
   const advCount = document.getElementById('adv-count');
