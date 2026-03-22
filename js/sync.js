@@ -357,7 +357,7 @@ async function loadAllSheets() {
         const adv = (p.adv||'').toString().trim();
         return adv && !adv.startsWith('⚠') && adv.toLowerCase() !== 'adv';
       })
-      .map(p=>({...p, checked: false}));
+      .map(p=>({...p, checked: isTrue(p.defaultactive||p.checked)}));
     state.powerTiers   = tierData;
     state.powers       = powersData.map(p=>({...p, active: isTrue(p.defaultactive)}));
     state.hindrances   = hindrancesData;
