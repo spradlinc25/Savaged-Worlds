@@ -15,6 +15,31 @@ let isConnected = false;     // OAuth connected state
 // State tab range — we write a single JSON blob to State!B2
 const STATE_RANGE = 'State!B2';
 
+// ── Template config sheet ─────────────────────────────────────
+// This sheet is owned by the GM. Cell B1 holds the current template Sheet ID.
+// Only the GM can change it — players never touch this.
+const CONFIG_SHEET_ID = '1C-2MNiu-PT2SV90KyaWZerQWmisbrlxg7rENsQuBMZU';
+
+async function fetchTemplateId() {
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG_SHEET_ID}/values/Sheet1!B1?key=AIzaSyD-placeholder`;
+    // Use the public CSV export endpoint — no API key needed for public sheets
+    const csvUrl = `https://docs.google.com/spreadsheets/d/${CONFIG_SHEET_ID}/gviz/tq?tqx=out:csv&range=B1`;
+    const resp = await fetch(csvUrl);
+    if (!resp.ok) return;
+    const text = await resp.text();
+    // CSV wraps values in quotes — strip them
+    const templateId = text.trim().replace(/^"|"$/g, '');
+    if (templateId && templateId.length > 20) {
+      const btn = document.getElementById('open-template-btn');
+      if (btn) btn.href = `https://docs.google.com/spreadsheets/d/${templateId}/copy`;
+    }
+  } catch(e) {
+    // Silently fail — button keeps its fallback href
+    console.warn('Could not fetch template ID from config sheet:', e);
+  }
+}
+
 function buildSavePayload() {
   return JSON.stringify({
     _ts:         Date.now(),
@@ -480,6 +505,8 @@ async function loadAllSheets() {
 // Boot — try silent OAuth restore, then load sheet data
 // ── Boot sequence ────────────────────────────────────────────
 async function boot() {
+  // Always fetch the current template ID from config sheet to keep Open Template button fresh
+  fetchTemplateId();
   // ?new=1 from roster page — force setup screen regardless of stored sheet
   if (new URLSearchParams(window.location.search).get('new') === '1') {
     window.history.replaceState({}, '', window.location.pathname);
