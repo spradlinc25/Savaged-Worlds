@@ -352,7 +352,12 @@ async function loadAllSheets() {
         return true;
       })
       .map(s=>({...s, on: isTrue(s.defaulton)}));
-    state.progressions = progData.map(p=>({...p, checked: false}));
+    state.progressions = progData
+      .filter(p => {
+        const adv = (p.adv||'').toString().trim();
+        return adv && !adv.startsWith('⚠') && adv.toLowerCase() !== 'adv';
+      })
+      .map(p=>({...p, checked: false}));
     state.powerTiers   = tierData;
     state.powers       = powersData.map(p=>({...p, active: isTrue(p.defaultactive)}));
     state.hindrances   = hindrancesData;
