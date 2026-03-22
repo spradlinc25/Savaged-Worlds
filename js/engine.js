@@ -141,6 +141,206 @@ const EDGE_FALLBACK_MAP = {
     passiveNote: '+2 Spirit to recover from Shaken — already in computeSkillMods'
   },
 };
+
+// ============================================================
+// FX ACCUMULATOR — cache + parser + progression state engine
+// ============================================================
+
+let _progStateCache = null;
+
+function invalidateProgState() {
+  _progStateCache = null;
+}
+
+function getProgState() {
+  if (_progStateCache) return _progStateCache;
+  _progStateCache = computeProgressionState();
+  return _progStateCache;
+}
+
+function parseFx(fxString) {
+  if (!fxString || fxString.trim() === '' || fxString.trim() === 'text') return [];
+  const tokens = [];
+  const parts = fxString.split('|').map(s => s.trim()).filter(Boolean);
+
+  for (const part of parts) {
+    if (part.startsWith('flag:')) {
+      tokens.push({ type: 'flag', key: part.slice(5) });
+      continue;
+    }
+    if (part === 'text') {
+      tokens.push({ type: 'text' });
+      continue;
+    }
+    const dmgFormula = part.match(/^dmg:([\w]+)=([\w+d]+)$/i);
+    if (dmgFormula) {
+      tokens.push({ type: 'dmg', target: dmgFormula[1].toLowerCase(), formula: dmgFormula[2].toLowerCase() });
+      continue;
+    }
+    const dmgBonus = part.match(/^dmg([+-]\d+):([\w]+)(?::([\w]+))?$/i);
+    if (dmgBonus) {
+      tokens.push({ type: 'dmg', target: dmgBonus[2].toLowerCase(), value: parseInt(dmgBonus[1]), scope: dmgBonus[3] || null });
+      continue;
+    }
+    const attrDie = part.match(/^attr\.die([+-]\d+):([\w]+)$/i);
+    if (attrDie) {
+      tokens.push({ type: 'attr.die', target: attrDie[2].toLowerCase(), value: parseInt(attrDie[1]) });
+      continue;
+    }
+    const skillDie = part.match(/^skill\.die([+-]\d+):([\w,]+)$/i);
+    if (skillDie) {
+      skillDie[2].toLowerCase().split(',').map(t => t.trim()).forEach(target => {
+        tokens.push({ type: 'skill.die', target, value: parseInt(skillDie[1]) });
+      });
+      continue;
+    }
+    const rollMod = part.match(/^roll([+-]\d+):([\w,]+)(?::([\w_]+))?$/i);
+    if (rollMod) {
+      rollMod[2].toLowerCase().split(',').map(t => t.trim()).forEach(target => {
+        tokens.push({ type: 'roll', target, value: parseInt(rollMod[1]), scope: rollMod[3] || null });
+      });
+      continue;
+    }
+    const derivedMatch = part.match(/^(parry|toughness|pace|size|bennies|wounds|pp)([+-]\d+)(?::([\w]+))?$/i);
+    if (derivedMatch) {
+      tokens.push({ type: derivedMatch[1].toLowerCase(), value: parseInt(derivedMatch[2]), scope: derivedMatch[3] || null });
+      continue;
+    }
+    console.warn('[fx parser] unrecognized token:', part);
+  }
+  return tokens;
+}
+
+function computeProgressionState() {
+  const ps = {
+    attrDieBonus:   {},
+    skillDieBonus:  {},
+    rollMods:       {},
+    parryBonus:     0,
+    toughnessBonus: 0,
+    paceBonus:      0,
+    sizeBonus:      0,
+    woundBonus:     0,
+    benniesBonus:   0,
+    ppBonus:        0,
+    unarmedFormula: null,
+    dmgMods:        {},
+    flags:          new Set(),
+    trace:          [],
+  };
+
+  function applyToken(token, sourceName) {
+    switch (token.type) {
+      case 'attr.die':
+        ps.attrDieBonus[token.target] = (ps.attrDieBonus[token.target] || 0) + token.value;
+        break;
+      case 'skill.die':
+        ps.skillDieBonus[token.target] = (ps.skillDieBonus[token.target] || 0) + token.value;
+        break;
+      case 'roll': {
+        if (!ps.rollMods[token.target]) ps.rollMods[token.target] = [];
+        const sign = token.value >= 0 ? `+${token.value}` : `${token.value}`;
+        const scopeStr = token.scope ? ` (${token.scope.replace(/_/g,' ')})` : '';
+        ps.rollMods[token.target].push({
+          val:   token.value,
+          label: `${titleCase(sourceName)} (${sign}${scopeStr})`,
+          scope: token.scope || null,
+        });
+        break;
+      }
+      case 'parry':     ps.parryBonus     += token.value; break;
+      case 'toughness': ps.toughnessBonus += token.value; break;
+      case 'size':
+        ps.sizeBonus      += token.value;
+        ps.toughnessBonus += token.value; // size always adjusts toughness
+        break;
+      case 'pace':    ps.paceBonus    += token.value; break;
+      case 'wounds':  ps.woundBonus   += token.value; break;
+      case 'bennies': ps.benniesBonus += token.value; break;
+      case 'pp':      ps.ppBonus      += token.value; break;
+      case 'dmg':
+        if (token.formula && token.target === 'unarmed') {
+          ps.unarmedFormula = token.formula; // last writer wins — MW upgrades MA
+        } else if (typeof token.value === 'number') {
+          if (!ps.dmgMods[token.target]) ps.dmgMods[token.target] = [];
+          ps.dmgMods[token.target].push({ val: token.value, label: `${sourceName} (+${token.value} ${token.target} dmg)`, scope: token.scope || null });
+        }
+        break;
+      case 'flag': ps.flags.add(token.key); break;
+      case 'text': break; // display only
+    }
+  }
+
+  function getFxForEdge(name) {
+    const n = (name || '').toLowerCase().trim();
+    const ref = (state.edgesRef || []).find(e => (e.name || '').toLowerCase().trim() === n);
+    return ref ? (ref.fx || '') : '';
+  }
+
+  function applyEdgeFx(name, sourceLabel) {
+    const fxStr = getFxForEdge(name);
+    if (!fxStr) return;
+    const tokens = parseFx(fxStr);
+    if (!tokens.length) return;
+    tokens.forEach(t => applyToken(t, name));
+    ps.trace.push({ source: sourceLabel || name, fx: fxStr, tokens });
+  }
+
+  // 1. Starting edges first
+  (state.starting || [])
+    .filter(s => s.on && (f(s, 'type') || '').toLowerCase().trim() === 'edge')
+    .forEach(s => { const name = f(s, 'name') || ''; if (name) applyEdgeFx(name, `Starting: ${name}`); });
+
+  // 2. Advances in adv# order
+  const sorted = [...(state.progressions || [])]
+    .filter(p => p.checked)
+    .sort((a, b) => (parseFloat(a.adv) || 0) - (parseFloat(b.adv) || 0));
+
+  sorted.forEach(p => {
+    const type = (f(p, 'type') || '').toLowerCase().trim();
+    const sel  = f(p, 'selection', 'name') || '';
+    // Attribute and Skill advances are intentionally skipped here —
+    // computeAttrLevel/computeSkillLevel read progressions directly to avoid double-counting
+    if (type === 'edge' && sel) applyEdgeFx(sel, `Adv ${p.adv}: ${sel}`);
+  });
+
+  // 3. Post-process: Great Luck replaces Luck (+2 total not +3)
+  const hasLuck      = sorted.some(p => (f(p,'selection','name')||'').toLowerCase().trim() === 'luck')
+                    || (state.starting||[]).some(s => s.on && (f(s,'name')||'').toLowerCase().trim() === 'luck');
+  const hasGreatLuck = sorted.some(p => (f(p,'selection','name')||'').toLowerCase().trim() === 'great luck')
+                    || (state.starting||[]).some(s => s.on && (f(s,'name')||'').toLowerCase().trim() === 'great luck');
+  if (hasLuck && hasGreatLuck) ps.benniesBonus = Math.max(0, ps.benniesBonus - 1);
+
+  // 4. Post-process: Imp. NOS supersedes NOS
+  if (ps.flags.has('ignore_wound_2')) ps.flags.delete('ignore_wound_1');
+
+  // 5. Post-process: Imp. Block supersedes Block (avoid parry+3)
+  const hasBlock    = sorted.some(p => (f(p,'selection','name')||'').toLowerCase().trim() === 'block')
+                   || (state.starting||[]).some(s => s.on && (f(s,'name')||'').toLowerCase().trim() === 'block');
+  const hasImpBlock = sorted.some(p => (f(p,'selection','name')||'').toLowerCase().trim() === 'imp. block')
+                   || (state.starting||[]).some(s => s.on && (f(s,'name')||'').toLowerCase().trim() === 'imp. block');
+  if (hasBlock && hasImpBlock) ps.parryBonus = Math.max(0, ps.parryBonus - 1);
+
+  // 6. Post-process: Martial Warrior supersedes Martial Artist roll bonus
+  const hasMA = (state.starting||[]).some(s => s.on && (f(s,'name')||'').toLowerCase().trim() === 'martial artist')
+             || sorted.some(p => (f(p,'selection','name')||'').toLowerCase().trim() === 'martial artist');
+  const hasMW = sorted.some(p => (f(p,'selection','name')||'').toLowerCase().trim() === 'martial warrior')
+             || (state.starting||[]).some(s => s.on && (f(s,'name')||'').toLowerCase().trim() === 'martial warrior');
+  if (hasMA && hasMW && ps.rollMods['fighting']) {
+    ps.rollMods['fighting'] = ps.rollMods['fighting'].filter(m => !m.label.toLowerCase().includes('martial artist'));
+  }
+
+  return ps;
+}
+
+function progHasFlag(key)          { return getProgState().flags.has(key); }
+function progGetRollMods(skill)    { return getProgState().rollMods[(skill||'').toLowerCase()] || []; }
+function progGetParryBonus()       { return getProgState().parryBonus; }
+function progGetToughnessBonus()   { return getProgState().toughnessBonus; }
+function progGetBenniesBonus()     { return getProgState().benniesBonus; }
+function progGetWoundBonus()       { return getProgState().woundBonus; }
+function progGetUnarmedFormula()   { return getProgState().unarmedFormula; }
+
 function dieFor(lvl) { return DIE_NAMES[Math.min(Math.max(lvl-1,0), DIE_NAMES.length-1)]; }
 function dieVal(lvl) { return [4,6,8,10,12,12,12][Math.min(Math.max(lvl-1,0),6)]; }
 function dieMod(lvl) { return Math.max(0, lvl - 5); } // returns +1 or +2 for d12+1/+2
@@ -323,31 +523,19 @@ function parseEdgeEffects(edgeName, effectText) {
 
 function computeParry() {
   const fLvl = computeSkillLevel('Fighting');
-  let parry = 2 + Math.floor(dieVal(fLvl)/2);
-  if(hasStart('Martial Artist')) parry += 1;
-  if(hasEdge('Martial Warrior')) parry += 1;
-  if(hasEdge('Imp. Block'))      parry += 2;
-  else if(hasEdge('Block'))      parry += 1;
+  let parry = 2 + Math.floor(dieVal(fLvl) / 2);
 
-  // Generic passive edge bonuses to Parry (parser-driven)
-  getActiveEdges().forEach(({name, effect, type}) => {
-    if (type !== 'passive') return;
-    // Skip edges already handled above to avoid double-counting
-    const skip = new Set(['block','improved block','imp. block','trademark weapon','acrobat','martial artist','martial warrior']);
-    if (skip.has(name)) return;
-    const fallback = EDGE_FALLBACK_MAP[name];
-    const mods = fallback ? [] : parseEdgeEffects(name, effect);
-    mods.filter(m => m.stat === 'parry').forEach(m => { parry += m.value; });
-  });
+  // All passive parry bonuses from progState (Block, Imp. Block,
+  // Acrobat, Weapon Master, Master of Arms etc.)
+  parry += progGetParryBonus();
 
-  // Generic active edge bonuses to Parry (only when toggled on)
-  getActiveEdges().forEach(({name, effect, type}) => {
-    if (type !== 'active') return;
-    const isOn = state.activeEdgeToggles[name];
-    if (!isOn) return;
+  // Active-toggled conditional parry changes (e.g. Berserk -2 Parry)
+  getActiveEdges().forEach(({ name, type }) => {
+    if (type !== 'activate') return;
+    if (!state.activeEdgeToggles[name]) return;
     const fallback = EDGE_FALLBACK_MAP[name];
-    const mods = fallback ? (fallback.activeModifiers || []) : parseEdgeEffects(name, effect);
-    mods.filter(m => m.stat === 'parry').forEach(m => { parry += m.value; });
+    if (!fallback) return;
+    (fallback.activeModifiers || []).filter(m => m.stat === 'parry').forEach(m => { parry += m.value; });
   });
 
   return parry;
@@ -355,32 +543,25 @@ function computeParry() {
 
 function computeToughness() {
   const vigLvl = computeAttrLevel('Vigor');
-  let toughness = 2 + Math.floor(dieVal(vigLvl)/2);
-  if(hasStart('Brawler (Racial)')) toughness += 1;
-  if(hasEdge('Brawler'))           toughness += 1; // non-racial version
-  if(hasEdge('Bruiser'))           toughness += 1;
-  if(hasEdge('Brawny'))            toughness += 1; // Brawny gives Size+1 = Toughness+1
-  toughness += (state.size || 0);                  // Size modifier from State tab
+  let toughness = 2 + Math.floor(dieVal(vigLvl) / 2);
+
+  // All passive toughness bonuses from progState
+  toughness += progGetToughnessBonus();
+
+  // Sheet-level racial Size (state.size is loaded from State tab)
+  toughness += (state.size || 0);
+
+  // Super Powers — Toughness power (unchanged)
   const tp = getActivePower('Toughness');
-  if(tp) toughness += parseInt(tp.base)||0;
+  if (tp) toughness += parseInt(tp.base) || 0;
 
-  // Generic passive edge bonuses to Toughness
-  getActiveEdges().forEach(({name, effect, type}) => {
-    if (type !== 'passive') return;
-    const skip = new Set(['brawler','brawler (racial)','bruiser','brawny','nerves of steel','improved nerves of steel']);
-    if (skip.has(name)) return;
-    const fallback = EDGE_FALLBACK_MAP[name];
-    const mods = fallback ? [] : parseEdgeEffects(name, effect);
-    mods.filter(m => m.stat === 'toughness').forEach(m => { toughness += m.value; });
-  });
-
-  // Generic active edge bonuses to Toughness (only when toggled on)
-  getActiveEdges().forEach(({name, effect, type}) => {
-    if (type !== 'active') return;
+  // Active-toggled conditional toughness (e.g. Berserk +2)
+  getActiveEdges().forEach(({ name, type }) => {
+    if (type !== 'activate') return;
     if (!state.activeEdgeToggles[name]) return;
     const fallback = EDGE_FALLBACK_MAP[name];
-    const mods = fallback ? (fallback.activeModifiers || []) : parseEdgeEffects(name, effect);
-    mods.filter(m => m.stat === 'toughness').forEach(m => { toughness += m.value; });
+    if (!fallback) return;
+    (fallback.activeModifiers || []).filter(m => m.stat === 'toughness').forEach(m => { toughness += m.value; });
   });
 
   return toughness;
@@ -568,26 +749,36 @@ function computeCarryLimit() {
 }
 
 function getWoundPenaltyIgnore() {
-  // Existing hardcoded checks (keep these)
-  if (hasEdge('Imp. Nerves of Steel') || hasStart('Improved Nerves of Steel')) return 2;
-  if (hasEdge('Nerves of Steel') || hasStart('Nerves of Steel')) return 1;
+  if (progHasFlag('ignore_wound_2')) return 2;
+  if (progHasFlag('ignore_wound_1')) return 1;
 
-  // Generic: active-toggled edges with wound_penalty modifier
+  // Active-toggled conditional wound ignore (e.g. Berserk ignores all)
   let ignore = 0;
-  getActiveEdges().forEach(({name, effect, type}) => {
-    if (type !== 'active' || !state.activeEdgeToggles[name]) return;
+  getActiveEdges().forEach(({ name, type }) => {
+    if (type !== 'activate' || !state.activeEdgeToggles[name]) return;
     const fallback = EDGE_FALLBACK_MAP[name];
-    const mods = fallback ? (fallback.activeModifiers || []) : parseEdgeEffects(name, effect);
-    mods.filter(m => m.stat === 'wound_penalty')
-        .forEach(m => { ignore = Math.max(ignore, m.value >= 99 ? 999 : m.value); });
+    if (!fallback) return;
+    (fallback.activeModifiers || [])
+      .filter(m => m.stat === 'wound_penalty')
+      .forEach(m => { ignore = Math.max(ignore, m.value >= 99 ? 999 : m.value); });
   });
   return ignore;
 }
 
 function getWoundEdgeInfo() {
-  const nosIgnore = getWoundPenaltyIgnore();
-  const maxWounds = hasEdge('Tougher than Nails') ? 5 : hasEdge('Tough as Nails') ? 4 : 3;
-  return {nosIgnore, maxWounds};
+  const nosIgnore  = getWoundPenaltyIgnore();
+  const maxWounds  = 3 + progGetWoundBonus();
+  return { nosIgnore, maxWounds };
+}
+
+function computeMaxBennies() {
+  const base = 3;
+  const hasLuckHindrance = state.hindrances.some(h =>
+    isTrue(f(h, 'acquired', 'bolohad')) &&
+    (h.name || '').toLowerCase().includes('bad luck')
+  );
+  const penalty = hasLuckHindrance ? -1 : 0;
+  return Math.max(1, base + progGetBenniesBonus() + penalty);
 }
 
 function computeRank() {
@@ -606,59 +797,57 @@ function rankColor(rank) {
 // ============================================================
 // SKILL MODIFIERS
 // ============================================================
-// Returns an object mapping skill names to arrays of { label, value }
-// representing all active modifiers from edges, hindrances, and powers.
 function computeSkillMods() {
   const result = {};
 
-  function addMod(skill, label, value) {
+  function addMod(skill, label, val) {
     const k = (skill || '').toLowerCase().trim();
     if (!k) return;
     if (!result[k]) result[k] = [];
-    result[k].push({ label, value });
+    result[k].push({ label, val });
   }
 
-  // Hardcoded edge skill bonuses (edges in the skip set for generic loops)
-  if (hasEdge('Alertness')     || hasStart('Alertness'))     addMod('notice',       'Alertness (+2 Notice)', 2);
-  if (hasEdge('Martial Artist')|| hasStart('Martial Artist'))addMod('fighting',     'Martial Artist (+1 Fighting unarmed)', 1);
-  if (hasEdge('Martial Warrior'))                            addMod('fighting',     'Martial Warrior (+2 Fighting unarmed)', 2);
-  if (hasEdge('Combat Reflexes'))                            addMod('spirit',       'Combat Reflexes (+2 Spirit vs Shaken)', 2);
-  if (hasEdge('Investigator')  || hasStart('Investigator'))  addMod('research',     'Investigator (+2 Research)', 2);
-  if (hasEdge('Streetwise')    || hasStart('Streetwise'))    addMod('intimidation', 'Streetwise (+2)', 2);
-  if (hasEdge('Assassin')      || hasStart('Assassin'))      addMod('damage',       'Assassin (+2 damage, conditional)', 2);
-  if (hasEdge('Woodsman')      || hasStart('Woodsman')) {
-    addMod('survival',   'Woodsman (+2 Survival)', 2);
-    addMod('stealth',    'Woodsman (+2 Stealth in wild)', 2);
-  }
-  if (hasEdge('Menacing')      || hasStart('Menacing'))      addMod('intimidation', 'Menacing (+2 Intimidation)', 2);
-  if (hasEdge('Strong Willed') || hasStart('Strong Willed')) {
-    addMod('smarts', 'Strong Willed (+2 resist Tests)', 2);
-    addMod('spirit', 'Strong Willed (+2 resist Tests)', 2);
-  }
-  if (hasEdge('Acrobat')       || hasStart('Acrobat'))       addMod('athletics',   'Acrobat (free reroll acrobatics)', 0);
-
-  // Generic passive edge skill bonuses
-  getActiveEdges().forEach(({name, effect, type}) => {
-    if (type !== 'passive') return;
-    const skip = new Set(['alertness','martial artist','martial warrior','combat reflexes',
-                          'investigator','streetwise','assassin','acrobat','woodsman',
-                          'menacing','strong willed']);
-    if (skip.has(name)) return;
-    const mods = parseEdgeEffects(name, effect);
-    mods.filter(m => m.stat !== 'parry' && m.stat !== 'toughness' && m.stat !== 'pace'
-                  && m.stat !== 'wound_penalty' && m.stat !== 'damage')
-        .forEach(m => addMod(m.stat, m.label, m.value));
+  // All roll bonuses from progState (Alertness, Martial Artist/Warrior,
+  // Combat Reflexes, Menacing, Strong Willed, Woodsman, etc.)
+  const ps = getProgState();
+  Object.entries(ps.rollMods).forEach(([skill, mods]) => {
+    mods.forEach(m => addMod(skill, m.label, m.val));
   });
 
-  // Generic active edge skill bonuses (only when toggled on)
-  getActiveEdges().forEach(({name, effect, type}) => {
-    if (type !== 'active') return;
+  // Hindrance skill penalties (hindrances not yet in fx system)
+  const activeH = [
+    ...state.hindrances.filter(h => isTrue(f(h, 'acquired', 'bolohad'))),
+    ...state.starting
+      .filter(s => s.on && ['hindrance','hindrance-major','hindrance-minor','minor','major']
+        .includes((f(s,'type')||'').toLowerCase().trim()))
+      .map(s => ({ name: f(s,'name')||'', effect: f(s,'effect')||'' }))
+  ];
+  activeH.forEach(h => {
+    const nm = (h.name || '').toLowerCase();
+    if (nm.includes('outsider'))                                 addMod('persuasion',  'Outsider (-2)',              -2);
+    if (nm.includes('all thumbs'))                               addMod('electronics', 'All Thumbs (-2)',             -2);
+    if (nm.includes('anemic'))                                   addMod('vigor',       'Anemic (-2 vs Fatigue)',      -2);
+    if (nm.includes('bad eyes') && !nm.includes('imp')) {
+      addMod('shooting',  'Bad Eyes (-2)', -2);
+      addMod('athletics', 'Bad Eyes thrown (-2)', -2);
+    }
+    if (nm.includes('clumsy')) {
+      addMod('athletics', 'Clumsy (-2)', -2);
+      addMod('stealth',   'Clumsy (-2)', -2);
+    }
+    if (nm.includes('hard of hearing'))                          addMod('notice',  'Hard of Hearing (-4 audio)', -4);
+    if (nm.includes('yellow'))                                   addMod('spirit',  'Yellow (-2 Fear)',            -2);
+  });
+
+  // Active-toggled conditional skill bonuses (e.g. Berserk +2 Fighting)
+  getActiveEdges().forEach(({ name, type }) => {
+    if (type !== 'activate') return;
     if (!state.activeEdgeToggles[name]) return;
     const fallback = EDGE_FALLBACK_MAP[name];
-    const mods = fallback ? (fallback.activeModifiers || []) : parseEdgeEffects(name, effect);
-    mods.filter(m => m.stat !== 'parry' && m.stat !== 'toughness' && m.stat !== 'pace'
-                  && m.stat !== 'wound_penalty' && m.stat !== 'damage')
-        .forEach(m => addMod(m.stat, m.label, m.value));
+    if (!fallback) return;
+    (fallback.activeModifiers || [])
+      .filter(m => m.stat !== 'parry' && m.stat !== 'toughness' && m.stat !== 'pace' && m.stat !== 'wound_penalty')
+      .forEach(m => addMod(m.stat, m.label, m.value));
   });
 
   return result;

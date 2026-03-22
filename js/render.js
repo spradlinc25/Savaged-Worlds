@@ -1469,6 +1469,7 @@ function toggleStatBar(){
 // FULL REFRESH
 // ============================================================
 function fullRefresh() {
+  invalidateProgState();
   renderStarting();
   renderProgressions();
   renderAttrs();

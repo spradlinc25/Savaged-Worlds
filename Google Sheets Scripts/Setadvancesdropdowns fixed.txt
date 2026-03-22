@@ -1,0 +1,186 @@
+/**
+ * SetAdvancesDropdowns.gs
+ * ─────────────────────────────────────────────────────────────
+ * Run this script ONCE after uploading the xlsx to Google Sheets.
+ * It sets a conditional dropdown on each row of the Advances tab
+ * so that column D (selection) shows:
+ *   - Edge list    when column C = "Edge"
+ *   - Attribute list when column C = "Attribute"
+ *   - Skill list   when column C = "Skill" or "Skill (Above Attr)"
+ *
+ * HOW TO RUN:
+ *   1. Open your Google Sheet
+ *   2. Extensions → Apps Script
+ *   3. Paste this entire file into the editor (replace any existing code)
+ *   4. Click Save, then click Run → setAdvancesDropdowns
+ *   5. Approve permissions when prompted (needed to edit the sheet)
+ *   6. Done — dropdowns will update automatically as you change column C
+ *
+ * HOW TO RE-RUN (if you add more rows):
+ *   Just run setAdvancesDropdowns again — it's safe to run multiple times.
+ * ─────────────────────────────────────────────────────────────
+ */
+
+function setAdvancesDropdowns() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  const advSheet   = ss.getSheetByName('Advances');
+  const edgeSheet  = ss.getSheetByName('Edges');
+  const attrSheet  = ss.getSheetByName('Attributes');
+  const skillSheet = ss.getSheetByName('Skills');
+
+  if (!advSheet || !edgeSheet || !attrSheet || !skillSheet) {
+    SpreadsheetApp.getUi().alert(
+      'Could not find required sheets.\n' +
+      'Make sure these tabs exist: Advances, Edges, Attributes, Skills'
+    );
+    return;
+  }
+
+  // ── Build value arrays from source sheets ──────────────────
+  const edgeNames = edgeSheet
+    .getRange('A2:A' + edgeSheet.getLastRow())
+    .getValues()
+    .flat()
+    .filter(v => v !== '');
+
+  const attrNames = attrSheet
+    .getRange('A2:A' + attrSheet.getLastRow())
+    .getValues()
+    .flat()
+    .filter(v => v !== '');
+
+  const skillNames = skillSheet
+    .getRange('A2:A' + skillSheet.getLastRow())
+    .getValues()
+    .flat()
+    .filter(v => v !== '');
+
+  // ── Walk Advances rows ────────────────────────────────────
+  // Row 1 = headers, data starts at Row 2
+  const DATA_START = 2;
+  const lastRow = Math.max(advSheet.getLastRow(), 42); // cover template rows too
+
+  // Set col C (type) dropdown — fixed list of valid advance types
+  const typeRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['Edge', 'Attribute', 'Skill', 'Skill (Above Attr)'], true)
+    .setAllowInvalid(true)
+    .build();
+  advSheet.getRange(`C${DATA_START}:C${lastRow}`).setDataValidation(typeRule);
+
+  // Clear existing validations on col D (selection) first
+  advSheet.getRange(`D${DATA_START}:D${lastRow}`).clearDataValidations();
+
+  let edgeCount = 0, attrCount = 0, skillCount = 0, blankCount = 0;
+
+  for (let row = DATA_START; row <= lastRow; row++) {
+    const typeCell = advSheet.getRange(row, 3); // col C = type
+    const selCell  = advSheet.getRange(row, 4); // col D = selection
+    const typeVal  = (typeCell.getValue() || '').toString().trim();
+
+    let values = null;
+
+    if (typeVal === 'Edge') {
+      values = edgeNames;
+      edgeCount++;
+    } else if (typeVal === 'Attribute') {
+      values = attrNames;
+      attrCount++;
+    } else if (typeVal === 'Skill' || typeVal === 'Skill (Above Attr)') {
+      values = skillNames;
+      skillCount++;
+    } else {
+      // Blank or 'open' row — no validation, leave free-text
+      blankCount++;
+      continue;
+    }
+
+    const rule = SpreadsheetApp.newDataValidation()
+      .requireValueInList(values, true)   // true = show dropdown
+      .setAllowInvalid(true)              // don't block free-typing
+      .build();
+
+    selCell.setDataValidation(rule);
+  }
+
+  // ── Also set an onEdit trigger so dropdowns update live ───
+  installOnEditTrigger();
+
+  const msg = `Done!\n\nDropdowns set:\n  Edges: ${edgeCount} rows\n  Attributes: ${attrCount} rows\n  Skills: ${skillCount} rows\n  Skipped (blank/open): ${blankCount} rows\n\nAn onEdit trigger was also installed so dropdowns update automatically when you change the Type column.`;
+  SpreadsheetApp.getUi().alert(msg);
+}
+
+
+/**
+ * Installs an onEdit trigger (safe to call multiple times —
+ * removes any existing copy first to avoid duplicates).
+ */
+function installOnEditTrigger() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Remove any existing onEdit triggers for this script
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'onAdvancesEdit')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+
+  // Install fresh
+  ScriptApp.newTrigger('onAdvancesEdit')
+    .forSpreadsheet(ss)
+    .onEdit()
+    .create();
+}
+
+
+/**
+ * Runs automatically whenever any cell is edited.
+ * Only acts when column C (type) in the Advances sheet changes.
+ */
+function onAdvancesEdit(e) {
+  if (!e) return;
+
+  const sheet = e.range.getSheet();
+  if (sheet.getName() !== 'Advances') return;
+
+  const col = e.range.getColumn();
+  const row = e.range.getRow();
+
+  // Only react to edits in column C (type), rows 2+
+  if (col !== 3 || row < 2) return;
+
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const edgeSheet  = ss.getSheetByName('Edges');
+  const attrSheet  = ss.getSheetByName('Attributes');
+  const skillSheet = ss.getSheetByName('Skills');
+
+  const typeVal = (e.value || '').toString().trim();
+  const selCell = sheet.getRange(row, 4);
+
+  // Clear current selection value and validation
+  selCell.clearContent();
+  selCell.clearDataValidations();
+
+  let values = null;
+
+  if (typeVal === 'Edge') {
+    values = edgeSheet
+      .getRange('A2:A' + edgeSheet.getLastRow())
+      .getValues().flat().filter(v => v !== '');
+  } else if (typeVal === 'Attribute') {
+    values = attrSheet
+      .getRange('A2:A' + attrSheet.getLastRow())
+      .getValues().flat().filter(v => v !== '');
+  } else if (typeVal === 'Skill' || typeVal === 'Skill (Above Attr)') {
+    values = skillSheet
+      .getRange('A2:A' + skillSheet.getLastRow())
+      .getValues().flat().filter(v => v !== '');
+  } else {
+    return; // open/blank — leave as free text
+  }
+
+  const rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(values, true)
+    .setAllowInvalid(true)
+    .build();
+
+  selCell.setDataValidation(rule);
+}

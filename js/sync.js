@@ -445,6 +445,7 @@ async function loadAllSheets() {
     renderEdges();
     renderArmor();
     renderGear();
+    state.maxBennies = computeMaxBennies();
     renderBennies();
     renderStarting();
     renderProgressions();
