@@ -434,6 +434,8 @@ async function loadAllSheets() {
     renderWeaponsRef();
     renderArmorRef();
     renderGearRef();
+    const savedTab = localStorage.getItem('swade_active_tab');
+    if(savedTab) { const btn = document.querySelector(`nav button[onclick*="${savedTab}"]`); showTab(savedTab, btn||null); }
 
     // Update URL bar to reflect current sheet (makes URL always shareable/bookmarkable)
     const currentParams = new URLSearchParams(window.location.search);
