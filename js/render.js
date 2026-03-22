@@ -834,9 +834,7 @@ function renderProgressions() {
   const container=document.getElementById('prog-list'); container.innerHTML='';
 
   // Update advance counter
-  // Total = highest adv number in the sheet data, not row count (excludes empty/zero rows)
-  const advNums = state.progressions.map(p => Number(p.adv) || 0).filter(n => n > 0);
-  const total = advNums.length ? Math.max(...advNums) : state.progressions.length;
+  const total = state.progressions.reduce((max, p) => Math.max(max, parseInt(p.adv)||0), 0);
   const checked = state.progressions.filter(p=>p.checked).length;
   const rank = computeRank();
   const advCount = document.getElementById('adv-count');
