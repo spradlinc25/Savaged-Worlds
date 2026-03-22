@@ -1,0 +1,262 @@
+/**
+ * SWADE Character Sheet — Dropdown Setup Script
+ * ─────────────────────────────────────────────
+ * Replace ALL code in your Apps Script editor with this file.
+ * Then run: setupEverything
+ *
+ * This handles ALL three tabs in one shot:
+ *   • Starting  — col A (type) controls col B (name) dropdown
+ *   • Advances  — col C (type) controls col D (selection) dropdown
+ *   • Powers    — col B (name) always shows SPCPowers list
+ */
+
+
+// ============================================================
+// MASTER RUNNER — run this once after upload
+// ============================================================
+function setupEverything() {
+  fixStartingDropdowns();
+  setAdvancesDropdowns();
+  setPowersDropdowns();
+  installTrigger();
+
+  SpreadsheetApp.getUi().alert(
+    'All done!\n\n' +
+    '✓ Starting tab — name dropdown reacts to type\n' +
+    '✓ Advances tab — selection dropdown reacts to type\n' +
+    '✓ Powers tab — name dropdown shows SPC powers list\n\n' +
+    'An onEdit trigger is installed so dropdowns update automatically when you change a type cell.'
+  );
+}
+
+
+// ============================================================
+// STARTING TAB
+// ============================================================
+function fixStartingDropdowns() {
+  const ss         = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet      = ss.getSheetByName('Starting');
+  const edgeSheet  = ss.getSheetByName('Edges');
+  const hindSheet  = ss.getSheetByName('Hindrances');
+  const attrSheet  = ss.getSheetByName('Attributes');
+  const skillSheet = ss.getSheetByName('Skills');
+
+  if (!sheet) { Logger.log('Starting tab not found'); return; }
+
+  // Clear any broken helper columns (J onwards)
+  sheet.getRange('J1:Z200').clearContent().clearDataValidations();
+
+  // Clear existing name dropdowns on col B
+  const DATA_START = 3;
+  const lastRow = Math.max(sheet.getLastRow(), 20);
+  sheet.getRange('B' + DATA_START + ':B' + lastRow).clearDataValidations();
+
+  // Build source lists
+  const edgeNames  = getColValues(edgeSheet,  'A', 2);
+  const hindNames  = getColValues(hindSheet,  'A', 3); // row 3 — hindrances has a note row at row 2
+  const attrNames  = getColValues(attrSheet,  'A', 2);
+  const skillNames = getColValues(skillSheet, 'A', 2);
+
+  // Set dropdown on col B based on type in col A
+  for (var row = DATA_START; row <= lastRow; row++) {
+    var typeVal = (sheet.getRange(row, 1).getValue() || '').toString().trim().toLowerCase();
+    var values = null;
+
+    if (typeVal === 'edge') {
+      values = edgeNames;
+    } else if (typeVal === 'hindrance-major' || typeVal === 'hindrance-minor') {
+      values = hindNames;
+    } else if (typeVal === 'attribute') {
+      values = attrNames;
+    } else if (typeVal === 'skill') {
+      values = skillNames;
+    } else {
+      continue; // money / racial / free — leave as free text
+    }
+
+    setDropdown(sheet.getRange(row, 2), values);
+  }
+
+  Logger.log('Starting tab dropdowns set.');
+}
+
+
+// ============================================================
+// ADVANCES TAB
+// ============================================================
+function setAdvancesDropdowns() {
+  const ss         = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet      = ss.getSheetByName('Advances');
+  const edgeSheet  = ss.getSheetByName('Edges');
+  const attrSheet  = ss.getSheetByName('Attributes');
+  const skillSheet = ss.getSheetByName('Skills');
+
+  if (!sheet) { Logger.log('Advances tab not found'); return; }
+
+  const edgeNames  = getColValues(edgeSheet,  'A', 2);
+  const attrNames  = getColValues(attrSheet,  'A', 2);
+  const skillNames = getColValues(skillSheet, 'A', 2);
+
+  // Clear existing selection dropdowns on col D
+  const DATA_START = 3;
+  const lastRow = Math.max(sheet.getLastRow(), 42);
+  sheet.getRange('D' + DATA_START + ':D' + lastRow).clearDataValidations();
+
+  var edgeCount = 0, attrCount = 0, skillCount = 0;
+
+  for (var row = DATA_START; row <= lastRow; row++) {
+    var typeVal = (sheet.getRange(row, 3).getValue() || '').toString().trim();
+    var values = null;
+
+    if (typeVal === 'Edge') {
+      values = edgeNames;
+      edgeCount++;
+    } else if (typeVal === 'Attribute') {
+      values = attrNames;
+      attrCount++;
+    } else if (typeVal === 'Skill' || typeVal === 'Skill (Above Attr)') {
+      values = skillNames;
+      skillCount++;
+    } else {
+      continue;
+    }
+
+    setDropdown(sheet.getRange(row, 4), values);
+  }
+
+  Logger.log('Advances dropdowns set — Edges: ' + edgeCount + ', Attrs: ' + attrCount + ', Skills: ' + skillCount);
+}
+
+
+// ============================================================
+// POWERS TAB
+// ============================================================
+function setPowersDropdowns() {
+  const ss       = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet    = ss.getSheetByName('Powers');
+  const spcSheet = ss.getSheetByName('SPCPowers');
+
+  if (!sheet || !spcSheet) { Logger.log('Powers or SPCPowers tab not found'); return; }
+
+  const powerNames = getColValues(spcSheet, 'A', 2);
+
+  const DATA_START = 2;
+  const lastRow = Math.max(sheet.getLastRow(), 30);
+
+  sheet.getRange('B' + DATA_START + ':B' + lastRow).clearDataValidations();
+
+  for (var row = DATA_START; row <= lastRow; row++) {
+    setDropdown(sheet.getRange(row, 2), powerNames);
+  }
+
+  Logger.log('Powers dropdowns set.');
+}
+
+
+// ============================================================
+// TRIGGER — keeps dropdowns live as you edit
+// ============================================================
+function installTrigger() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Remove any existing copies to avoid duplicates
+  ScriptApp.getProjectTriggers()
+    .filter(function(t) { return t.getHandlerFunction() === 'onAnyEdit'; })
+    .forEach(function(t) { ScriptApp.deleteTrigger(t); });
+
+  ScriptApp.newTrigger('onAnyEdit')
+    .forSpreadsheet(ss)
+    .onEdit()
+    .create();
+
+  Logger.log('onAnyEdit trigger installed.');
+}
+
+function onAnyEdit(e) {
+  if (!e) return;
+  var sheetName = e.range.getSheet().getName();
+  var col = e.range.getColumn();
+  var row = e.range.getRow();
+
+  if (sheetName === 'Starting' && col === 1 && row >= 3) {
+    onStartingTypeEdit(e);
+  }
+  if (sheetName === 'Advances' && col === 3 && row >= 3) {
+    onAdvancesTypeEdit(e);
+  }
+}
+
+function onStartingTypeEdit(e) {
+  var ss         = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet      = e.range.getSheet();
+  var typeVal    = (e.value || '').toString().trim().toLowerCase();
+  var nameCell   = sheet.getRange(e.range.getRow(), 2);
+
+  nameCell.clearContent();
+  nameCell.clearDataValidations();
+
+  var values = null;
+
+  if (typeVal === 'edge') {
+    values = getColValues(ss.getSheetByName('Edges'), 'A', 2);
+  } else if (typeVal === 'hindrance-major' || typeVal === 'hindrance-minor') {
+    values = getColValues(ss.getSheetByName('Hindrances'), 'A', 3);
+  } else if (typeVal === 'attribute') {
+    values = getColValues(ss.getSheetByName('Attributes'), 'A', 2);
+  } else if (typeVal === 'skill') {
+    values = getColValues(ss.getSheetByName('Skills'), 'A', 2);
+  } else {
+    return;
+  }
+
+  setDropdown(nameCell, values);
+}
+
+function onAdvancesTypeEdit(e) {
+  var ss       = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet    = e.range.getSheet();
+  var typeVal  = (e.value || '').toString().trim();
+  var selCell  = sheet.getRange(e.range.getRow(), 4);
+
+  selCell.clearContent();
+  selCell.clearDataValidations();
+
+  var values = null;
+
+  if (typeVal === 'Edge') {
+    values = getColValues(ss.getSheetByName('Edges'), 'A', 2);
+  } else if (typeVal === 'Attribute') {
+    values = getColValues(ss.getSheetByName('Attributes'), 'A', 2);
+  } else if (typeVal === 'Skill' || typeVal === 'Skill (Above Attr)') {
+    values = getColValues(ss.getSheetByName('Skills'), 'A', 2);
+  } else {
+    return;
+  }
+
+  setDropdown(selCell, values);
+}
+
+
+// ============================================================
+// HELPERS
+// ============================================================
+function getColValues(sheet, col, startRow) {
+  if (!sheet) return [];
+  var lastRow = sheet.getLastRow();
+  if (lastRow < startRow) return [];
+  return sheet
+    .getRange(col + startRow + ':' + col + lastRow)
+    .getValues()
+    .flat()
+    .filter(function(v) { return v !== '' && v !== null && v !== undefined; })
+    .map(function(v) { return v.toString().trim(); });
+}
+
+function setDropdown(cell, values) {
+  if (!values || values.length === 0) return;
+  var rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(values, true)
+    .setAllowInvalid(true)
+    .build();
+  cell.setDataValidation(rule);
+}

@@ -1,0 +1,250 @@
+/**
+ * SetStartingAndPowersDropdowns.gs
+ * ─────────────────────────────────────────────────────────────
+ * Run this script ONCE after uploading the xlsx to Google Sheets.
+ * Sets conditional dropdowns on the Starting and Powers tabs.
+ *
+ * STARTING tab:
+ *   Column A = type  →  Column B = name (dropdown changes based on type)
+ *   Types and their source lists:
+ *     edge              → Edges tab col A
+ *     hindrance-major   → Hindrances tab col A
+ *     hindrance-minor   → Hindrances tab col A
+ *     attribute         → Attributes tab col A
+ *     skill             → Skills tab col A
+ *     money / racial / free → free text (no dropdown)
+ *
+ * POWERS tab:
+ *   Column B = name  →  always pulls from SPCPowers tab col A
+ *
+ * HOW TO RUN:
+ *   1. Open your Google Sheet
+ *   2. Extensions → Apps Script
+ *   3. Paste this entire file into the editor (replace existing code)
+ *      NOTE: If you already have SetAdvancesDropdowns.gs pasted in,
+ *      just ADD this code below it in the same editor — don't replace it.
+ *   4. Click Save, then Run → setAllDropdowns
+ *   5. Approve permissions when prompted
+ *   6. Done — an onEdit trigger is also installed for live updates
+ *
+ * TO RE-RUN: Just run setAllDropdowns again — safe to repeat.
+ * ─────────────────────────────────────────────────────────────
+ */
+
+
+// ── Master runner — call this once after upload ───────────────
+function setAllDropdowns() {
+  setStartingDropdowns();
+  setPowersDropdowns();
+  installAllTriggers();
+
+  SpreadsheetApp.getUi().alert(
+    'Done!\n\nDropdowns set on:\n  • Starting tab (col B reacts to col A type)\n  • Powers tab (col B shows SPCPowers list)\n\nOnEdit trigger installed for live updates.'
+  );
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// STARTING TAB
+// ═══════════════════════════════════════════════════════════════
+
+function setStartingDropdowns() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet      = ss.getSheetByName('Starting');
+  const edgeSheet  = ss.getSheetByName('Edges');
+  const hindSheet  = ss.getSheetByName('Hindrances');
+  const attrSheet  = ss.getSheetByName('Attributes');
+  const skillSheet = ss.getSheetByName('Skills');
+
+  if (!sheet) { Logger.log('Starting tab not found'); return; }
+
+  // Build source lists
+  const edgeNames = getColValues(edgeSheet, 'A', 2);
+  const hindNames = getColValues(hindSheet, 'A', 2);
+  const attrNames = getColValues(attrSheet, 'A', 2);
+  const skillNames = getColValues(skillSheet, 'A', 2);
+
+  // Clear existing name validations on col B
+  const DATA_START = 3;
+  const lastRow = Math.max(sheet.getLastRow(), 20);
+  sheet.getRange(`B${DATA_START}:B${lastRow}`).clearDataValidations();
+
+  // Walk each row and set dropdown based on type in col A
+  for (let row = DATA_START; row <= lastRow; row++) {
+    const typeVal = (sheet.getRange(row, 1).getValue() || '').toString().trim().toLowerCase();
+    let values = null;
+
+    if (typeVal === 'edge') {
+      values = edgeNames;
+    } else if (typeVal === 'hindrance-major' || typeVal === 'hindrance-minor') {
+      values = hindNames;
+    } else if (typeVal === 'attribute') {
+      values = attrNames;
+    } else if (typeVal === 'skill') {
+      values = skillNames;
+    } else {
+      continue; // money/racial/free — leave as free text
+    }
+
+    setDropdown(sheet.getRange(row, 2), values);
+  }
+
+  Logger.log('Starting dropdowns set.');
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// POWERS TAB
+// ═══════════════════════════════════════════════════════════════
+
+function setPowersDropdowns() {
+  const ss       = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet    = ss.getSheetByName('Powers');
+  const spcSheet = ss.getSheetByName('SPCPowers');
+
+  if (!sheet || !spcSheet) { Logger.log('Powers or SPCPowers tab not found'); return; }
+
+  const powerNames = getColValues(spcSheet, 'A', 2);
+
+  const DATA_START = 3;
+  const lastRow = Math.max(sheet.getLastRow(), 30);
+
+  // Clear and reset all name dropdowns in col B
+  sheet.getRange(`B${DATA_START}:B${lastRow}`).clearDataValidations();
+
+  for (let row = DATA_START; row <= lastRow; row++) {
+    setDropdown(sheet.getRange(row, 2), powerNames);
+  }
+
+  Logger.log('Powers dropdowns set.');
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// ON-EDIT TRIGGER — live dropdown swapping
+// ═══════════════════════════════════════════════════════════════
+
+function installAllTriggers() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Remove any existing copies to avoid duplicates
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'onSheetEdit')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+
+  ScriptApp.newTrigger('onSheetEdit')
+    .forSpreadsheet(ss)
+    .onEdit()
+    .create();
+
+  Logger.log('onSheetEdit trigger installed.');
+}
+
+
+/**
+ * Master onEdit handler — routes to the right tab handler.
+ * Also handles Advances tab if SetAdvancesDropdowns.gs is present.
+ */
+function onSheetEdit(e) {
+  if (!e) return;
+  const sheetName = e.range.getSheet().getName();
+
+  if (sheetName === 'Starting') onStartingEdit(e);
+  if (sheetName === 'Powers')   onPowersEdit(e);
+
+  // Also handle Advances if that function exists
+  if (sheetName === 'Advances' && typeof onAdvancesEdit === 'function') {
+    onAdvancesEdit(e);
+  }
+}
+
+
+function onStartingEdit(e) {
+  const col = e.range.getColumn();
+  const row = e.range.getRow();
+
+  // Only react to col A (type) edits, rows 3+
+  if (col !== 1 || row < 3) return;
+
+  const ss         = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet      = e.range.getSheet();
+  const typeVal    = (e.value || '').toString().trim().toLowerCase();
+  const nameCell   = sheet.getRange(row, 2);
+
+  // Clear current name value and validation
+  nameCell.clearContent();
+  nameCell.clearDataValidations();
+
+  let values = null;
+
+  if (typeVal === 'edge') {
+    values = getColValues(ss.getSheetByName('Edges'), 'A', 2);
+  } else if (typeVal === 'hindrance-major' || typeVal === 'hindrance-minor') {
+    values = getColValues(ss.getSheetByName('Hindrances'), 'A', 2);
+  } else if (typeVal === 'attribute') {
+    values = getColValues(ss.getSheetByName('Attributes'), 'A', 2);
+  } else if (typeVal === 'skill') {
+    values = getColValues(ss.getSheetByName('Skills'), 'A', 2);
+  } else {
+    return; // money/racial/free — free text
+  }
+
+  setDropdown(nameCell, values);
+}
+
+
+function onPowersEdit(e) {
+  const col = e.range.getColumn();
+  const row = e.range.getRow();
+
+  // Only react to col A (tier) edits — just clear name when tier changes
+  // Powers name dropdown is always SPCPowers regardless of tier
+  if (col !== 1 || row < 3) return;
+
+  const sheet    = e.range.getSheet();
+  const ss       = SpreadsheetApp.getActiveSpreadsheet();
+  const nameCell = sheet.getRange(row, 2);
+
+  nameCell.clearContent();
+  nameCell.clearDataValidations();
+
+  const powerNames = getColValues(ss.getSheetByName('SPCPowers'), 'A', 2);
+  setDropdown(nameCell, powerNames);
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Gets all non-empty values from a column in a sheet.
+ * @param {Sheet} sheet - The sheet to read from
+ * @param {string} col  - Column letter e.g. 'A'
+ * @param {number} startRow - First data row (skip headers)
+ * @returns {string[]}
+ */
+function getColValues(sheet, col, startRow) {
+  if (!sheet) return [];
+  return sheet
+    .getRange(`${col}${startRow}:${col}${sheet.getLastRow()}`)
+    .getValues()
+    .flat()
+    .filter(v => v !== '' && v !== null && v !== undefined)
+    .map(v => v.toString().trim());
+}
+
+
+/**
+ * Sets a dropdown data validation on a single cell.
+ * @param {Range} cell   - The cell to apply validation to
+ * @param {string[]} values - List of allowed values
+ */
+function setDropdown(cell, values) {
+  if (!values || values.length === 0) return;
+  const rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(values, true)  // true = show in-cell dropdown arrow
+    .setAllowInvalid(true)             // allow free typing too
+    .build();
+  cell.setDataValidation(rule);
+}

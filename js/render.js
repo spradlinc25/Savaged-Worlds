@@ -227,7 +227,6 @@ function renderEdges() {
               <strong>${titleCase(e.name)}</strong>
               <div class="edge-effect-text">${e.effect}</div>
             </div>
-            <span class="edge-toggle-btn toggle-on" style="pointer-events:none;opacity:0.7">Always On</span>
           </div>
         </div>`;
     });
