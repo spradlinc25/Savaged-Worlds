@@ -1412,6 +1412,7 @@ function showTab(name,btn){
   document.getElementById('tab-'+name).classList.add('active');
   if(btn) btn.classList.add('active');
   if(name==='roller'&&state.loaded) renderSkillQuickRef();
+  localStorage.setItem('swade_active_tab', name);
 }
 
 // ============================================================

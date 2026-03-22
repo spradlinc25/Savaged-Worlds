@@ -176,6 +176,8 @@ function handleSyncBtn() {
       const loaded = await loadFromSheets();
       if (loaded) {
         fullRefresh();
+        const savedTab = localStorage.getItem('swade_active_tab');
+        if(savedTab) { const btn = document.querySelector(`nav button[onclick*="${savedTab}"]`); showTab(savedTab, btn||null); }
         flashSave('loaded');
       } else {
         // No cloud save yet — push local state up
