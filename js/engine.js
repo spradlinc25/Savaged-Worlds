@@ -321,7 +321,14 @@ function computeProgressionState() {
                    || (state.starting||[]).some(s => s.on && (f(s,'name')||'').toLowerCase().trim() === 'imp. block');
   if (hasBlock && hasImpBlock) ps.parryBonus = Math.max(0, ps.parryBonus - 1);
 
-  // 6. Post-process: Martial Warrior supersedes Martial Artist roll bonus
+  // 6. Post-process: Tougher than Nails replaces Tough as Nails (net +2, not +3)
+  const hasTaN  = sorted.some(p => (f(p,'selection','name')||'').toLowerCase().trim() === 'tough as nails')
+              || (state.starting||[]).some(s => s.on && (f(s,'name')||'').toLowerCase().trim() === 'tough as nails');
+  const hasTtaN = sorted.some(p => (f(p,'selection','name')||'').toLowerCase().trim() === 'tougher than nails')
+              || (state.starting||[]).some(s => s.on && (f(s,'name')||'').toLowerCase().trim() === 'tougher than nails');
+  if (hasTaN && hasTtaN) ps.woundBonus = Math.max(0, ps.woundBonus - 1);
+
+  // 7. Post-process: Martial Warrior supersedes Martial Artist roll bonus
   const hasMA = (state.starting||[]).some(s => s.on && (f(s,'name')||'').toLowerCase().trim() === 'martial artist')
              || sorted.some(p => (f(p,'selection','name')||'').toLowerCase().trim() === 'martial artist');
   const hasMW = sorted.some(p => (f(p,'selection','name')||'').toLowerCase().trim() === 'martial warrior')
