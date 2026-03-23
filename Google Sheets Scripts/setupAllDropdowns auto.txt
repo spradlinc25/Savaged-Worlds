@@ -1,0 +1,288 @@
+/**
+ * SWADE_Dropdowns.gs
+ * ─────────────────────────────────────────────────────────────
+ * Combined dropdown script for the SWADE Character Sheet.
+ * Handles: Starting, Powers, and Advances tabs.
+ *
+ * SETUP (one time only, by the template owner):
+ *   1. Open your Google Sheet
+ *   2. Extensions → Apps Script
+ *   3. Paste this entire file (replace any existing code)
+ *   4. Click Save, then Run → setupAllDropdowns
+ *   5. Approve permissions when prompted
+ *   Done — all dropdowns and triggers are now set.
+ *
+ * FOR PLAYERS:
+ *   When they open their copy for the first time, Google will ask
+ *   them to authorize the script. They click Allow — that's it.
+ *   Dropdowns set themselves automatically on every open.
+ * ─────────────────────────────────────────────────────────────
+ */
+
+
+// ── Runs automatically every time the sheet is opened ────────
+// Cannot run setup directly due to Google permissions model —
+// instead adds a menu so the player can authorize with one click.
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('⚔ SWADE Setup')
+    .addItem('Set up my character sheet', 'setupAllDropdowns')
+    .addToUi();
+}
+
+
+// ── Manual runner — use this to set up the template ──────────
+function setupAllDropdowns() {
+  setStartingDropdowns();
+  setPowersDropdowns();
+  setAdvancesDropdowns();
+  installTrigger();
+
+  SpreadsheetApp.getUi().alert(
+    'Done!\n\nDropdowns set on:\n' +
+    '  • Starting tab (col B reacts to col A type)\n' +
+    '  • Powers tab (col B shows SPCPowers list)\n' +
+    '  • Advances tab (col C type + col D selection)\n\n' +
+    'onEdit trigger installed for live updates.\n' +
+    'onOpen trigger will keep dropdowns fresh for all players.'
+  );
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// STARTING TAB
+// Col A = type → Col B = name dropdown changes based on type
+// ═══════════════════════════════════════════════════════════════
+
+function setStartingDropdowns() {
+  const ss         = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet      = ss.getSheetByName('Starting');
+  const edgeSheet  = ss.getSheetByName('Edges');
+  const hindSheet  = ss.getSheetByName('Hindrances');
+  const attrSheet  = ss.getSheetByName('Attributes');
+  const skillSheet = ss.getSheetByName('Skills');
+
+  if (!sheet) { Logger.log('Starting tab not found'); return; }
+
+  const edgeNames  = getColValues(edgeSheet,  'A', 2);
+  const hindNames  = getColValues(hindSheet,  'A', 2);
+  const attrNames  = getColValues(attrSheet,  'A', 2);
+  const skillNames = getColValues(skillSheet, 'A', 2);
+
+  const DATA_START = 2;
+  const lastRow = Math.max(sheet.getLastRow(), 20);
+
+  sheet.getRange(`B${DATA_START}:B${lastRow}`).clearDataValidations();
+
+  for (let row = DATA_START; row <= lastRow; row++) {
+    const typeVal = (sheet.getRange(row, 1).getValue() || '').toString().trim().toLowerCase();
+    let values = null;
+
+    if (typeVal === 'edge')                                        values = edgeNames;
+    else if (typeVal === 'hindrance-major' || typeVal === 'hindrance-minor') values = hindNames;
+    else if (typeVal === 'attribute')                              values = attrNames;
+    else if (typeVal === 'skill')                                  values = skillNames;
+    else continue; // money / racial / free — leave as free text
+
+    setDropdown(sheet.getRange(row, 2), values);
+  }
+
+  Logger.log('Starting dropdowns set.');
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// POWERS TAB
+// Col B = name → always pulls from SPCPowers tab col A
+// ═══════════════════════════════════════════════════════════════
+
+function setPowersDropdowns() {
+  const ss       = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet    = ss.getSheetByName('Powers');
+  const spcSheet = ss.getSheetByName('SPCPowers');
+
+  if (!sheet || !spcSheet) { Logger.log('Powers or SPCPowers tab not found'); return; }
+
+  const powerNames = getColValues(spcSheet, 'A', 2);
+
+  const DATA_START = 2;
+  const lastRow = Math.max(sheet.getLastRow(), 30);
+
+  sheet.getRange(`B${DATA_START}:B${lastRow}`).clearDataValidations();
+
+  for (let row = DATA_START; row <= lastRow; row++) {
+    setDropdown(sheet.getRange(row, 2), powerNames);
+  }
+
+  Logger.log('Powers dropdowns set.');
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// ADVANCES TAB
+// Col C = type dropdown (fixed list)
+// Col D = selection dropdown (changes based on col C)
+// ═══════════════════════════════════════════════════════════════
+
+function setAdvancesDropdowns() {
+  const ss         = SpreadsheetApp.getActiveSpreadsheet();
+  const advSheet   = ss.getSheetByName('Advances');
+  const edgeSheet  = ss.getSheetByName('Edges');
+  const attrSheet  = ss.getSheetByName('Attributes');
+  const skillSheet = ss.getSheetByName('Skills');
+
+  if (!advSheet || !edgeSheet || !attrSheet || !skillSheet) {
+    Logger.log('Advances: could not find required tabs');
+    return;
+  }
+
+  const edgeNames  = getColValues(edgeSheet,  'A', 2);
+  const attrNames  = getColValues(attrSheet,  'A', 2);
+  const skillNames = getColValues(skillSheet, 'A', 2);
+
+  const DATA_START = 2;
+  const lastRow = Math.max(advSheet.getLastRow(), 42);
+
+  // Col C — fixed type dropdown
+  const typeRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['Edge', 'Attribute', 'Skill', 'Skill (Above Attr)'], true)
+    .setAllowInvalid(true)
+    .build();
+  advSheet.getRange(`C${DATA_START}:C${lastRow}`).setDataValidation(typeRule);
+
+  // Col D — selection dropdown based on current type value
+  advSheet.getRange(`D${DATA_START}:D${lastRow}`).clearDataValidations();
+
+  for (let row = DATA_START; row <= lastRow; row++) {
+    const typeVal = (advSheet.getRange(row, 3).getValue() || '').toString().trim();
+    let values = null;
+
+    if (typeVal === 'Edge')                                        values = edgeNames;
+    else if (typeVal === 'Attribute')                              values = attrNames;
+    else if (typeVal === 'Skill' || typeVal === 'Skill (Above Attr)') values = skillNames;
+    else continue;
+
+    setDropdown(advSheet.getRange(row, 4), values);
+  }
+
+  Logger.log('Advances dropdowns set.');
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// TRIGGER — single onEdit handler for all tabs
+// ═══════════════════════════════════════════════════════════════
+
+function installTrigger() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Remove ALL existing onEdit triggers to avoid duplicates/conflicts
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getEventType() === ScriptApp.EventType.ON_EDIT)
+    .forEach(t => ScriptApp.deleteTrigger(t));
+
+  ScriptApp.newTrigger('onSheetEdit')
+    .forSpreadsheet(ss)
+    .onEdit()
+    .create();
+
+  Logger.log('onSheetEdit trigger installed.');
+}
+
+
+// ── Master onEdit router ──────────────────────────────────────
+function onSheetEdit(e) {
+  if (!e) return;
+  const sheetName = e.range.getSheet().getName();
+
+  if (sheetName === 'Starting') onStartingEdit(e);
+  if (sheetName === 'Powers')   onPowersEdit(e);
+  if (sheetName === 'Advances') onAdvancesEdit(e);
+}
+
+
+function onStartingEdit(e) {
+  const col = e.range.getColumn();
+  const row = e.range.getRow();
+  if (col !== 1 || row < 2) return;
+
+  const ss      = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet   = e.range.getSheet();
+  const typeVal = (e.value || '').toString().trim().toLowerCase();
+  const nameCell = sheet.getRange(row, 2);
+
+  nameCell.clearContent();
+  nameCell.clearDataValidations();
+
+  let values = null;
+  if (typeVal === 'edge')                                              values = getColValues(ss.getSheetByName('Edges'),       'A', 2);
+  else if (typeVal === 'hindrance-major' || typeVal === 'hindrance-minor') values = getColValues(ss.getSheetByName('Hindrances'),  'A', 2);
+  else if (typeVal === 'attribute')                                    values = getColValues(ss.getSheetByName('Attributes'),   'A', 2);
+  else if (typeVal === 'skill')                                        values = getColValues(ss.getSheetByName('Skills'),       'A', 2);
+  else return;
+
+  setDropdown(nameCell, values);
+}
+
+
+function onPowersEdit(e) {
+  const col = e.range.getColumn();
+  const row = e.range.getRow();
+  if (col !== 1 || row < 2) return;
+
+  const ss       = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet    = e.range.getSheet();
+  const nameCell = sheet.getRange(row, 2);
+
+  nameCell.clearContent();
+  nameCell.clearDataValidations();
+
+  setDropdown(nameCell, getColValues(ss.getSheetByName('SPCPowers'), 'A', 2));
+}
+
+
+function onAdvancesEdit(e) {
+  const col = e.range.getColumn();
+  const row = e.range.getRow();
+  if (col !== 3 || row < 2) return;
+
+  const ss      = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet   = e.range.getSheet();
+  const typeVal = (e.value || '').toString().trim();
+  const selCell = sheet.getRange(row, 4);
+
+  selCell.clearContent();
+  selCell.clearDataValidations();
+
+  let values = null;
+  if (typeVal === 'Edge')                                            values = getColValues(ss.getSheetByName('Edges'),      'A', 2);
+  else if (typeVal === 'Attribute')                                  values = getColValues(ss.getSheetByName('Attributes'), 'A', 2);
+  else if (typeVal === 'Skill' || typeVal === 'Skill (Above Attr)') values = getColValues(ss.getSheetByName('Skills'),     'A', 2);
+  else return;
+
+  setDropdown(selCell, values);
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+
+function getColValues(sheet, col, startRow) {
+  if (!sheet) return [];
+  return sheet
+    .getRange(`${col}${startRow}:${col}${sheet.getLastRow()}`)
+    .getValues()
+    .flat()
+    .filter(v => v !== '' && v !== null && v !== undefined)
+    .map(v => v.toString().trim());
+}
+
+function setDropdown(cell, values) {
+  if (!values || values.length === 0) return;
+  const rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(values, true)
+    .setAllowInvalid(true)
+    .build();
+  cell.setDataValidation(rule);
+}

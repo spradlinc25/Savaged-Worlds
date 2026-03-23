@@ -243,7 +243,7 @@ function computeProgressionState() {
         const scopeStr = token.scope ? ` (${token.scope.replace(/_/g,' ')})` : '';
         ps.rollMods[token.target].push({
           val:   token.value,
-          label: `${titleCase(sourceName)} (${sign}${scopeStr})`,
+          label: `${(sourceName || '').replace(/\b\w/g, c => c.toUpperCase())} (${sign}${scopeStr})`,
           scope: token.scope || null,
         });
         break;
