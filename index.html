@@ -194,44 +194,50 @@
 <div id="tab-sheet" class="tab active">
   <div id="sheet-loading" class="loading"><span class="loading-spinner"></span>Loading character data from Google Sheets...</div>
   <div id="sheet-content" style="display:none">
-    <!-- TOP ROW: Attrs+Skills combined | Hindrances+Edges -->
-    <div style="display:grid;grid-template-columns:auto 1fr;gap:16px;margin-bottom:16px;" class="char-top-grid">
-      <div class="card" style="width:360px;flex-shrink:0;">
-        <div class="section-header">Attributes</div>
-        <table class="attr-table"><thead><tr><th>Attribute</th><th colspan="5" style="text-align:center">Die Steps</th><th style="text-align:right">Current</th></tr></thead>
-        <tbody id="attr-body"></tbody></table>
-        <div style="border-top:1px solid var(--border);margin:12px 0 10px;"></div>
-        <div class="section-header" style="justify-content:space-between"><span>Skills</span><button onclick="toggleUnskilled()" id="unskilled-toggle-btn" class="reset-btn" style="font-size:10px;padding:2px 8px;top:0;position:relative" title="Show or hide unskilled skills">Hide Unskilled</button></div>
-        <table class="attr-table"><thead><tr><th>Skill</th><th colspan="5" style="text-align:center">Die Steps</th><th style="text-align:right">Current</th></tr></thead>
-        <tbody id="skill-body"></tbody></table>
+    <!-- TOP ROW: Attrs+Skills | Combat Notes | Hindrances+Edges -->
+    <div class="char-top-grid">
+      <div class="char-col-left">
+        <div class="card">
+          <div class="section-header">Attributes</div>
+          <table class="attr-table"><thead><tr><th>Attribute</th><th colspan="5" style="text-align:center">Die Steps</th><th style="text-align:right">Current</th></tr></thead>
+          <tbody id="attr-body"></tbody></table>
+          <div style="border-top:1px solid var(--border);margin:12px 0 10px;"></div>
+          <div class="section-header" style="justify-content:space-between"><span>Skills</span><button onclick="toggleUnskilled()" id="unskilled-toggle-btn" class="reset-btn" style="font-size:10px;padding:2px 8px;top:0;position:relative" title="Show or hide unskilled skills">Hide Unskilled</button></div>
+          <table class="attr-table"><thead><tr><th>Skill</th><th colspan="5" style="text-align:center">Die Steps</th><th style="text-align:right">Current</th></tr></thead>
+          <tbody id="skill-body"></tbody></table>
+        </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="char-col-center">
+        <div class="card mb">
+          <div class="section-header">Combat Notes</div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;min-width:200px;">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:4px">Active Penalties</div>
+              <div style="display:flex;gap:20px;">
+                <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Wound</div><div class="pval ok" id="wound-pen-display" style="font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:bold">0</div></div>
+                <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Fatigue</div><div class="pval ok" id="fatigue-pen-display" style="font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:bold">0</div></div>
+              </div>
+            </div>
+            <div id="ff-combat-notes" style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;min-width:220px;">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:6px">Force Field — Damage Reduction</div>
+              <div id="ff-status-detail" style="font-size:13px;color:var(--text-dim)">Force Field is off. Toughness at base.</div>
+            </div>
+            <div id="nos-card" style="display:none;background:#0a1a0a;border:1px solid var(--green);border-radius:4px;padding:10px 14px;">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:4px">★ Nerves of Steel</div>
+              <div id="nos-detail-text" style="font-size:13px;color:var(--text)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="char-col-right">
         <div class="card" style="flex:1"><div class="section-header card-toggle" onclick="toggleCard('hindrances-list')">Hindrances <span class="card-arrow">▼</span></div><div id="hindrances-list"></div></div>
         <div class="card" style="flex:1"><div class="section-header card-toggle" onclick="toggleCard('edges-list')">Edges <span class="card-arrow">▼</span></div><div id="edges-list"></div></div>
       </div>
     </div>
-    <div class="card mb" id="sp-summary-card">
-      <div class="section-header card-toggle" onclick="toggleCard('sp-summary')">Active Super Powers <span class="card-arrow">▼</span></div>
-      <div id="sp-summary"></div>
-    </div>
-    <div class="card mb">
-      <div class="section-header">Combat Notes</div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;min-width:200px;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:4px">Active Penalties</div>
-          <div style="display:flex;gap:20px;">
-            <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Wound</div><div class="pval ok" id="wound-pen-display" style="font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:bold">0</div></div>
-            <div><div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Fatigue</div><div class="pval ok" id="fatigue-pen-display" style="font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:bold">0</div></div>
-          </div>
-        </div>
-        <div id="ff-combat-notes" style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:10px 14px;min-width:220px;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:6px">Force Field — Damage Reduction</div>
-          <div id="ff-status-detail" style="font-size:13px;color:var(--text-dim)">Force Field is off. Toughness at base.</div>
-        </div>
-        <div id="nos-card" style="display:none;background:#0a1a0a;border:1px solid var(--green);border-radius:4px;padding:10px 14px;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:4px">★ Nerves of Steel</div>
-          <div id="nos-detail-text" style="font-size:13px;color:var(--text)"></div>
-        </div>
+    <div class="char-powers-row">
+      <div class="card mb" id="sp-summary-card">
+        <div class="section-header card-toggle" onclick="toggleCard('sp-summary')">Active Super Powers <span class="card-arrow">▼</span></div>
+        <div id="sp-summary"></div>
       </div>
     </div>
     <div class="card mb">

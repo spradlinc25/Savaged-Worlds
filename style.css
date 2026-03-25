@@ -127,6 +127,7 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
   .ref-search{font-size:13px;padding:6px 10px;}
   /* Char top grid — stack to single col */
   .char-top-grid{grid-template-columns:1fr !important;}
+  .char-col-left,.char-col-center,.char-col-right{gap:10px;}
   /* Attrs/Skills — tighter rows */
   .attr-table td{padding:2px 0;}
   .aname{font-size:13px;min-width:80px;}
@@ -148,6 +149,11 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .mb{margin-bottom:16px;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;height:auto;overflow:visible;}
+
+/* CHARACTER TAB — 3-column grid */
+.char-top-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:16px;align-items:start;}
+.char-col-left,.char-col-center,.char-col-right{display:flex;flex-direction:column;gap:16px;}
+.char-powers-row{margin-bottom:16px;}
 
 /* ATTRS / SKILLS */
 .attr-table{width:100%;border-collapse:collapse;}
