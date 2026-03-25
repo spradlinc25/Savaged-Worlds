@@ -340,42 +340,66 @@ function titleCase(str) {
 // RENDER: SUPER POWERS SUMMARY
 // ============================================================
 function renderSPSummary() {
-  const container=document.getElementById('sp-summary');
+  const container = document.getElementById('sp-summary');
   { const hdr=container.previousElementSibling; if(hdr){hdr.classList.remove('card-toggle');hdr.removeAttribute('onclick');const a=hdr.querySelector('.card-arrow');if(a)a.remove();} container.classList.remove('card-collapsed'); }
-  const active = state.powers.filter(p=>p.active);
-  if(!active.length){
-    container.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:13px">No super powers active. Toggle tiers/powers in the Power Tiers tab.</div>';
+
+  // Filter: active only, exclude attribute/skill advances
+  const EXCLUDE = new Set(['super attribute', 'super skill']);
+  const activePowers = state.powers.filter(p =>
+    p.active &&
+    p.name &&
+    p.name.trim() !== '' &&
+    !EXCLUDE.has((p.name||'').toLowerCase().trim())
+  );
+
+  if (!activePowers.length) {
+    container.innerHTML = '<div style="color:var(--text-dim);font-style:italic;font-size:13px">No super powers active. Toggle tiers in the Power Tiers tab.</div>';
     return;
   }
-  const byTier={};
-  active.forEach(p=>{
-    const tier=state.powerTiers.find(t=>t.tier===p.tier)||{title:`Tier ${p.tier}`};
-    const key=tier.title;
-    if(!byTier[key]){byTier[key]={title:key,powers:[]};}
-    byTier[key].powers.push(p);
-  });
-  let html='';
-  Object.values(byTier).forEach(group=>{
-    html+=`<div class="sp-section"><div class="sp-section-header"><span class="sp-section-title">${group.title}</span><span style="font-size:11px;color:var(--text-dim)">Click power to toggle →</span></div>`;
-    const activePow = group.powers.filter(p=>classifyPower(p.name)==='active');
-    const passivePow = group.powers.filter(p=>classifyPower(p.name)==='passive');
-    if (activePow.length) {
-      html+=`<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin:4px 0 3px;font-weight:700">▶ Active</div>`;
-      activePow.forEach(p=>{
-        const idx=state.powers.indexOf(p);
-        html+=`<div class="sp-row sp-on" onclick="togglePowerByIdx(${idx});renderSPSummary()"><div class="sp-check">✓</div><div><div class="sp-name">${p.name}</div><div class="sp-detail">${p.effect}</div></div><div class="sp-spp">${p.spp} SPP</div></div>`;
-      });
+
+  // Deduplicate by name — collect all tiers per power name
+  const seen = {};
+  activePowers.forEach(p => {
+    const key = (p.name||'').toLowerCase().trim();
+    if (!seen[key]) {
+      seen[key] = { name: p.name, effect: p.effect||'', tiers: [], cls: classifyPower(p.name) };
     }
-    if (passivePow.length) {
-      html+=`<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin:8px 0 3px;font-weight:700">◼ Passive (reflected in stats)</div>`;
-      passivePow.forEach(p=>{
-        const idx=state.powers.indexOf(p);
-        html+=`<div class="sp-row sp-on" onclick="togglePowerByIdx(${idx});renderSPSummary()"><div class="sp-check">✓</div><div><div class="sp-name">${p.name}</div><div class="sp-detail">${p.effect}</div></div><div class="sp-spp">${p.spp} SPP</div></div>`;
-      });
+    if (p.tier && !seen[key].tiers.includes(p.tier)) {
+      seen[key].tiers.push(p.tier);
     }
-    html+='</div>';
   });
-  container.innerHTML=html;
+
+  const deduped = Object.values(seen);
+  const active  = deduped.filter(p => p.cls !== 'passive');
+  const passive = deduped.filter(p => p.cls === 'passive');
+
+  function tierBadge(tierNum) {
+    return `<span style="font-size:9px;font-family:'Share Tech Mono',monospace;color:var(--accent2);border:1px solid var(--accent2);border-radius:3px;padding:1px 5px;margin-left:5px">T${tierNum}</span>`;
+  }
+
+  function powerRow(p) {
+    const tierBadges = p.tiers.sort((a,b)=>parseInt(a)-parseInt(b)).map(tierBadge).join('');
+    return `<div class="edge-item${p.cls === 'passive' ? ' passive-item' : ''}">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">
+        <strong>${titleCase(p.name)}</strong>${tierBadges}
+      </div>
+      ${p.effect ? `<div class="edge-effect-text">${p.effect}</div>` : ''}
+    </div>`;
+  }
+
+  let html = '';
+
+  if (active.length) {
+    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent2);margin:6px 0 4px;font-weight:700">▶ Active</div>`;
+    active.forEach(p => { html += powerRow(p); });
+  }
+
+  if (passive.length) {
+    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin:10px 0 4px;font-weight:700">◼ Passive (reflected in stats)</div>`;
+    passive.forEach(p => { html += powerRow(p); });
+  }
+
+  container.innerHTML = html;
 }
 
 // ============================================================
