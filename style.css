@@ -135,6 +135,7 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
       "powers" !important;
   }
   .char-col-left,.char-col-center,.char-col-right{gap:10px;}
+  .char-col-right .card:last-child,.char-col-powers .card:last-child{flex:none;}
   /* Attrs/Skills — tighter rows */
   .attr-table td{padding:2px 0;}
   .aname{font-size:13px;min-width:80px;}
@@ -165,13 +166,15 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
     "left   center  right"
     "powers powers  right";
   gap:16px;
-  align-items:start;
+  align-items:stretch;
   margin-bottom:16px;
 }
 .char-col-left   {grid-area:left;   display:flex;flex-direction:column;gap:16px;}
 .char-col-center {grid-area:center; display:flex;flex-direction:column;gap:16px;}
 .char-col-right  {grid-area:right;  display:flex;flex-direction:column;gap:16px;}
-.char-col-powers {grid-area:powers;}
+.char-col-powers {grid-area:powers; display:flex;flex-direction:column;gap:16px;}
+.char-col-right .card:last-child,.char-col-powers .card:last-child{flex:1;}
+.subgroup-body.collapsed{display:none;}
 
 /* ATTRS / SKILLS */
 .attr-table{width:100%;border-collapse:collapse;}

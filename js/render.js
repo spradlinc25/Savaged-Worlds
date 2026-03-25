@@ -70,6 +70,7 @@ function toggleUnskilled() {
 // ============================================================
 function renderHindrances() {
   const el=document.getElementById('hindrances-list');
+  { const hdr=el.previousElementSibling; if(hdr){hdr.classList.remove('card-toggle');hdr.removeAttribute('onclick');const a=hdr.querySelector('.card-arrow');if(a)a.remove();} el.classList.remove('card-collapsed'); }
 
   // Collect hindrances two ways:
   // 1. bolohad=TRUE in the Hindrances reference tab (legacy)
@@ -181,20 +182,28 @@ function edgeGroup(items) {
   const passive   = items.filter(i=>i.cls==='passive');
   let html = '';
   if (trackers.length) {
-    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin:6px 0 3px;font-weight:700">⬡ Tracker (limited uses)</div>`;
+    html += subgroupHdr('⬡ Tracker (limited uses)', 'var(--accent2)');
+    html += '<div class="subgroup-body">';
     trackers.forEach(i => { html += i.html; });
+    html += '</div>';
   }
   if (activates.length) {
-    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin:8px 0 3px;font-weight:700">▶ Activate / Trigger</div>`;
+    html += subgroupHdr('▶ Activate / Trigger', 'var(--accent2)');
+    html += '<div class="subgroup-body">';
     activates.forEach(i => { html += i.html; });
+    html += '</div>';
   }
   if (always.length) {
-    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin:8px 0 3px;font-weight:700">● Always Active</div>`;
+    html += subgroupHdr('● Always Active', 'var(--green)');
+    html += '<div class="subgroup-body">';
     always.forEach(i => { html += i.html; });
+    html += '</div>';
   }
   if (passive.length) {
-    html += `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin:8px 0 3px;font-weight:700">◼ Passive (reflected in stats)</div>`;
+    html += subgroupHdr('◼ Passive (reflected in stats)', 'var(--text-dim)');
+    html += '<div class="subgroup-body">';
     passive.forEach(i => { html += i.html; });
+    html += '</div>';
   }
   return html;
 }
@@ -202,6 +211,7 @@ function edgeGroup(items) {
 function renderEdges() {
   const el = document.getElementById('edges-list');
   if (!el) return;
+  { const hdr=el.previousElementSibling; if(hdr){hdr.classList.remove('card-toggle');hdr.removeAttribute('onclick');const a=hdr.querySelector('.card-arrow');if(a)a.remove();} el.classList.remove('card-collapsed'); }
 
   const edges = getActiveEdges();   // from engine.js — { name, effect, type }
   if (!edges.length) {
@@ -218,7 +228,8 @@ function renderEdges() {
 
   // ── ACTIVE edges ────────────────────────────────────────────
   if (active.length) {
-    html += sectionHeader('● Always Active', 'var(--green)');
+    html += subgroupHdr('● Always Active', 'var(--green)');
+    html += '<div class="subgroup-body">';
     active.forEach(e => {
       html += `
         <div class="edge-item edge-active edge-on">
@@ -230,11 +241,13 @@ function renderEdges() {
           </div>
         </div>`;
     });
+    html += '</div>';
   }
 
   // ── TRACKER edges ────────────────────────────────────────────
   if (trackers.length) {
-    html += sectionHeader('◈ Trackers (Session Resources)', 'var(--accent2)');
+    html += subgroupHdr('◈ Trackers (Session Resources)', 'var(--accent2)');
+    html += '<div class="subgroup-body">';
     trackers.forEach(e => {
       const used     = !!state.edgeTrackers[e.name];
       const fallback = EDGE_FALLBACK_MAP[e.name] || {};
@@ -258,11 +271,13 @@ function renderEdges() {
     html += `<div style="text-align:right;margin-top:8px">
       <button class="btn-secondary" onclick="resetEdgeTrackers()">↺ Reset All Trackers</button>
     </div>`;
+    html += '</div>';
   }
 
   // ── ACTIVATE edges ───────────────────────────────────────────
   if (activates.length) {
-    html += sectionHeader('▶ Activate / Trigger', 'var(--accent)');
+    html += subgroupHdr('▶ Activate / Trigger', 'var(--accent)');
+    html += '<div class="subgroup-body">';
     activates.forEach(e => {
       const isOn = !!state.activeEdgeToggles[e.name];
       html += `
@@ -279,11 +294,13 @@ function renderEdges() {
           </div>
         </div>`;
     });
+    html += '</div>';
   }
 
   // ── PASSIVE edges ────────────────────────────────────────────
   if (passive.length) {
-    html += sectionHeader('◼ Passive (reflected in stats)', 'var(--text-dim)');
+    html += subgroupHdr('◼ Passive (reflected in stats)', 'var(--text-dim)');
+    html += '<div class="subgroup-body">';
     passive.forEach(e => {
       const fallback = EDGE_FALLBACK_MAP[e.name] || {};
       const note     = fallback.passiveNote || '';
@@ -298,6 +315,7 @@ function renderEdges() {
           ${e.effect ? `<div class="edge-effect-text">${e.effect}</div>` : ''}
         </div>`;
     });
+    html += '</div>';
   }
 
   el.innerHTML = html;
@@ -307,6 +325,10 @@ function renderEdges() {
 function sectionHeader(label, color) {
   return `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.5px;
                       color:${color};margin:10px 0 4px;font-weight:700">${label}</div>`;
+}
+// Renders a collapsible sub-group header (used in Hindrances + Edges)
+function subgroupHdr(label, color) {
+  return `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:${color};margin:8px 0 3px;font-weight:700;cursor:pointer;user-select:none" onclick="var b=this.nextElementSibling;b.classList.toggle('collapsed');this.querySelector('.sg-arr').textContent=b.classList.contains('collapsed')?'▶':'▼'">${label} <span class="sg-arr">▼</span></div>`;
 }
 
 // Converts "berserk" → "Berserk", "improved first strike" → "Improved First Strike"
@@ -319,6 +341,7 @@ function titleCase(str) {
 // ============================================================
 function renderSPSummary() {
   const container=document.getElementById('sp-summary');
+  { const hdr=container.previousElementSibling; if(hdr){hdr.classList.remove('card-toggle');hdr.removeAttribute('onclick');const a=hdr.querySelector('.card-arrow');if(a)a.remove();} container.classList.remove('card-collapsed'); }
   const active = state.powers.filter(p=>p.active);
   if(!active.length){
     container.innerHTML='<div style="color:var(--text-dim);font-style:italic;font-size:13px">No super powers active. Toggle tiers/powers in the Power Tiers tab.</div>';
