@@ -135,9 +135,9 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
       "powers" !important;
   }
   .char-col-left,.char-col-center,.char-col-right{gap:10px;}
-  .char-col-right{height:auto;}
+  .char-col-right{align-self:auto;height:auto;display:flex;flex-direction:column;gap:10px;}
   .char-col-right .card:first-child{flex:0 0 auto;}
-  .char-col-right .card:last-child{flex:0 0 auto;overflow-y:visible;max-height:none;scrollbar-width:none;}
+  .char-col-right .card:last-child{flex:0 0 auto;min-height:0;overflow-y:visible;max-height:none;scrollbar-width:none;}
   .char-col-right .card:last-child::-webkit-scrollbar{display:none;}
   .char-col-powers .card:last-child{flex:0 0 auto;}
   /* Attrs/Skills — tighter rows */
@@ -175,13 +175,11 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 }
 .char-col-left   {grid-area:left;   display:flex;flex-direction:column;gap:16px;}
 .char-col-center {grid-area:center; display:flex;flex-direction:column;gap:16px;}
-.char-col-right  {grid-area:right;  display:flex;flex-direction:column;gap:16px;height:100%;align-self:stretch;}
+.char-col-right  {grid-area:right;  align-self:stretch;height:100%;display:flex;flex-direction:column;gap:16px;}
 .char-col-powers {grid-area:powers; display:flex;flex-direction:column;gap:16px;}
 .char-col-right .card:first-child{flex:0 0 auto;}
-.char-col-right .card:last-child{flex:1 1 0;overflow-y:auto;min-height:0;}
+.char-col-right .card:last-child{flex:1 1 0;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
 .char-col-powers .card:last-child{flex:1 1 auto;}
-/* Styled scrollbars — visible thin track on Edges card */
-.char-col-right .card:last-child{scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
 .char-col-right .card:last-child::-webkit-scrollbar{width:5px;}
 .char-col-right .card:last-child::-webkit-scrollbar-track{background:transparent;}
 .char-col-right .card:last-child::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
