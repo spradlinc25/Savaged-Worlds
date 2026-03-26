@@ -175,7 +175,7 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
 }
 .char-col-left   {grid-area:left;   display:flex;flex-direction:column;gap:16px;}
 .char-col-center {grid-area:center; display:flex;flex-direction:column;gap:16px;}
-.char-col-right  {grid-area:right;  display:flex;flex-direction:column;gap:16px;height:100%;}
+.char-col-right  {grid-area:right;  display:flex;flex-direction:column;gap:16px;height:100%;align-self:stretch;}
 .char-col-powers {grid-area:powers; display:flex;flex-direction:column;gap:16px;}
 .char-col-right .card:first-child{flex:0 0 auto;}
 .char-col-right .card:last-child{flex:1 1 0;overflow-y:auto;min-height:0;}
