@@ -135,8 +135,9 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
       "powers" !important;
   }
   .char-col-left,.char-col-center,.char-col-right{gap:10px;}
-  .char-col-right .card:last-child,.char-col-powers .card:last-child{flex:none;min-height:0;}
-  .char-col-right .card{overflow:visible;}
+  .char-col-right .card:first-child{flex:0 0 auto;}
+  .char-col-right .card:last-child{flex:0 0 auto;overflow-y:visible;max-height:none;}
+  .char-col-powers .card:last-child{flex:0 0 auto;}
   /* Attrs/Skills — tighter rows */
   .attr-table td{padding:2px 0;}
   .aname{font-size:13px;min-width:80px;}
@@ -167,15 +168,16 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
     "left   center  right"
     "powers powers  right";
   gap:16px;
-  align-items:stretch;
+  align-items:start;
   margin-bottom:16px;
 }
 .char-col-left   {grid-area:left;   display:flex;flex-direction:column;gap:16px;}
 .char-col-center {grid-area:center; display:flex;flex-direction:column;gap:16px;}
-.char-col-right  {grid-area:right;  display:flex;flex-direction:column;gap:16px;align-self:stretch;}
+.char-col-right  {grid-area:right;  display:flex;flex-direction:column;gap:16px;}
 .char-col-powers {grid-area:powers; display:flex;flex-direction:column;gap:16px;}
-.char-col-right .card:last-child,.char-col-powers .card:last-child{flex:1;min-height:0;}
-.char-col-right .card{overflow:visible;}
+.char-col-right .card:first-child{flex:0 0 auto;}
+.char-col-right .card:last-child{flex:1 1 auto;overflow-y:auto;max-height:680px;}
+.char-col-powers .card:last-child{flex:1 1 auto;}
 .subgroup-body.collapsed{display:none;}
 
 /* ATTRS / SKILLS */
