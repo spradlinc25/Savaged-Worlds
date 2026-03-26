@@ -334,7 +334,25 @@ function subgroupHdr(label, color) {
 // ============================================================
 // COMBAT NOTES — dynamic flag-driven reminder cards
 // ============================================================
-const COMBAT_NOTE_REGISTRY = {
+
+// Supersession pairs — if the improved version is active, suppress the base.
+// Key = base flag key, value = improved flag key that replaces it.
+const COMBAT_NOTE_SUPERSEDES = {
+  'frenzy':           'imp_frenzy',
+  'sweep':            'imp_sweep',
+  'nos':              'imp_nos',
+  'block':            'imp_block',
+  'first_strike':     'imp_first_strike',
+  'counterattack':    'imp_counterattack',
+  'level_headed':     'imp_level_headed',
+  'hard_to_kill':     'harder_to_kill',
+  'nerves_of_steel':  'imp_nerves_of_steel',
+};
+
+// Override registry — entries here replace the auto-generated card for that key.
+// Use for custom text, dynamic text, or color overrides.
+// Set to null to fully suppress a key (it will never render).
+const COMBAT_NOTE_OVERRIDES = {
   nos: {
     label: '★ Nerves Of Steel',
     color: 'var(--green)',
@@ -345,72 +363,77 @@ const COMBAT_NOTE_REGISTRY = {
         : 'Nerves of Steel active — first Wound penalty ignored.';
     }
   },
-  imp_nos: null, // handled by nos entry via getWoundPenaltyIgnore()
-  hardy: {
-    label: '◼ Hardy',
-    color: 'var(--blue)',
-    text: () => 'Hardy active — a second Shaken result in combat does not cause a Wound.'
+  imp_nos: {
+    label: '★ Imp. Nerves Of Steel',
+    color: 'var(--green)',
+    text: () => 'Imp. Nerves of Steel active — first 2 Wound penalties ignored.'
   },
-  take_the_hit: {
-    label: '◈ Take The Hit',
-    color: 'var(--accent2)',
-    text: () => 'Free reroll on Soak rolls once per round.'
-  },
-  frenzy: {
-    label: '▶ Frenzy',
-    color: 'var(--accent)',
-    text: () => {
-      const hasImp = progHasFlag('combat_note:imp_frenzy');
-      return hasImp
-        ? 'Imp. Frenzy active — one extra Fighting attack per round at no penalty.'
-        : 'Frenzy active — one extra Fighting attack per round at −2 penalty.';
-    }
-  },
-  imp_frenzy: null, // handled by frenzy entry
-  sweep: {
-    label: '▶ Sweep',
-    color: 'var(--accent)',
-    text: () => {
-      const hasImp = progHasFlag('combat_note:imp_sweep');
-      return hasImp
-        ? 'Imp. Sweep active — attack all adjacent foes with no penalty.'
-        : 'Sweep active — attack all adjacent foes at −2 penalty.';
-    }
-  },
-  imp_sweep: null, // handled by sweep entry
 };
 
 function renderCombatNoteFlags() {
   const container = document.getElementById('combat-notes-flags');
   if (!container) return;
 
+  // Collect all active combat_note flags from progState
+  const ps = getProgState();
+  const activeKeys = new Set();
+  for (const flag of ps.flags) {
+    if (flag.startsWith('combat_note:')) {
+      activeKeys.add(flag.slice('combat_note:'.length));
+    }
+  }
+
+  // Also fire nos/imp_nos from wound penalty ignore for backwards compat
   const nosIgnore = getWoundPenaltyIgnore();
+  if (nosIgnore === 1) activeKeys.add('nos');
+  if (nosIgnore === 2) { activeKeys.add('nos'); activeKeys.add('imp_nos'); }
+
+  // Apply supersession — if improved version is active, remove the base key
+  for (const [base, improved] of Object.entries(COMBAT_NOTE_SUPERSEDES)) {
+    if (activeKeys.has(improved)) activeKeys.delete(base);
+  }
+
+  if (!activeKeys.size) {
+    container.innerHTML = '';
+    return;
+  }
 
   let html = '';
 
-  for (const [key, entry] of Object.entries(COMBAT_NOTE_REGISTRY)) {
-    if (!entry) continue;
+  for (const key of activeKeys) {
+    // Check for explicit null suppression
+    if (COMBAT_NOTE_OVERRIDES.hasOwnProperty(key) && COMBAT_NOTE_OVERRIDES[key] === null) continue;
 
-    let active = false;
-    if (key === 'nos') {
-      active = nosIgnore > 0 || progHasFlag('combat_note:nos') || progHasFlag('combat_note:imp_nos');
-    } else if (key === 'frenzy') {
-      active = progHasFlag('combat_note:frenzy') || progHasFlag('combat_note:imp_frenzy');
-    } else if (key === 'sweep') {
-      active = progHasFlag('combat_note:sweep') || progHasFlag('combat_note:imp_sweep');
-    } else {
-      active = progHasFlag(`combat_note:${key}`);
+    // Use override if present, otherwise auto-generate from edgesRef
+    if (COMBAT_NOTE_OVERRIDES[key]) {
+      const entry = COMBAT_NOTE_OVERRIDES[key];
+      html += combatNoteCard(entry.label, entry.color, entry.text());
+      continue;
     }
 
-    if (!active) continue;
+    // Auto-generate: look up edge name + effect from edgesRef
+    // key uses underscores — convert to spaces for lookup, try both
+    const keySpaced = key.replace(/_/g, ' ');
+    const ref = state.edgesRef.find(e =>
+      (e.name || '').toLowerCase().trim() === keySpaced.toLowerCase() ||
+      (e.name || '').toLowerCase().trim() === key.toLowerCase()
+    );
 
-    html += `<div style="background:#0a1a0a;border:1px solid ${entry.color};border-radius:4px;padding:10px 14px;margin-top:8px;">
-      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:${entry.color};margin-bottom:4px">${entry.label}</div>
-      <div style="font-size:13px;color:var(--text)">${entry.text()}</div>
-    </div>`;
+    const label = ref ? titleCase(ref.name) : titleCase(keySpaced);
+    const text  = ref ? (ref.effect || '') : '';
+    const color = 'var(--accent2)';
+
+    html += combatNoteCard(label, color, text);
   }
 
   container.innerHTML = html;
+}
+
+function combatNoteCard(label, color, text) {
+  return `<div style="background:#0a1a0a;border:1px solid ${color};border-radius:4px;padding:10px 14px;margin-top:8px;">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:${color};margin-bottom:4px">${label}</div>
+    ${text ? `<div style="font-size:13px;color:var(--text)">${text}</div>` : ''}
+  </div>`;
 }
 
 // Converts "berserk" → "Berserk", "improved first strike" → "Improved First Strike"
