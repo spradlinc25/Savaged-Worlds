@@ -375,11 +375,15 @@ function renderCombatNoteFlags() {
   if (!container) return;
 
   // Collect all active combat_note flags from progState
+  function normalizeKey(raw) {
+    return raw.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  }
+
   const ps = getProgState();
   const activeKeys = new Set();
   for (const flag of ps.flags) {
     if (flag.startsWith('combat_note:')) {
-      activeKeys.add(flag.slice('combat_note:'.length));
+      activeKeys.add(normalizeKey(flag.slice('combat_note:'.length)));
     }
   }
 
@@ -412,14 +416,13 @@ function renderCombatNoteFlags() {
     }
 
     // Auto-generate: look up edge name + effect from edgesRef
-    // key uses underscores — convert to spaces for lookup, try both
-    const keySpaced = key.replace(/_/g, ' ');
-    const ref = state.edgesRef.find(e =>
-      (e.name || '').toLowerCase().trim() === keySpaced.toLowerCase() ||
-      (e.name || '').toLowerCase().trim() === key.toLowerCase()
-    );
+    // Normalize both the key and the ref name the same way for comparison
+    const ref = state.edgesRef.find(e => {
+      const normalized = (e.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+      return normalized === key;
+    });
 
-    const label = ref ? titleCase(ref.name) : titleCase(keySpaced);
+    const label = ref ? titleCase(ref.name) : titleCase(key.replace(/_/g, ' '));
     const text  = ref ? (ref.effect || '') : '';
     const color = 'var(--accent2)';
 
