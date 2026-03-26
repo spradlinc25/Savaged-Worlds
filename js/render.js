@@ -331,6 +331,88 @@ function subgroupHdr(label, color) {
   return `<div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:${color};margin:8px 0 3px;font-weight:700;cursor:pointer;user-select:none" onclick="var b=this.nextElementSibling;b.classList.toggle('collapsed');this.querySelector('.sg-arr').textContent=b.classList.contains('collapsed')?'▶':'▼'">${label} <span class="sg-arr">▼</span></div>`;
 }
 
+// ============================================================
+// COMBAT NOTES — dynamic flag-driven reminder cards
+// ============================================================
+const COMBAT_NOTE_REGISTRY = {
+  nos: {
+    label: '★ Nerves Of Steel',
+    color: 'var(--green)',
+    text: () => {
+      const ignore = getWoundPenaltyIgnore();
+      return ignore === 2
+        ? 'Imp. Nerves of Steel active — first 2 Wound penalties ignored.'
+        : 'Nerves of Steel active — first Wound penalty ignored.';
+    }
+  },
+  imp_nos: null, // handled by nos entry via getWoundPenaltyIgnore()
+  hardy: {
+    label: '◼ Hardy',
+    color: 'var(--blue)',
+    text: () => 'Hardy active — a second Shaken result in combat does not cause a Wound.'
+  },
+  take_the_hit: {
+    label: '◈ Take The Hit',
+    color: 'var(--accent2)',
+    text: () => 'Free reroll on Soak rolls once per round.'
+  },
+  frenzy: {
+    label: '▶ Frenzy',
+    color: 'var(--accent)',
+    text: () => {
+      const hasImp = progHasFlag('combat_note:imp_frenzy');
+      return hasImp
+        ? 'Imp. Frenzy active — one extra Fighting attack per round at no penalty.'
+        : 'Frenzy active — one extra Fighting attack per round at −2 penalty.';
+    }
+  },
+  imp_frenzy: null, // handled by frenzy entry
+  sweep: {
+    label: '▶ Sweep',
+    color: 'var(--accent)',
+    text: () => {
+      const hasImp = progHasFlag('combat_note:imp_sweep');
+      return hasImp
+        ? 'Imp. Sweep active — attack all adjacent foes with no penalty.'
+        : 'Sweep active — attack all adjacent foes at −2 penalty.';
+    }
+  },
+  imp_sweep: null, // handled by sweep entry
+};
+
+function renderCombatNoteFlags() {
+  const container = document.getElementById('combat-notes-flags');
+  if (!container) return;
+
+  const nosIgnore = getWoundPenaltyIgnore();
+
+  let html = '';
+
+  for (const [key, entry] of Object.entries(COMBAT_NOTE_REGISTRY)) {
+    if (!entry) continue;
+
+    let active = false;
+    if (key === 'nos') {
+      active = nosIgnore > 0 || progHasFlag('combat_note:nos') || progHasFlag('combat_note:imp_nos');
+    } else if (key === 'frenzy') {
+      active = progHasFlag('combat_note:frenzy') || progHasFlag('combat_note:imp_frenzy');
+    } else if (key === 'sweep') {
+      active = progHasFlag('combat_note:sweep') || progHasFlag('combat_note:imp_sweep');
+    } else {
+      active = progHasFlag(`combat_note:${key}`);
+    }
+
+    if (!active) continue;
+
+    html += `<div style="background:#0a1a0a;border:1px solid ${entry.color};border-radius:4px;padding:10px 14px;margin-top:8px;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:${entry.color};margin-bottom:4px">${entry.label}</div>
+      <div style="font-size:13px;color:var(--text)">${entry.text()}</div>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
 // Converts "berserk" → "Berserk", "improved first strike" → "Improved First Strike"
 function titleCase(str) {
   return (str || '').replace(/\b\w/g, c => c.toUpperCase());
@@ -673,15 +755,7 @@ function updateWoundDisplay() {
     }
   }
 
-  // NOS card in combat notes
-  const nosCard = document.getElementById('nos-card');
-  const nosText = document.getElementById('nos-detail-text');
-  if (nosCard && nosText) {
-    nosCard.style.display = nosIgnore > 0 ? 'block' : 'none';
-    nosText.textContent = nosIgnore === 2
-      ? 'Imp. Nerves of Steel active — first 2 Wound penalties ignored.'
-      : 'Nerves of Steel active — first Wound penalty ignored.';
-  }
+  renderCombatNoteFlags();
 
   // Auto-trigger Shaken if incapacitated
   if (state.woundIncap && !state.shaken) {
@@ -1417,6 +1491,7 @@ function fullRefresh() {
   updateShakenDisplay();
   updateFFDisplay();
   updateStatusBar(); // calls renderWeapons, renderSPSummary, saveState
+  renderCombatNoteFlags();
 }
 
 // ============================================================
