@@ -135,9 +135,9 @@ nav button.active{color:var(--accent);border-bottom-color:var(--accent);}
       "powers" !important;
   }
   .char-col-left,.char-col-center,.char-col-right{gap:10px;}
-  .char-col-right{align-self:auto;height:auto;display:flex;flex-direction:column;gap:10px;}
-  .char-col-right .card:first-child{flex:0 0 auto;height:auto;}
-  .char-col-right .card:last-child{flex:0 0 auto;height:auto;min-height:0;overflow-y:visible;max-height:none;scrollbar-width:none;}
+  .char-col-right{align-self:auto !important;height:auto !important;display:flex;flex-direction:column;gap:10px;}
+  .char-col-right .card:first-child{flex:0 0 auto !important;height:auto !important;}
+  .char-col-right .card:last-child{flex:0 0 auto !important;height:auto !important;min-height:0;overflow-y:visible;max-height:none;scrollbar-width:none;}
   .char-col-right .card:last-child::-webkit-scrollbar{display:none;}
   .char-col-powers .card:last-child{flex:0 0 auto;}
   /* Attrs/Skills — tighter rows */
